@@ -1,0 +1,49 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="{% static 'position_similarity/drag_and_drop.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static "position_similarity/styles.css" %}">
+</head>
+<body>
+
+<header>
+    <div class="centered_container">Grizzly</div>
+</header>
+
+<section id="canvas" class="centered_container">
+    <h1>Query</h1>
+    <div id="container"></div>
+    <input type="text" name="image_url" value="https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"
+           id="image_url">
+    <button type="button" id="add_image">Add image</button>
+    <button type="button" id="send_request">Send request</button>
+</section>
+
+<div id="results">
+    <section id="ranking" class="centered_container">
+        <h1>Results</h1>
+        <div class="ranking_table">
+            {% for rank_item in ranking_results %}
+                <div class="img-container">
+                    <img src="{{ rank_item.img_src }}">
+                </div>
+
+                {% if forloop.counter|divisibleby:4 %}
+                    <div class="clear"></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="clear"></div>
+    </section>
+</div>
+<footer></footer>
+</body>
+</html>
+
