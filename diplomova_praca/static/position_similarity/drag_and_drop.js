@@ -2,15 +2,16 @@ var available_id = 0;
 
 function getAllImagesPositions() {
     let images = jQuery(".image");
+    let canvas = jQuery("#container");
     let images_information = [];
     for (var i = 0; i < images.length; i++) {
         let image = images.eq(i);
         images_information.push({
             url: image.children("img").attr("src"),
-            top: image.position().top,
-            left: image.position().left,
-            width: image.width(),
-            height: image.height()
+            top: image.position().top / canvas.height(),
+            left: image.position().left / canvas.width(),
+            width: image.width() / canvas.width(),
+            height: image.height() / canvas.height()
         })
     }
 
@@ -24,11 +25,18 @@ function sendRequest() {
     $.ajax({
         type: "POST",
         dataType: 'json',
-        url: 'position_similarity/',
+        url: "{% url 'position_similarity_post' %}",
         data: {
             "json_data": JSON.stringify(getAllImagesPositions())
         },
-
+        success: [function (response) {
+            console.log("Success", response);
+            $('<p>Text</p>').appendTo('#msg');
+        }],
+        failure: [function (data) {
+            console.log("Failure", data);
+            $('<p>Text</p>').appendTo('#msg');
+        }]
     });
 }
 

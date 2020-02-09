@@ -1,10 +1,11 @@
 import collections
+from typing import List
 
 from .image_processing import image_array_as_model_input, split_image_to_regions
 import numpy as np
 
-from collections import namedtuple
-from  diplomova_praca_lib.position_similarity.models import  RegionFeatures
+from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
+
 
 class EvaluatingBasedOnSpatialDimensions:
     def __init__(self, similarity_measure, model):
@@ -46,3 +47,14 @@ class EvaluatingRegions:
         HighestSimilarity = collections.namedtuple("HighestSimilarity", ["similarity", "index"])
         similarities = [self.similarity_measure(query, region_features) for region_features in regions_features]
         return HighestSimilarity(similarity=np.max(similarities), index=np.argmax(similarities))
+
+    @staticmethod
+    def regions_overlap_ordering(query_crop: Crop, image_crops: List[Crop]):
+        # Returns ordering of image  crops (their indexes) based on the overlap
+        ious = [query_crop.iou(image_crop) for image_crop in image_crops]
+        ious_sorted_indexes = reversed(sorted(range(len(ious)), key=lambda k: ious[k]))
+
+        return ious_sorted_indexes
+
+
+

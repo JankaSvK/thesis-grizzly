@@ -1,43 +1,70 @@
-from django.http import HttpResponse
+import logging
+
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 import json
 
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 
+from diplomova_praca_lib.position_similarity.models import UrlImage, PositionSimilarityRequest, Crop
+from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request
+
 
 def index(request):
-    context = {
-        "ranking_results": [
-            {"img_src": "/static/images/lookup/00001040.jpg"},
-            {"img_src": "https://www.galeje.sk/web_object/12510_s.png"},
-            {"img_src": "https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"},
-            {"img_src": "https://www.galeje.sk/web_object/12510_s.png"},
-            {"img_src": "https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"},
-            {"img_src": "https://www.galeje.sk/web_object/12510_s.png"},
-            {"img_src": "https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"},
-            {"img_src": "https://www.galeje.sk/web_object/12510_s.png"},
-            {"img_src": "https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"},
-            {"img_src": "https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"},
-            {"img_src": "https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"},
-            {"img_src": "https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"},
-            {"img_src": "https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"},
-        ]
-    }
-    return render(request, 'position_similarity/index.html', context)
-
+    return HttpResponseRedirect("position_similarity/")
 
 @csrf_exempt
 def position_similarity(request):
-    # 1. Spracuje poziadavok
-    # 2. Vyrenderuje novu stranku s novymi obrazkami
-    # 3. Zachova ten request v tom platne
+    return render(request, 'position_similarity/index.html', {})
 
-    request_data = request.POST
-    request_data_list = json.loads(request_data['json_data'])
+#
+# @csrf_exempt
+# def position_similarity(request):
+#     logging.info("Position similarity request.")
+#
+#     THUMBNAILS_PATH = "/static/images/lookup/thumbnails/"
+#
+#     if not request.POST:
+#         logging.info("No input images.")
+#         print("ERRRRORRR")
+#         return render(request, 'position_similarity/index.html', {"blabla": "Bla Bla Err"})
+#
+#     json_request_images = json.loads(request.POST['json_data'])
+#
+#     gallery_ids = position_similarity_request(json_to_position_similarity_request(json_request_images))
+#     print(gallery_ids)
+#     context = {
+#         "ranking_results": [{"img_src": "%s%s.jpg" % (THUMBNAILS_PATH, id)} for id in gallery_ids],
+#         "blabla": "Bla Bla"
+#     }
+#     print(context)
+#     # return render(request, 'position_similarity/index.html', context)
+#
+#     return JsonResponse(context, status=200)
+#
 
+@csrf_exempt
+def position_similarity_post(request):
+    logging.info("Position similarity request.")
+
+    THUMBNAILS_PATH = "/static/images/lookup/thumbnails/"
+
+    json_request_images = json.loads(request.POST['json_data'])
+
+    gallery_ids = position_similarity_request(json_to_position_similarity_request(json_request_images))
+    print(gallery_ids)
     context = {
-        "ranking_results": [
-            {"img_src": "/static/images/lookup/00001040.jpg"},
-            {"img_src": "https://www.galeje.sk/web_object/12510_s.png"}]}
-    return render(request, 'position_similarity/index.html', context)
+        "ranking_results": [{"img_src": "%s/%s.jpg" % (THUMBNAILS_PATH, id)} for id in gallery_ids] * 8,
+    }
+    print(context)
+
+    return JsonResponse(context, status=200)
+
+
+def json_to_position_similarity_request(json_data):
+    images = []
+    for image in json_data:
+        url_image = UrlImage(image["url"], Crop(*[image[attr] for attr in ["top", "left", "width", "height"]]))
+        images.append(url_image)
+    return PositionSimilarityRequest(images)

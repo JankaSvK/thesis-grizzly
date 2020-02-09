@@ -1,4 +1,6 @@
 from position_similarity import views
+from django.http import HttpResponseRedirect
+
 
 """diplomova_praca URL Configuration
 
@@ -19,7 +21,8 @@ from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('', views.index, name='index'),
-    path('position_similarity/', views.position_similarity, name='position-similarity'),
+    # path('admin/', admin.site.urls), # TODO
+    path('', views.index),
+    path('position_similarity/', views.position_similarity),
+    path('position_similarity/post', views.position_similarity_post, name="position_similarity_post"),
 ]
