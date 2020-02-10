@@ -14,35 +14,11 @@ from diplomova_praca_lib.position_similarity.position_similarity_request import 
 def index(request):
     return HttpResponseRedirect("position_similarity/")
 
+
 @csrf_exempt
 def position_similarity(request):
     return render(request, 'position_similarity/index.html', {})
 
-#
-# @csrf_exempt
-# def position_similarity(request):
-#     logging.info("Position similarity request.")
-#
-#     THUMBNAILS_PATH = "/static/images/lookup/thumbnails/"
-#
-#     if not request.POST:
-#         logging.info("No input images.")
-#         print("ERRRRORRR")
-#         return render(request, 'position_similarity/index.html', {"blabla": "Bla Bla Err"})
-#
-#     json_request_images = json.loads(request.POST['json_data'])
-#
-#     gallery_ids = position_similarity_request(json_to_position_similarity_request(json_request_images))
-#     print(gallery_ids)
-#     context = {
-#         "ranking_results": [{"img_src": "%s%s.jpg" % (THUMBNAILS_PATH, id)} for id in gallery_ids],
-#         "blabla": "Bla Bla"
-#     }
-#     print(context)
-#     # return render(request, 'position_similarity/index.html', context)
-#
-#     return JsonResponse(context, status=200)
-#
 
 @csrf_exempt
 def position_similarity_post(request):
@@ -53,11 +29,9 @@ def position_similarity_post(request):
     json_request_images = json.loads(request.POST['json_data'])
 
     gallery_ids = position_similarity_request(json_to_position_similarity_request(json_request_images))
-    print(gallery_ids)
     context = {
         "ranking_results": [{"img_src": "%s/%s.jpg" % (THUMBNAILS_PATH, id)} for id in gallery_ids] * 8,
     }
-    print(context)
 
     return JsonResponse(context, status=200)
 

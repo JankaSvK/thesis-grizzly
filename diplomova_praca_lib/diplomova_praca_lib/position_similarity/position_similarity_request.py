@@ -12,7 +12,7 @@ from diplomova_praca_lib.position_similarity.models import PositionSimilarityReq
 def position_similarity_request(request: PositionSimilarityRequest):
     # TODO: only regions so far
 
-    # downloaded_images = [download_image(request_image.url) for request_image in request.images]
+    downloaded_images = [download_image(request_image.url) for request_image in request.images]
     # downloaded_images = [downloaded_images[0]] # TODO: multiple images need ranking mechanism
     #
     # features_score = []
