@@ -81,10 +81,19 @@
             },
             success(response) {
                 let ranking_table_content = [];
+                let remainder = 0
                 for (const image of response['ranking_results']) {
                     ranking_table_content.push("<div class='img-container'><img src=" + image['img_src'] + "></div>");
+                    if (remainder === 3){
+                        remainder = 0;
+                        ranking_table_content.push("<div class=\"clear\"></div>");
+                    } else {
+                        remainder++;
+                    }
                 }
+
                 $(".ranking_table").html(ranking_table_content.join(""));
+
             },
             failure(data) {
                 console.log("Failure", data); // TODO
@@ -98,7 +107,7 @@
         image.draggable({
             containment: "#container",
             stop: function (event, ui) {
-                // sendRequest()
+                sendRequest()
             }
         });
 
@@ -106,7 +115,7 @@
             aspectRatio: true,
             containment: "#container",
             stop: function (event, ui) {
-                // sendRequest()
+                sendRequest()
             }
         });
     }
@@ -119,6 +128,7 @@
                 available_id++;
 
                 reloadResizeable();
+                sendRequest();
             });
 
             $('#send_request').click(function () {

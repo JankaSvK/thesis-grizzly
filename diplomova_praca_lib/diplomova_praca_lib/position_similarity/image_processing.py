@@ -2,6 +2,7 @@ import glob, os
 
 import tensorflow
 
+from diplomova_praca_lib.position_similarity.models import Crop
 from .utils import cap_value
 import cv2
 import numpy as np
@@ -9,14 +10,14 @@ import PIL
 
 
 def split_image_to_regions(image, num_horizontal_regions, num_vertical_regions):
-    h, w, c = np.shape(image)
-    regions = compute_image_regions(w, h, num_horizontal_regions, num_vertical_regions, 0.5)
-    return [((top_left, bottom_right), crop_image(image, *top_left, *bottom_right)) for (top_left, bottom_right) in
-            regions]
+    h, w, _ = np.shape(image)
+    regions_crops = compute_image_regions(w, h, num_horizontal_regions, num_vertical_regions, 0.5)
+    return [(crop, crop_image(image, crop)) for crop in regions_crops]
 
 
-def crop_image(image: PIL.Image, xmin, ymin, xmax, ymax):
-    return image.crop((xmin, ymin, xmax, ymax))
+def crop_image(image: PIL.Image, crop: Crop):
+    width, height = image.size
+    return image.crop((crop.left * width, crop.top * height, crop.right * width, crop.bottom * height))
 
 
 def image_array_as_model_input(image):
@@ -55,7 +56,8 @@ def compute_image_regions(image_width, image_height, num_horizontal_regions, num
             ymin = cap_value(ymin, 0, image_height)
             ymax = cap_value(ymax, 0, image_height)
 
-            regions.append(((xmin, ymin), (xmax, ymax)))
+            regions.append(Crop(top=ymin / image_height, left=xmin / image_width, right=xmax / image_width,
+                                bottom=ymax / image_height))
 
     assert len(regions) == num_vertical_regions * num_horizontal_regions
     return regions

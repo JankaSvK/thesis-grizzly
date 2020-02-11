@@ -30,7 +30,7 @@ def position_similarity_post(request):
 
     gallery_ids = position_similarity_request(json_to_position_similarity_request(json_request_images))
     context = {
-        "ranking_results": [{"img_src": "%s/%s.jpg" % (THUMBNAILS_PATH, id)} for id in gallery_ids] * 8,
+        "ranking_results": [{"img_src": "%s/%s.jpg" % (THUMBNAILS_PATH, id)} for id in gallery_ids],
     }
 
     return JsonResponse(context, status=200)

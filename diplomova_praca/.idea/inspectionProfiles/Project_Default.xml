@@ -8,6 +8,7 @@
           <option value="tensorflow_core.python.keras.api._v2.keras.applications.imagenet_utils.preprocess_input" />
           <option value="tensorflow_core.python.keras.api._v2.keras.preprocessing.image.*" />
           <option value="tensorflow_core.python.keras.api._v2.keras.applications.resnet50.ResNet50" />
+          <option value="typing.Iterator.__getitem__" />
         </list>
       </option>
     </inspection_tool>

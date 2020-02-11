@@ -11,14 +11,21 @@ class ImageRecord:
 
 class Crop:
     # Always stores information between [0,1]
-    def __init__(self, top, left, width, height):
+    def __init__(self, top, left, width=None, height=None, bottom=None, right=None):
         self.top = top
         self.left = left
-        self.width = width
-        self.height = height
+        if width and height:
+            self.width = width
+            self.height = height
+        if bottom and right:
+            self.bottom = bottom
+            self.right = right
+
+    def __str__(self):
+        return "(%s, %s, %s, %s)" % (self.left, self.top, self.right, self.bottom)
 
     def normalize(self, image_width, image_height):
-        self.top /=  image_height
+        self.top /= image_height
         self.left /= image_width
         self.width /= image_width
         self.height /= image_height
@@ -40,6 +47,7 @@ class Crop:
         self.height = val - self.top
 
     def iou(self, crop: "Crop"):
+
         # Determine coordinates of intersection
         left = max(self.left, crop.left)
         top = max(self.top, crop.top)
@@ -47,7 +55,7 @@ class Crop:
         bottom = min(self.bottom, crop.bottom)
 
         # Compute the area of intersection rectangle
-        intersection_area = max(0, right - left + 1) * max(0, bottom - top + 1)
+        intersection_area = max(0, right - left) * max(0, bottom - top)
 
         # Compute the area of both original crops
         a_area = self.width * self.height
@@ -55,9 +63,12 @@ class Crop:
 
         iou = intersection_area / float(a_area + b_area - intersection_area)
 
+        assert iou >= 0
+
         return iou
 
 
 RegionFeatures = collections.namedtuple("RegionFeatures", ["crop", "features"])
 UrlImage = collections.namedtuple('UrlImage', ['url', 'crop'])
 PositionSimilarityRequest = collections.namedtuple('PositionSimilarityRequest', ['images'])
+RegionsFeaturesRecord = collections.namedtuple("RegionsFeaturesRecord", ["filename", "regions_features"])

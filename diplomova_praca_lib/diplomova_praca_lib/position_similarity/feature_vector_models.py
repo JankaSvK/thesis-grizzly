@@ -19,7 +19,7 @@ class Resnet50(FeatureVectorModel):
         self.model = tensorflow.keras.applications.resnet50.ResNet50(weights='imagenet',
                                                                      pooling='avg',
                                                                      include_top=False)
-        logging.debug(self.model.summary())
+        # logging.debug(self.model.summary())
 
 
 class Resnet50Antepenultimate(FeatureVectorModel):
@@ -31,6 +31,6 @@ class Resnet50Antepenultimate(FeatureVectorModel):
         # returns shape (1, 7, 7, 2048)
         self.model = tensorflow.keras.models.Model(inputs=resnet50antepenultimate.input,
                                                    outputs=resnet50antepenultimate.get_layer('conv5_block3_out').output)
-        logging.debug(self.model.summary())
+        # logging.debug(self.model.summary())
 
 

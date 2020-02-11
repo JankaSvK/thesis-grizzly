@@ -4,6 +4,7 @@ import os
 
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions
 from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50
+from diplomova_praca_lib.position_similarity.models import RegionsFeaturesRecord
 from diplomova_praca_lib.position_similarity.storage import FileStorage
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -21,8 +22,6 @@ def main():
                         help="Path to directory where precomputed models are saved.")
     args = parser.parse_args()
 
-
-    RegionsFeaturesRecord = collections.namedtuple("RegionsFeaturesRecord", ["filename", "regions_features"])
     features_model = Resnet50()  # TODO: change based on arguments
     evaluation_mechanism = EvaluatingRegions(similarity_measure=cosine_similarity, model=features_model)
 
@@ -32,7 +31,7 @@ def main():
         images_regions_features.append(
             RegionsFeaturesRecord(filename=image.filename, regions_features=regions_features))
 
-    FileStorage.save_data_to_file(os.path.join(args.save_location, "tmp.npy"), images_regions_features)
+    FileStorage.save_data_to_file(args.save_location, images_regions_features)
 
 
 if __name__ == '__main__':
