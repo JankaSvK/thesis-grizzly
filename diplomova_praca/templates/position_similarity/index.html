@@ -4,15 +4,21 @@
 <html lang="en">
 <head>
 
+    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
 
     <link rel="stylesheet" href="{% static "position_similarity/styles.css" %}">
     <title>Grizzly</title>
 </head>
 
-
+<body>
 <div id="msg"></div>
 
 <header>
@@ -25,7 +31,10 @@
     <input type="text" name="image_url" value="https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"
            id="image_url">
     <button type="button" id="add_image">Add image</button>
-    <button type="button" id="send_request">Send request</button>
+    <select id="position_method" onChange="sendRequest()">
+        <option value="regions">Regions Similarity (4x3)</option>
+        <option value="spatially">Spatial Similarity</option>
+    </select>
 </section>
 
 <div id="results">
@@ -51,7 +60,7 @@
     var available_id = 0;
 
     function getAllImagesPositions() {
-        let images = jQuery(".image");
+        let images = jQuery(".canvas_image");
         let canvas = jQuery("#container");
         let images_information = [];
         for (var i = 0; i < images.length; i++) {
@@ -77,14 +86,14 @@
             dataType: 'json',
             url: "{% url 'position_similarity_post' %}",
             data: {
-                "json_data": JSON.stringify(getAllImagesPositions())
+                "json_data": JSON.stringify({"images": getAllImagesPositions(), "method": getSelectedMethod()})
             },
             success(response) {
                 let ranking_table_content = [];
                 let remainder = 0
                 for (const image of response['ranking_results']) {
                     ranking_table_content.push("<div class='img-container'><img src=" + image['img_src'] + "></div>");
-                    if (remainder === 3){
+                    if (remainder === 3) {
                         remainder = 0;
                         ranking_table_content.push("<div class=\"clear\"></div>");
                     } else {
@@ -102,7 +111,7 @@
     }
 
     function reloadResizeable() {
-        const image = jQuery(".image");
+        const image = jQuery(".canvas_image");
 
         image.draggable({
             containment: "#container",
@@ -120,22 +129,64 @@
         });
     }
 
+    function deleteImage(uid) {
+        console.log("deleting", uid);
+        var elem = document.getElementById(uid);
+        elem.remove();
+        sendRequest();
+    }
+
+    {#$('.canvas_image .delete').on('click', function () {#}
+    {#    var id = $(this).closest('.canvas_image').find('img').data('id');#}
+    {#    alert('remove picture: ' + id);#}
+    {#    console.log("delete bol kliknuty");#}
+
+    function getSelectedMethod() {
+        var elem = document.getElementById("position_method");
+        return elem.options[elem.selectedIndex].value;
+    }
+
+    function canvas_image_html(uid, src) {
+        return `<div id="${uid}" class="canvas_image ui-widget-content"><span class=\"delete\" onclick="deleteImage($(this).closest('div').attr('id'))">&times;</span><img src="${src}"></div>`;
+    }
+
     (function ($) {
         $(document).ready(function () {
+
+
             $('#add_image').click(function () {
                 const url = ($('#image_url').val());
-                $("#container").append(`<div id="image_${available_id}" class="image ui-widget-content"><img src="${url}"></div>`);
+                $("#container").append(canvas_image_html("image_" + available_id, url));
                 available_id++;
 
                 reloadResizeable();
                 sendRequest();
             });
-
-            $('#send_request').click(function () {
-                sendRequest();
-            });
         });
 
+        document.onpaste = function (event) {
+            // use event.originalEvent.clipboard for newer chrome versions
+            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+            console.log(JSON.stringify(items)); // will give you the mime types
+            // find pasted image among pasted items
+            var blob = null;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf("image") === 0) {
+                    blob = items[i].getAsFile();
+                }
+            }
+            // load image if there is a pasted image
+            if (blob !== null) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    const encoded_image = event.target.result;
+                    $("#container").append(canvas_image_html("image_" + available_id, encoded_image));
+                    available_id++;
+                    reloadResizeable();
+                };
+                reader.readAsDataURL(blob);
+            }
+        };
     })(jQuery);
 </script>
 </body>

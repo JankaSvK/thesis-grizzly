@@ -8,7 +8,8 @@ import json
 from django.views.decorators.csrf import csrf_exempt
 
 from diplomova_praca_lib.position_similarity.models import UrlImage, PositionSimilarityRequest, Crop
-from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request
+from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request, \
+    spatial_similarity_request
 
 
 def index(request):
@@ -26,9 +27,20 @@ def position_similarity_post(request):
 
     THUMBNAILS_PATH = "/static/images/lookup/thumbnails/"
 
-    json_request_images = json.loads(request.POST['json_data'])
+    json_request = json.loads(request.POST['json_data'])
+    images = json_request['images']
+    method = json_request['method']
 
-    gallery_ids = position_similarity_request(json_to_position_similarity_request(json_request_images))
+
+    if method == 'regions':
+        gallery_ids = position_similarity_request(json_to_position_similarity_request(images))
+    elif method == 'spatially':
+        gallery_ids = spatial_similarity_request(json_to_position_similarity_request(images))
+    else:
+        raise ValueError("Unknown method.")
+
+    gallery_ids = gallery_ids[:100]
+
     context = {
         "ranking_results": [{"img_src": "%s/%s.jpg" % (THUMBNAILS_PATH, id)} for id in gallery_ids],
     }
