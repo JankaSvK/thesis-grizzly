@@ -1,7 +1,7 @@
+from Lib import uuid
 from django.db import models
 
 # Create your models here.
-class PositionSimilarityRequest:
-    def __init__(self):
-        pass
-
+class PositionRequest(models.Model):
+    json_request = models.TextField()
+    response = models.TextField()

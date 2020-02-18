@@ -11,6 +11,7 @@ from diplomova_praca_lib.position_similarity.models import UrlImage, PositionSim
 from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request, \
     spatial_similarity_request
 
+from .models import PositionRequest
 
 def index(request):
     return HttpResponseRedirect("position_similarity/")
@@ -20,14 +21,15 @@ def index(request):
 def position_similarity(request):
     return render(request, 'position_similarity/index.html', {})
 
-
 @csrf_exempt
 def position_similarity_post(request):
+    save_request = PositionRequest()
     logging.info("Position similarity request.")
 
     THUMBNAILS_PATH = "/static/images/lookup/thumbnails/"
 
     json_request = json.loads(request.POST['json_data'])
+    save_request.json_request = json_request
     images = json_request['images']
     method = json_request['method']
 
@@ -39,12 +41,14 @@ def position_similarity_post(request):
     else:
         raise ValueError("Unknown method.")
 
+    save_request.response = ",".join(gallery_ids)
     gallery_ids = gallery_ids[:100]
 
     context = {
         "ranking_results": [{"img_src": "%s/%s.jpg" % (THUMBNAILS_PATH, id)} for id in gallery_ids],
     }
 
+    save_request.save()
     return JsonResponse(context, status=200)
 
 
