@@ -1,194 +1,177 @@
+{% extends 'base.html' %}
 {% load static %}
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-
-    <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
-    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-
-
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-
-
-    <link rel="stylesheet" href="{% static "position_similarity/styles.css" %}">
-    <title>Grizzly</title>
-</head>
-
-<body>
-<div id="msg"></div>
-
-<header>
-    <div class="centered_container">Grizzly</div>
-</header>
-
-<section id="canvas" class="centered_container">
-    <h1>Query</h1>
-    <div id="container"></div>
-    <input type="text" name="image_url" value="https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"
-           id="image_url">
-    <button type="button" id="add_image">Add image</button>
-    <select id="position_method" onChange="sendRequest()">
-        <option value="regions">Regions Similarity (4x3)</option>
-        <option value="spatially">Spatial Similarity</option>
-    </select>
-</section>
-
-<div id="results">
-    <section id="ranking" class="centered_container">
-        <h1>Results</h1>
-        <div class="ranking_table">
-            {#            {% for rank_item in ranking_results %}#}
-            {#                <div class="img-container">#}
-            {#                    <img src="{{ rank_item.img_src }}">#}
-            {#                </div>#}
-
-            {#                {% if forloop.counter|divisibleby:4 %}#}
-            <div class="clear"></div>
-            {#                {% endif %}#}
-            {#            {% endfor %}#}
+{% block content %}
+    <section id="canvas" class="centered_container">
+        <h1>Query</h1>
+        <div id="container">
+            <div id="canvas_overlay" style="background: url('{{ search_image }}')"><span class="delete" onclick="overlayImage()">&times;</span>
+            </div>
         </div>
-        <div class="clear"></div>
+        <input type="text" name="image_url" value="https://www.matfyz.cz/files/hlrljg-mathematics-1550844-639x453.jpg"
+               id="image_url">
+        <button type="button" id="add_image">Add image</button>
+        <select id="position_method" onChange="sendRequest()">
+            <option value="regions">Regions Similarity (4x3)</option>
+            <option value="spatially">Spatial Similarity</option>
+        </select>
+        <a href="javascript:overlayImage(true)">Show searched image</a>
     </section>
-</div>
-<footer></footer>
 
-<script>
-    var available_id = 0;
+    <div id="results">
+        <section id="ranking" class="centered_container">
+            <h1>Results</h1>
+            <div class="ranking_table">
+                {#            {% for rank_item in ranking_results %}#}
+                {#                <div class="img-container">#}
+                {#                    <img src="{{ rank_item.img_src }}">#}
+                {#                </div>#}
 
-    function getAllImagesPositions() {
-        let images = jQuery(".canvas_image");
-        let canvas = jQuery("#container");
-        let images_information = [];
-        for (var i = 0; i < images.length; i++) {
-            let image = images.eq(i);
-            images_information.push({
-                url: image.children("img").attr("src"),
-                top: image.position().top / canvas.height(),
-                left: image.position().left / canvas.width(),
-                width: image.width() / canvas.width(),
-                height: image.height() / canvas.height()
-            })
+                {#                {% if forloop.counter|divisibleby:4 %}#}
+                <div class="clear"></div>
+                {#                {% endif %}#}
+                {#            {% endfor %}#}
+            </div>
+            <div class="clear"></div>
+        </section>
+    </div>
+    <footer></footer>
+
+    <script>
+        var available_id = 0;
+
+        function getAllImagesPositions() {
+            let images = jQuery(".canvas_image");
+            let canvas = jQuery("#container");
+            let images_information = [];
+            for (var i = 0; i < images.length; i++) {
+                let image = images.eq(i);
+                images_information.push({
+                    url: image.children("img").attr("src"),
+                    top: image.position().top / canvas.height(),
+                    left: image.position().left / canvas.width(),
+                    width: image.width() / canvas.width(),
+                    height: image.height() / canvas.height()
+                })
+            }
+
+            return images_information;
         }
 
-        return images_information;
-    }
+        function sendRequest() {
+            console.log("Sending request.");
+            console.log(getAllImagesPositions());
 
-    function sendRequest() {
-        console.log("Sending request.");
-        console.log(getAllImagesPositions());
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                url: "{% url 'position_similarity_post' %}",
+                data: {
+                    "json_data": JSON.stringify({
+                        "images": getAllImagesPositions(),
+                        "method": getSelectedMethod(),
+                        "overlay_image": $("#canvas_overlay").css("background-image")
+                    })
+                },
+                success(response) {
+                    let ranking_table_content = [];
+                    let remainder = 0
+                    for (const image of response['ranking_results']) {
+                        ranking_table_content.push("<div class='img-container'><img src=" + image['img_src'] + "></div>");
+                        if (remainder === 3) {
+                            remainder = 0;
+                            ranking_table_content.push("<div class=\"clear\"></div>");
+                        } else {
+                            remainder++;
+                        }
+                    }
 
-        $.ajax({
-            type: "POST",
-            dataType: 'json',
-            url: "{% url 'position_similarity_post' %}",
-            data: {
-                "json_data": JSON.stringify({"images": getAllImagesPositions(), "method": getSelectedMethod()})
-            },
-            success(response) {
-                let ranking_table_content = [];
-                let remainder = 0
-                for (const image of response['ranking_results']) {
-                    ranking_table_content.push("<div class='img-container'><img src=" + image['img_src'] + "></div>");
-                    if (remainder === 3) {
-                        remainder = 0;
-                        ranking_table_content.push("<div class=\"clear\"></div>");
-                    } else {
-                        remainder++;
+                    $(".ranking_table").html(ranking_table_content.join(""));
+
+                },
+                failure(data) {
+                    console.log("Failure", data); // TODO
+                }
+            });
+        }
+
+        function reloadResizeable() {
+            const image = jQuery(".canvas_image");
+
+            image.draggable({
+                containment: "#container",
+                stop: function (event, ui) {
+                    sendRequest()
+                }
+            });
+
+            image.resizable({
+                aspectRatio: true,
+                containment: "#container",
+                stop: function (event, ui) {
+                    sendRequest()
+                }
+            });
+        }
+
+        function deleteElementByUid(uid) {
+            console.log("deleting", uid);
+            var elem = document.getElementById(uid);
+            elem.remove();
+            sendRequest();
+        }
+
+        function getSelectedMethod() {
+            var elem = document.getElementById("position_method");
+            return elem.options[elem.selectedIndex].value;
+        }
+
+        function canvas_image_html(uid, src) {
+            return `<div id="${uid}" class="canvas_image ui-widget-content"><span class=\"delete\" onclick="deleteElementByUid($(this).closest('div').attr('id'))">&times;</span><img src="${src}"></div>`;
+        }
+
+        function overlayImage(to_display) {
+            $("#canvas_overlay").css('z-index', (to_display ? 1 : -1));
+        }
+
+        (function ($) {
+            $(document).ready(function () {
+                $(function () {
+                    setTimeout(overlayImage, 3000);
+                });
+
+                $('#add_image').click(function () {
+                    const url = ($('#image_url').val());
+                    $("#container").append(canvas_image_html("image_" + available_id, url));
+                    available_id++;
+
+                    reloadResizeable();
+                    sendRequest();
+                });
+            });
+
+            document.onpaste = function (event) {
+                // use event.originalEvent.clipboard for newer chrome versions
+                var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+                console.log(JSON.stringify(items)); // will give you the mime types
+                // find pasted image among pasted items
+                var blob = null;
+                for (var i = 0; i < items.length; i++) {
+                    if (items[i].type.indexOf("image") === 0) {
+                        blob = items[i].getAsFile();
                     }
                 }
-
-                $(".ranking_table").html(ranking_table_content.join(""));
-
-            },
-            failure(data) {
-                console.log("Failure", data); // TODO
-            }
-        });
-    }
-
-    function reloadResizeable() {
-        const image = jQuery(".canvas_image");
-
-        image.draggable({
-            containment: "#container",
-            stop: function (event, ui) {
-                sendRequest()
-            }
-        });
-
-        image.resizable({
-            aspectRatio: true,
-            containment: "#container",
-            stop: function (event, ui) {
-                sendRequest()
-            }
-        });
-    }
-
-    function deleteImage(uid) {
-        console.log("deleting", uid);
-        var elem = document.getElementById(uid);
-        elem.remove();
-        sendRequest();
-    }
-
-    {#$('.canvas_image .delete').on('click', function () {#}
-    {#    var id = $(this).closest('.canvas_image').find('img').data('id');#}
-    {#    alert('remove picture: ' + id);#}
-    {#    console.log("delete bol kliknuty");#}
-
-    function getSelectedMethod() {
-        var elem = document.getElementById("position_method");
-        return elem.options[elem.selectedIndex].value;
-    }
-
-    function canvas_image_html(uid, src) {
-        return `<div id="${uid}" class="canvas_image ui-widget-content"><span class=\"delete\" onclick="deleteImage($(this).closest('div').attr('id'))">&times;</span><img src="${src}"></div>`;
-    }
-
-    (function ($) {
-        $(document).ready(function () {
-
-
-            $('#add_image').click(function () {
-                const url = ($('#image_url').val());
-                $("#container").append(canvas_image_html("image_" + available_id, url));
-                available_id++;
-
-                reloadResizeable();
-                sendRequest();
-            });
-        });
-
-        document.onpaste = function (event) {
-            // use event.originalEvent.clipboard for newer chrome versions
-            var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-            console.log(JSON.stringify(items)); // will give you the mime types
-            // find pasted image among pasted items
-            var blob = null;
-            for (var i = 0; i < items.length; i++) {
-                if (items[i].type.indexOf("image") === 0) {
-                    blob = items[i].getAsFile();
+                // load image if there is a pasted image
+                if (blob !== null) {
+                    var reader = new FileReader();
+                    reader.onload = function (event) {
+                        const encoded_image = event.target.result;
+                        $("#container").append(canvas_image_html("image_" + available_id, encoded_image));
+                        available_id++;
+                        reloadResizeable();
+                    };
+                    reader.readAsDataURL(blob);
                 }
-            }
-            // load image if there is a pasted image
-            if (blob !== null) {
-                var reader = new FileReader();
-                reader.onload = function (event) {
-                    const encoded_image = event.target.result;
-                    $("#container").append(canvas_image_html("image_" + available_id, encoded_image));
-                    available_id++;
-                    reloadResizeable();
-                };
-                reader.readAsDataURL(blob);
-            }
-        };
-    })(jQuery);
-</script>
-</body>
-</html>
-
+            };
+        })(jQuery);
+    </script>
+{% endblock %}

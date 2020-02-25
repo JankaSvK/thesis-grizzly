@@ -1,9 +1,8 @@
-import collections
 from typing import List
 
 import PIL
 
-from .image_processing import image_array_as_model_input, split_image_to_regions
+from diplomova_praca_lib.image_processing import image_array_as_model_input, split_image_to_regions
 import numpy as np
 
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop

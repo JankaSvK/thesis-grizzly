@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'face_features/styles.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h1>Face Features</h1>
+
+    <div id="image_table">
+{#        <a href="00001040"><img class="img_container" src="{% static "images/lookup/00001040.jpg" %}"></a>#}
+        {% for image in images %}
+            <div class="img-container">
+                <a href="{{ image.link }}"><img class="img_container" src="{{ image.src }}" alt="face"></a>
+            </div>
+
+            {#                        {% if forloop.counter|divisibleby:4 %}#}
+            {#        <div class="clear"></div>#}
+            {#                        {% endif %}#}
+        {% endfor %}
+    </div>
+
+    <script>
+
+
+    </script>
+
+
+{% endblock %}

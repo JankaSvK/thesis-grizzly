@@ -1,5 +1,4 @@
 import base64
-import os
 import re
 from pathlib import Path
 from urllib.parse import urlparse
@@ -14,7 +13,7 @@ from diplomova_praca_lib.position_similarity.evaluation_mechanisms import Evalua
 from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
-from diplomova_praca_lib.position_similarity.storage import FileStorage, Database
+from diplomova_praca_lib.storage import FileStorage, Database
 
 database_regions = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000.npy"))
 database_spatially = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000_spatially.npy"))
