@@ -21,8 +21,9 @@ class Crop:
             self.bottom = bottom
             self.right = right
 
-    def __str__(self):
-        return "(%s, %s, %s, %s)" % (self.left, self.top, self.right, self.bottom)
+    def __repr__(self):
+        return "%s(left=%s, top=%s, right=%s, bottom=%s)" % (
+        self.__class__.__name__, self.left, self.top, self.right, self.bottom)
 
     def normalize(self, image_width, image_height):
         self.top /= image_height

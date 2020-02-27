@@ -32,7 +32,7 @@ class FileStorage(Storage):
         image_files = glob.glob(os.path.join(dir_path, "*.jpg"))
         print("Found %d images." % len(image_files))
         for i, filename in enumerate(image_files):
-            if i % 100 == 0: print("Processing %d out of %d." % (i, len(image_files)))
+            if i % 5 == 0: print("Processing %d out of %d." % (i, len(image_files)))
             logging.debug("Loading image %s" % filename)
             image = FileStorage.load_image_from_file(filename)
             yield Image(filename=filename, image=image)

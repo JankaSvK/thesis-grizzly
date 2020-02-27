@@ -1,6 +1,5 @@
 import base64
 import re
-from pathlib import Path
 from urllib.parse import urlparse
 
 from PIL import Image
@@ -14,6 +13,7 @@ from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
 from diplomova_praca_lib.storage import FileStorage, Database
+from diplomova_praca_lib.utils import filename_without_extensions
 
 database_regions = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000.npy"))
 database_spatially = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000_spatially.npy"))
@@ -45,9 +45,6 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
     ranking = RankingMechanism.summing(best_matches)
     return [filename_without_extensions(path) for path in ranking]
 
-
-def filename_without_extensions(path):
-    return Path(path).stem
 
 
 def is_url(url):

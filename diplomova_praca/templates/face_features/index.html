@@ -9,15 +9,29 @@
     <h1>Face Features</h1>
 
     <div id="image_table">
-{#        <a href="00001040"><img class="img_container" src="{% static "images/lookup/00001040.jpg" %}"></a>#}
+        {#        <a href="00001040"><img class="img_container" src="{% static "images/lookup/00001040.jpg" %}"></a>#}
         {% for image in images %}
             <div class="img-container">
-                <a href="{{ image.link }}"><img class="img_container" src="{{ image.src }}" alt="face"></a>
+                <div class="img_container" style="position:relative">
+                    <a href="{{ image.link }}">
+                        <img
+
+                                src="{{ image.img_src }}"
+                                alt="face"
+                                style="clip-path: inset({{ image.crop }});position:absolute"
+                        >
+                        <img
+                                src="{{ image.img_src }}"
+                                alt="face"
+                                style="opacity:0.5;position:absolute;"
+                        >
+                    </a>
+                </div>
             </div>
 
-            {#                        {% if forloop.counter|divisibleby:4 %}#}
-            {#        <div class="clear"></div>#}
-            {#                        {% endif %}#}
+            {% if forloop.counter|divisibleby:4 %}
+                <div class="clear"></div>
+            {% endif %}
         {% endfor %}
     </div>
 
