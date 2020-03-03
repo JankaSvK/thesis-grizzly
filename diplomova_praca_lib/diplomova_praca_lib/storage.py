@@ -1,5 +1,6 @@
 import collections
 import json
+from pathlib import Path
 
 import numpy as np
 import glob, os
@@ -27,10 +28,14 @@ class FileStorage(Storage):
         return tensorflow.keras.preprocessing.image.load_img(filename)
 
     @staticmethod
-    def load_images_continuously(dir_path):
-        Image = collections.namedtuple("Image", ["filename", "image"])
-        image_files = glob.glob(os.path.join(dir_path, "*.jpg"))
+    def load_images_continuously(dir_path, recursively=True):
+        if recursively:
+            image_files = Path(dir_path).rglob('*.jpg')
+        else:
+            image_files = glob.glob(os.path.join(dir_path, "*.jpg"))
+
         print("Found %d images." % len(image_files))
+        Image = collections.namedtuple("Image", ["filename", "image"])
         for i, filename in enumerate(image_files):
             if i % 5 == 0: print("Processing %d out of %d." % (i, len(image_files)))
             logging.debug("Loading image %s" % filename)
@@ -41,32 +46,3 @@ class FileStorage(Storage):
 class Database:
     def __init__(self, records):
         self.records = records
-
-
-#
-#
-# class Database:
-#     def __init__(self):
-#         self.records = {}
-#
-#     def save_database_to_file(self, path):
-#         numpy.save(path, self.records)
-#
-#     def load_database_from_file(self, path):
-#         if os.path.exists(path):
-#             self.records = numpy.load(path, allow_pickle=True).item()
-#         else:
-#             raise FileNotFoundError
-#
-#     def load_images_from_directory(self, dir_path):
-#         import tensorflow as tf
-#
-#         image_files = glob.glob(os.path.join(dir_path, "*.jpg"))
-#         for i_path in image_files:
-#             print("Loading image %s" % i_path)
-#             image = self.load_image(i_path)
-#             self.records[i_path] = Record(image, ImageInformation(i_path))
-#
-#     @staticmethod
-#     def load_image(path):
-#         return tensorflow.keras.preprocessing.image.load_img(path)

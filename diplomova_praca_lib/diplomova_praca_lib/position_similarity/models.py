@@ -10,7 +10,9 @@ class ImageRecord:
 
 
 class Crop:
-    # Always stores information between [0,1]
+    """
+    Always stores information between [0,1]
+    """
     def __init__(self, top, left, width=None, height=None, bottom=None, right=None):
         self.top = top
         self.left = left
@@ -31,6 +33,38 @@ class Crop:
         self.width /= image_width
         self.height /= image_height
 
+    def size_up(self, top, left, bottom, right):
+        """
+        Stretches the borders of regions by `value` in each direction and returns the new Crop
+        :param value: Size of the stretch
+        :returns: New stretched crop
+        """
+        new_crop = Crop(self.top - top, self.left - left, self.bottom + bottom, self.right + right)
+        new_crop.check_01()
+        return new_crop
+
+    def size_up_to_square(self):
+        """
+        Size up current crop to the square (centered).
+        :return: New crop
+        """
+        max_dim = max(self.height, self.width)
+        x_missing = max_dim - self.width
+        y_missing = max_dim - self.height
+        return self.size_up(y_missing / 2, x_missing / 2, y_missing / 2, x_missing / 2)
+
+    def area(self):
+        return self.width * self.height
+
+    def check_01(self):
+        """
+        Sets all the borders to [0,1].
+        """
+        self.top = max(0, self.top)
+        self.left = max(0, self.left)
+        self.bottom = min(1, self.bottom)
+        self.right = min(1, self.right)
+
     @property
     def right(self):
         return self.left + self.width
@@ -48,7 +82,6 @@ class Crop:
         self.height = val - self.top
 
     def iou(self, crop: "Crop"):
-
         # Determine coordinates of intersection
         left = max(self.left, crop.left)
         top = max(self.top, crop.top)

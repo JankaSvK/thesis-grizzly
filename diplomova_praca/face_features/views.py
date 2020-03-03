@@ -27,7 +27,9 @@ def selectImage(request, image_id):
     print(gallery_ids)
     context = {
         "images": [
-            {"img_src": static("%s/%s.jpg" % (THUMBNAILS_PATH, id)), "link": "/face_features/" + id, "crop": crop_as_css_inset(crop)}
+            {"img_src": static("%s/%s.jpg" % (THUMBNAILS_PATH, id)),
+             "link": "/face_features/" + id,
+             "crop": crop_as_css_inset(crop.size_up_to_square())}
             for id, crop in gallery_ids],
     }
     return render(request, 'face_features/index.html', context)
