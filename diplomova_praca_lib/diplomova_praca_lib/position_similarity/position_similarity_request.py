@@ -1,11 +1,10 @@
 import base64
 import re
+from io import BytesIO
 from urllib.parse import urlparse
 
-from PIL import Image
 import requests
-from io import BytesIO
-
+from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity
 
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially
@@ -16,7 +15,8 @@ from diplomova_praca_lib.storage import FileStorage, Database
 from diplomova_praca_lib.utils import filename_without_extensions
 
 database_regions = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000.npy"))
-database_spatially = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000_spatially.npy"))
+database_spatially = Database(
+    FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000_spatially.npy"))
 
 evaluating_regions = EvaluatingRegions(similarity_measure=cosine_similarity, model=Resnet50())
 evaluating_spatially = EvaluatingSpatially(similarity_measure=cosine_similarity, model=Resnet50Antepenultimate())
@@ -40,11 +40,11 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
 
     best_matches = []
     for image_information, image in zip(request.images, downloaded_images):
-        best_matches.append(evaluating_spatially.best_matches(image_information.crop, image, database_spatially.records))
+        best_matches.append(
+            evaluating_spatially.best_matches(image_information.crop, image, database_spatially.records))
 
     ranking = RankingMechanism.summing(best_matches)
     return [filename_without_extensions(path) for path in ranking]
-
 
 
 def is_url(url):

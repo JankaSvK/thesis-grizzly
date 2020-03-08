@@ -68,6 +68,7 @@ def json_to_position_similarity_request(json_data):
     return PositionSimilarityRequest(images)
 
 
+
 def random_image_id():
     import rstr
     return rstr.xeger(r'0[0-9]{7}')

@@ -1,5 +1,15 @@
-FROM python:3
+# Annotating images
+FROM tensorflow/tensorflow:latest-gpu-py3
 
-ADD annotate_images.py /
+RUN apt-get update
 
-CMD [ "python", "./annotate_images.py"]
+#
+#COPY . .
+##RUN pip install --upgrade tensorflow
+#RUN pip install -e .
+#
+##RUN pip install -r requirements.txt
+#
+#CMD [ "python", "diplomova_praca_lib/annotate_images.py",\
+# "--images_dir=images/", "--save_location=annotated.npy", "=--feature_model=resnet50antepenultimate"]
+

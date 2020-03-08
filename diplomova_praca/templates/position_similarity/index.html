@@ -14,7 +14,10 @@
             <option value="regions">Regions Similarity (4x3)</option>
             <option value="spatially">Spatial Similarity</option>
         </select>
-        <a href="javascript:overlayImage(true)">Show searched image</a>
+        <a href="javascript:showImageTemporarly(true)" id="show_image_show">Show searched
+            image</a>
+        <a href="javascript:showImageTemporarly(false)" id="show_image_hide" style="display:none;">Hide searched
+            image</a>
     </section>
 
     <div id="results">
@@ -69,7 +72,8 @@
                     "json_data": JSON.stringify({
                         "images": getAllImagesPositions(),
                         "method": getSelectedMethod(),
-                        "overlay_image": $("#canvas_overlay").css("background-image")
+                        "overlay_image": $("#canvas_overlay").css("background-image"),
+                        "num_hints": num_hints
                     })
                 },
                 success(response) {
@@ -130,13 +134,31 @@
         }
 
         function overlayImage(to_display) {
-            $("#canvas_overlay").css('z-index', (to_display ? 1 : -1));
+            $("#canvas_overlay").css('z-index', (to_display ? 1 : -1))
+        }
+
+        var timeout;
+        var num_hints = 0;
+        function showImageTemporarly(to_display) {
+            num_hints++;
+            clearTimeout(timeout);
+
+            $("#show_image_show").toggle();
+            $("#show_image_hide").toggle();
+
+            overlayImage(to_display); // Show or hide image
+
+            if (to_display) { // If showed
+                timeout = setTimeout(function () {
+                    showImageTemporarly(false)
+                }, 3000); // Hide it after 3 seconds
+            }
         }
 
         (function ($) {
             $(document).ready(function () {
                 $(function () {
-                    setTimeout(overlayImage, 3000);
+                    showImageTemporarly(true);
                 });
 
                 $('#add_image').click(function () {
