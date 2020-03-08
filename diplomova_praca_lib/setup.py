@@ -22,5 +22,8 @@ setuptools.setup(
     entry_points={'console_scripts': ['annotate_images=diplomova_prace_lib.annotate_images:main'], },
     install_requires=[
         'tensorflow>=2.0',
+        'face-recognition',
+        'Pillow',
+        'numpy',
     ]
 )
