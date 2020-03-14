@@ -2,10 +2,9 @@
 FROM tensorflow/tensorflow:latest-gpu-py3
 
 RUN apt-get update
-
+RUN apt-get install -y cmake libsm6 libxext6 libxrender-dev
 WORKDIR /project
-COPY code code
-WORKDIR code/diplomova_praca_lib
+COPY . .
 RUN pip install -e .
 
 CMD /bin/bash

@@ -1,26 +1,22 @@
+import json
 import logging
 import os
+from pathlib import Path
 from random import randrange
 
-from django.conf import settings
-from django.contrib.staticfiles.storage import StaticFilesStorage
-from django.contrib.staticfiles.utils import get_files
-from django.core.files.storage import default_storage
-from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-import json
 from django.templatetags.static import static
-
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 
 from diplomova_praca_lib.position_similarity.models import UrlImage, PositionSimilarityRequest, Crop
 from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request, \
     spatial_similarity_request
-
 from .models import PositionRequest
 
-THUMBNAILS_PATH = "images/lookup/thumbnails/"
+# STATIC_DIR = settings.STATICFILES_DIRS[0]
+THUMBNAILS_PATH = os.path.join("static", "images", "lookup", "thumbnails")
 
 @csrf_exempt
 def index(request):
@@ -29,7 +25,8 @@ def index(request):
 
 @csrf_exempt
 def position_similarity(request):
-    context = {"search_image": get_random_image()}
+    random_image_path = random_image_path()
+    context = {"search_image": random_image_path.as_posix()}
     return render(request, 'position_similarity/index.html', context)
 
 
@@ -68,10 +65,28 @@ def json_to_position_similarity_request(json_data):
     return PositionSimilarityRequest(images)
 
 
+class Memoize:
+    def __init__(self, f):
+        self.f = f
+        self.memo = {}
 
-def random_image_id():
-    import rstr
-    return rstr.xeger(r'0[0-9]{7}')
+    def __call__(self, *args):
+        if not args in self.memo:
+            self.memo[args] = self.f(*args)
+        # Warning: You may wish to do a deepcopy here if returning objects
+        return self.memo[args]
 
-def get_random_image():
-    return static(os.path.join(THUMBNAILS_PATH, f"{randrange(101745):08d}.jpg")) # TODO
+
+@Memoize
+def available_images():
+    available_images = [Path(THUMBNAILS_PATH, str(path)[str(path).index(THUMBNAILS_PATH) + len(THUMBNAILS_PATH) + 1:])
+                        for path in Path(THUMBNAILS_PATH).rglob('*.jpg')]
+
+    return available_images
+
+
+def random_image_path():
+    images = available_images()
+    query_id = randrange(len(images))
+    return Path("/", images[query_id])
+

@@ -1,11 +1,10 @@
 import collections
-import json
+import glob
+import logging
+import os
 from pathlib import Path
 
 import numpy as np
-import glob, os
-import logging
-
 import tensorflow
 
 
@@ -15,6 +14,11 @@ class Storage:
 
 
 class FileStorage(Storage):
+    @staticmethod
+    def save_data(directory, filename, data):
+        Path(directory).mkdir(parents=True, exist_ok=True)
+        FileStorage.save_data_to_file(Path(directory, filename), data)
+
     @staticmethod
     def save_data_to_file(filename, data):
         np.save(filename, data)
@@ -28,9 +32,13 @@ class FileStorage(Storage):
         return tensorflow.keras.preprocessing.image.load_img(filename)
 
     @staticmethod
+    def directories(path):
+        return [i for i in Path(path).glob('*/') if i.is_dir()]
+
+    @staticmethod
     def load_images_continuously(dir_path, recursively=True):
         if recursively:
-            image_files = Path(dir_path).rglob('*.jpg')
+            image_files = list(Path(dir_path).rglob('*.jpg'))
         else:
             image_files = glob.glob(os.path.join(dir_path, "*.jpg"))
 

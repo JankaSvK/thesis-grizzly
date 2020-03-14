@@ -25,5 +25,7 @@ setuptools.setup(
         'face-recognition',
         'Pillow',
         'numpy',
+        'opencv-python',
+        'scikit-learn'
     ]
 )
