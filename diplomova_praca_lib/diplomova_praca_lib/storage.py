@@ -1,9 +1,9 @@
-import collections
 import glob
 import logging
 import os
 from pathlib import Path
 from typing import Iterable
+
 import numpy as np
 import tensorflow
 
@@ -17,13 +17,20 @@ class Storage:
 
 class FileStorage(Storage):
     @staticmethod
-    def save_data(directory, filename, data):
+    def save_data(directory, filename, data, compressed=True):
         Path(directory).mkdir(parents=True, exist_ok=True)
-        FileStorage.save_data_to_file(Path(directory, filename), data)
+        if compressed:
+            FileStorage.save_compressed(Path(directory, filename), data)
+        else:
+            FileStorage.save_data_to_file(Path(directory, filename), data)
 
     @staticmethod
     def save_data_to_file(filename, data):
         np.save(filename, data)
+
+    @staticmethod
+    def save_compressed(filename, data):
+        np.savez_compressed(filename, data)
 
     @staticmethod
     def load_data_from_file(filename):
