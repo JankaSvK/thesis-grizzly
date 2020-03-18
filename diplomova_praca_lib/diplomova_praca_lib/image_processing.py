@@ -1,10 +1,13 @@
-import tensorflow
+from typing import List
+
+import PIL
+import cv2
+import numpy as np
+import tensorflow as tf
+from PIL import Image
 
 from diplomova_praca_lib.position_similarity.models import Crop
 from diplomova_praca_lib.utils import cap_value
-import cv2
-import numpy as np
-import PIL
 
 
 def split_image_to_regions(image, num_horizontal_regions, num_vertical_regions):
@@ -17,12 +20,23 @@ def crop_image(image: PIL.Image, crop: Crop):
     width, height = image.size
     return image.crop((crop.left * width, crop.top * height, crop.right * width, crop.bottom * height))
 
+def resize_image(image):
+    # type: (Image) -> np.ndarray
+    image = tf.keras.preprocessing.image.img_to_array(image)
+    return cv2.resize(image, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+
+def images_as_model_inputs(images):
+    # type: (List[Image]) -> np.ndarray
+    """Preprocess PIL.Images and returns as a batch"""
+    images = [resize_image(x) for x in images]
+    normalized_images = tf.keras.applications.imagenet_utils.preprocess_input(np.stack(images))
+    return normalized_images
 
 def image_array_as_model_input(image):
-    image = tensorflow.keras.preprocessing.image.img_to_array(image)
-    image = cv2.resize(image, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+    # type: (Image) -> np.ndarray
+    image = resize_image(image)
     image = np.expand_dims(image, axis=0)
-    return tensorflow.keras.applications.imagenet_utils.preprocess_input(image)
+    return tf.keras.applications.imagenet_utils.preprocess_input(image)
 
 
 def pil_image_to_np_array(pil_image):

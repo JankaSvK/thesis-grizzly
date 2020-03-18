@@ -3,9 +3,11 @@ import glob
 import logging
 import os
 from pathlib import Path
-
+from typing import Iterable
 import numpy as np
 import tensorflow
+
+from diplomova_praca_lib.position_similarity.models import ImageData
 
 
 class Storage:
@@ -36,19 +38,18 @@ class FileStorage(Storage):
         return [i for i in Path(path).glob('*/') if i.is_dir()]
 
     @staticmethod
-    def load_images_continuously(dir_path, recursively=True):
+    def load_images_continuously(dir_path, recursively=True) -> Iterable[ImageData]:
         if recursively:
             image_files = list(Path(dir_path).rglob('*.jpg'))
         else:
             image_files = glob.glob(os.path.join(dir_path, "*.jpg"))
 
         print("Found %d images." % len(image_files))
-        Image = collections.namedtuple("Image", ["filename", "image"])
         for i, filename in enumerate(image_files):
-            if i % 5 == 0: print("Processing %d out of %d." % (i, len(image_files)))
+            if i % 20 == 0: print("Processing %d out of %d." % (i, len(image_files)))
             logging.debug("Loading image %s" % filename)
             image = FileStorage.load_image_from_file(filename)
-            yield Image(filename=filename, image=image)
+            yield ImageData(filename=filename, image=image)
 
 
 class Database:

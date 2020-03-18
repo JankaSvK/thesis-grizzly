@@ -2,7 +2,7 @@ from typing import List
 
 import PIL
 
-from diplomova_praca_lib.image_processing import image_array_as_model_input, split_image_to_regions
+from diplomova_praca_lib.image_processing import image_array_as_model_input, split_image_to_regions, images_as_model_inputs
 import numpy as np
 
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
@@ -13,8 +13,9 @@ class EvaluatingSpatially:
         self.similarity_measure = similarity_measure
         self.model = model
 
-    def features(self, image):
-        return self.model.predict(image_array_as_model_input(image))
+    def features(self, images):
+        # type: (List[PIL.Image]) -> np.ndarray
+        return self.model.predict(images_as_model_inputs(images))
 
     @staticmethod
     def avg_pool(features):
@@ -64,8 +65,9 @@ class EvaluatingRegions:
         self.similarity_measure = similarity_measure
         self.model = model
 
-    def features(self, image):
-        return self.features_on_image_regions(image)
+    def features(self, images):
+        # type: (List[PIL.Image]) -> np.ndarray
+        return self.model.predict(images_as_model_inputs(images))
 
     def features_on_image_regions(self, image, regions=(4, 3)):
         """

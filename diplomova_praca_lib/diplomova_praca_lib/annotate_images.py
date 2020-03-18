@@ -9,11 +9,12 @@ from diplomova_praca_lib.position_similarity.evaluation_mechanisms import Evalua
 from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate
 from diplomova_praca_lib.position_similarity.models import RegionsFeaturesRecord
 from diplomova_praca_lib.storage import FileStorage
+from diplomova_praca_lib.utils import batches
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--images_dir", default="", type=str, help="Path to image directory.")
+    parser.add_argument("--images_dir", default=None, type=str, help="Path to image directory.")
     parser.add_argument('--feature_model',
                         default='resnet50',
                         const='all',
@@ -35,10 +36,15 @@ def main():
 
         images_features = []
         directories = FileStorage.directories(args.images_dir) or [args.images_dir]
+        print()
+        print("Found %d directories." % len(directories))
         for directory in directories:
-            for image in FileStorage.load_images_continuously(directory):
-                features = evaluation_mechanism.features(image.image)
-                images_features.append(RegionsFeaturesRecord(filename=image.filename, regions_features=features))
+            print("Processing directory {}".format(directory))
+            for images_data in batches(FileStorage.load_images_continuously(directory), batch_size=32):
+                features = evaluation_mechanism.features([sample.image for sample in images_data])
+                for image_features, image_data in zip(features, images_data):
+                    images_features.append(
+                        RegionsFeaturesRecord(filename=image_data.filename, regions_features=image_features))
 
             FileStorage.save_data(args.save_location, filename(args.feature_model, Path(directory).name),
                                   images_features)
