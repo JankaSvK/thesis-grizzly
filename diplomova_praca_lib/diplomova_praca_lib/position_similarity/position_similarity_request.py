@@ -1,6 +1,7 @@
 import base64
 import re
 from io import BytesIO
+from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
@@ -14,12 +15,17 @@ from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMe
 from diplomova_praca_lib.storage import FileStorage, Database
 from diplomova_praca_lib.utils import filename_without_extensions
 
-database_regions = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000.npy"))
-database_spatially = Database(
-    FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000_spatially.npy"))
+# database_regions = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000.npy"))
+database_regions = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\5videos-resnet50"))
+# database_spatially = Database(
+#     FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000_spatially.npy"))
+
+database_spatially = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\5videos-resnet50antepenultimate"))
 
 evaluating_regions = EvaluatingRegions(similarity_measure=cosine_similarity, model=Resnet50())
 evaluating_spatially = EvaluatingSpatially(similarity_measure=cosine_similarity, model=Resnet50Antepenultimate())
+
+images_prefix = Path(r"C:\Users\janul\Desktop\tmp_datasets\first5videos")
 
 
 def position_similarity_request(request: PositionSimilarityRequest):
@@ -31,7 +37,7 @@ def position_similarity_request(request: PositionSimilarityRequest):
         best_matches.append(evaluating_regions.best_matches(image_information.crop, image, database_regions.records))
 
     ranking = RankingMechanism.summing(best_matches)
-    return [filename_without_extensions(path) for path in ranking]
+    return [str(path.relative_to(images_prefix)) for path in ranking]
 
 
 def spatial_similarity_request(request: PositionSimilarityRequest):
@@ -44,7 +50,7 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
             evaluating_spatially.best_matches(image_information.crop, image, database_spatially.records))
 
     ranking = RankingMechanism.summing(best_matches)
-    return [filename_without_extensions(path) for path in ranking]
+    return  [str(path.relative_to(images_prefix)) for path in ranking]
 
 
 def is_url(url):

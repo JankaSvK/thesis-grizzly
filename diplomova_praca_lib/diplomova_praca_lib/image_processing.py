@@ -32,13 +32,6 @@ def images_as_model_inputs(images):
     normalized_images = tf.keras.applications.imagenet_utils.preprocess_input(np.stack(images))
     return normalized_images
 
-def image_array_as_model_input(image):
-    # type: (Image) -> np.ndarray
-    image = resize_image(image)
-    image = np.expand_dims(image, axis=0)
-    return tf.keras.applications.imagenet_utils.preprocess_input(image)
-
-
 def pil_image_to_np_array(pil_image):
     return np.array(pil_image)
 

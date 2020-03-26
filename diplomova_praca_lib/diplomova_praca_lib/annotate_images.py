@@ -48,6 +48,7 @@ def main():
 
             FileStorage.save_data(args.save_location, filename(args.feature_model, Path(directory).name),
                                   images_features)
+            images_features = []
 
     elif args.feature_model == 'face_features':
         # TODO fix

@@ -1,4 +1,5 @@
 import glob
+import itertools
 import logging
 import os
 from pathlib import Path
@@ -30,11 +31,17 @@ class FileStorage(Storage):
 
     @staticmethod
     def save_compressed(filename, data):
-        np.savez_compressed(filename, data)
+        np.savez_compressed(filename, data=data)
 
     @staticmethod
     def load_data_from_file(filename):
         return np.load(filename, allow_pickle=True)
+
+    @staticmethod
+    def load_datafiles(dir_path):
+        datafiles =  list(Path(dir_path).rglob('*.npz'))
+        data = [(FileStorage.load_data_from_file(f))['data'] for f in datafiles]
+        return list(itertools.chain(*data))
 
     @staticmethod
     def load_image_from_file(filename):

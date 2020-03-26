@@ -118,3 +118,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
+
+# Database over annotated images
+DATABASE_REGIONS = None
+DATABASE_SPATIALLY = r"C:\Users\janul\Desktop\saved_annotations\5videos-resnet50antepenultimate"
+DATABASE_FACES = None
+SPATIALLY_RESULTS = 100
