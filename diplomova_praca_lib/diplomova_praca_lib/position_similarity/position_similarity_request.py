@@ -1,7 +1,6 @@
 import base64
 import re
 from io import BytesIO
-from pathlib import Path
 from urllib.parse import urlparse
 
 import requests
@@ -13,20 +12,26 @@ from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
 from diplomova_praca_lib.storage import FileStorage, Database
-from diplomova_praca_lib.utils import filename_without_extensions
 
-# database_regions = Database(FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000.npy"))
-database_regions = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\5videos-resnet50"))
-# database_spatially = Database(
-#     FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\1000_spatially.npy"))
 
-database_spatially = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\5videos-resnet50antepenultimate"))
+class Environment:
+    database_spatially = None
+    database_regions = None
+    evaluating_regions = None
+    evaluating_spatially = None
+    results_limit = 100
 
-evaluating_regions = EvaluatingRegions(similarity_measure=cosine_similarity, model=Resnet50())
-evaluating_spatially = EvaluatingSpatially(similarity_measure=cosine_similarity, model=Resnet50Antepenultimate())
+    @staticmethod
+    def initialize(regions_path, spatially_path):
+        Environment.database_regions = Database(FileStorage.load_datafiles(regions_path))
+        Environment.evaluating_regions = EvaluatingRegions(similarity_measure=cosine_similarity, model=Resnet50(),
+                                                           database=Environment.database_regions)
 
-images_prefix = Path(r"C:\Users\janul\Desktop\tmp_datasets\first5videos")
+        Environment.database_spatially = Database(FileStorage.load_datafiles(spatially_path))
 
+        Environment.evaluating_spatially = EvaluatingSpatially(similarity_measure=cosine_similarity,
+                                                               model=Resnet50Antepenultimate(),
+                                                               database=Environment.database_spatially)
 
 def position_similarity_request(request: PositionSimilarityRequest):
     # TODO: only regions so far
@@ -34,10 +39,10 @@ def position_similarity_request(request: PositionSimilarityRequest):
 
     best_matches = []
     for image_information, image in zip(request.images, downloaded_images):
-        best_matches.append(evaluating_regions.best_matches(image_information.crop, image, database_regions.records))
+        best_matches.append(Environment.evaluating_regions.best_matches(image_information.crop, image))
 
     ranking = RankingMechanism.summing(best_matches)
-    return [str(path.relative_to(images_prefix)) for path in ranking]
+    return [str(path) for path in ranking[:Environment.results_limit]]
 
 
 def spatial_similarity_request(request: PositionSimilarityRequest):
@@ -47,10 +52,10 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
     best_matches = []
     for image_information, image in zip(request.images, downloaded_images):
         best_matches.append(
-            evaluating_spatially.best_matches(image_information.crop, image, database_spatially.records))
+            Environment.evaluating_spatially.best_matches(image_information.crop, image))
 
     ranking = RankingMechanism.summing(best_matches)
-    return  [str(path.relative_to(images_prefix)) for path in ranking]
+    return [str(path) for path in ranking[:Environment.results_limit]]
 
 
 def is_url(url):

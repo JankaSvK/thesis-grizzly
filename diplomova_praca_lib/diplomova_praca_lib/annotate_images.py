@@ -3,8 +3,6 @@ from pathlib import Path
 
 from sklearn.metrics.pairwise import cosine_similarity
 
-from diplomova_praca_lib.face_features.feature_vector_models import face_features
-from diplomova_praca_lib.face_features.models import FaceDetectionsRecord
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially
 from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate
 from diplomova_praca_lib.position_similarity.models import RegionsFeaturesRecord
@@ -29,10 +27,12 @@ def main():
         evaluation_mechanism = None
         if args.feature_model == 'resnet50':
             features_model = Resnet50()
-            evaluation_mechanism = EvaluatingRegions(similarity_measure=cosine_similarity, model=features_model)
+            evaluation_mechanism = EvaluatingRegions(similarity_measure=cosine_similarity, model=features_model,
+                                                     database=None)
         elif args.feature_model == 'resnet50antepenultimate':
             features_model = Resnet50Antepenultimate()
-            evaluation_mechanism = EvaluatingSpatially(similarity_measure=cosine_similarity, model=features_model)
+            evaluation_mechanism = EvaluatingSpatially(similarity_measure=cosine_similarity, model=features_model,
+                                                       database=None)
 
         images_features = []
         directories = FileStorage.directories(args.images_dir) or [args.images_dir]
@@ -44,18 +44,19 @@ def main():
                 features = evaluation_mechanism.features([sample.image for sample in images_data])
                 for image_features, image_data in zip(features, images_data):
                     images_features.append(
-                        RegionsFeaturesRecord(filename=image_data.filename, regions_features=image_features))
+                        RegionsFeaturesRecord(filename=Path(image_data.filename).relative_to(args.images_dir),
+                                              regions_features=image_features))
 
             FileStorage.save_data(args.save_location, filename(args.feature_model, Path(directory).name),
-                                  images_features)
+                                  data=images_features, src_dir=args.images_dir, model=args.feature_model)
             images_features = []
 
     elif args.feature_model == 'face_features':
         # TODO fix
         images_features = []
-        for image in FileStorage.load_images_continuously(args.images_dir):
-            images_features.append(FaceDetectionsRecord(filename=image.filename, detections=face_features(image.image)))
-        FileStorage.save_data_to_file(args.save_location, images_features)
+        # for image in FileStorage.load_images_continuously(args.images_dir):
+        #     images_features.append(FaceDetectionsRecord(filename=image.filename, detections=face_features(image.image)))
+        # FileStorage.save_data_to_file(args.save_location, images_features)
 
     else:
         raise ValueError('Unknown `feature_model`.')

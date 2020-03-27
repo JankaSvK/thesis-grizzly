@@ -119,9 +119,9 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+# Increase request limit to support more than 2 images
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5 MB
 
-# Database over annotated images
-DATABASE_REGIONS = None
-DATABASE_SPATIALLY = r"C:\Users\janul\Desktop\saved_annotations\5videos-resnet50antepenultimate"
+
 DATABASE_FACES = None
-SPATIALLY_RESULTS = 100
+

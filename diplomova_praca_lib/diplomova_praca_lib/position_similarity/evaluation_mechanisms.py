@@ -9,9 +9,11 @@ from diplomova_praca_lib.utils import batches
 
 
 class EvaluatingSpatially:
-    def __init__(self, similarity_measure, model):
+    def __init__(self, similarity_measure, model, database):
         self.similarity_measure = similarity_measure
         self.model = model
+        self.database = database
+
 
     def features(self, images):
         # type: (List[PIL.Image]) -> np.ndarray
@@ -45,7 +47,7 @@ class EvaluatingSpatially:
         subimage_features = features_vectors[:, xmin:xmax, ymin:ymax, :]
         return EvaluatingSpatially.avg_pool(subimage_features)
 
-    def best_matches(self, query_crop: Crop, query_image: PIL.Image, database_items):
+    def best_matches(self, query_crop: Crop, query_image: PIL.Image):
         """
         Sorts the database items based on the similarity to the query.
         :param query_crop: Position of queried image
@@ -53,6 +55,8 @@ class EvaluatingSpatially:
         :param database_items: List of features (result of apentultimate layer -- i.e. 3D)
         :return: List of sorted database items based on their similarity to query
         """
+        database_items = self.database.records
+
         query_image_features = self.model.predict(images_as_model_inputs([query_image]))[0]
         query_image_features = np.expand_dims(query_image_features, axis=0)
 
@@ -69,9 +73,10 @@ class EvaluatingSpatially:
 
 
 class EvaluatingRegions:
-    def __init__(self, similarity_measure, model):
+    def __init__(self, similarity_measure, model, database):
         self.similarity_measure = similarity_measure
         self.model = model
+        self.database = database
 
     def features(self, images):
         # type: (List[PIL.Image]) -> List[List[RegionFeatures]]
@@ -90,28 +95,6 @@ class EvaluatingRegions:
 
         return images_features
 
-    #
-    # def features_on_image_regions(self, image, regions=(4, 3)):
-    #     """
-    #     Computes regions representation over the image
-    #     :param image: PIL.Image
-    #     :param regions: Tuple (width, height) of designed geomery of regions
-    #     :return: List of tuples (crop, feature) for each region.
-    #     """
-    #     image_features = []
-    #
-    #     # Evaluate whole image
-    #     image_features.append(
-    #         RegionFeatures(crop=Crop(0, 0, 1, 1), features=self.model.predict(images_as_model_inputs([image]))))
-    #
-    #     # Evaluate each subregion
-    #     regions = split_image_to_regions(image, *regions)
-    #     for region_crop, region_image in regions:
-    #         image_features.append(RegionFeatures(crop=region_crop,
-    #                                              features=self.model.predict(images_as_model_inputs([region_image]))))
-    #
-    #     return image_features
-
     @staticmethod
     def regions_overlap_ordering(query_crop: Crop, image_crops: List[Crop]):
         # Returns ordering of image  crops (their indexes) based on the overlap
@@ -120,9 +103,9 @@ class EvaluatingRegions:
 
         return ious_sorted_indexes
 
-    def best_matches(self, query_crop, query_image, database_items: List[RegionFeatures]):
+    def best_matches(self, query_crop, query_image):
+        database_items = self.database.records
         query_image_features = self.model.predict(images_as_model_inputs([query_image]))[0]
-        # query_image_features = np.expand_dims(query_image_features, axis=0)
 
         scores = []
         for path, features in database_items:

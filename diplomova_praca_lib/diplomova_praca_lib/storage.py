@@ -18,20 +18,14 @@ class Storage:
 
 class FileStorage(Storage):
     @staticmethod
-    def save_data(directory, filename, data, compressed=True):
+    def save_data(directory, filename, compressed=True, **kwargs):
         Path(directory).mkdir(parents=True, exist_ok=True)
+        path = Path(directory, filename)
+
         if compressed:
-            FileStorage.save_compressed(Path(directory, filename), data)
+            np.savez_compressed(path, **kwargs)
         else:
-            FileStorage.save_data_to_file(Path(directory, filename), data)
-
-    @staticmethod
-    def save_data_to_file(filename, data):
-        np.save(filename, data)
-
-    @staticmethod
-    def save_compressed(filename, data):
-        np.savez_compressed(filename, data=data)
+            np.save(path, **kwargs)
 
     @staticmethod
     def load_data_from_file(filename):
@@ -67,5 +61,7 @@ class FileStorage(Storage):
 
 
 class Database:
-    def __init__(self, records):
+    def __init__(self, records, src_path=None, model=None):
         self.records = records
+        self.src_path = src_path
+        self.model = model
