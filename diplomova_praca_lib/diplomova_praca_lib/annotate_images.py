@@ -39,6 +39,11 @@ def main():
         print()
         print("Found %d directories." % len(directories))
         for directory in directories:
+            save_location = Path(args.save_location, filename(args.feature_model, Path(directory).name, extension='.npz'))
+            if save_location.exists():
+                print("Skipping directory {}".format(directory))
+                continue
+
             print("Processing directory {}".format(directory))
             for images_data in batches(FileStorage.load_images_continuously(directory), batch_size=32):
                 features = evaluation_mechanism.features([sample.image for sample in images_data])
@@ -62,8 +67,8 @@ def main():
         raise ValueError('Unknown `feature_model`.')
 
 
-def filename(feature_model, directory):
-    return "model-{},dir-{}".format(feature_model, directory)
+def filename(feature_model, directory, extension = ''):
+    return "model-{},dir-{}{extension}".format(feature_model, directory, extension=extension)
 
 if __name__ == '__main__':
     main()

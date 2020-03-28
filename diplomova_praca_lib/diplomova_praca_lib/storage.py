@@ -18,9 +18,8 @@ class Storage:
 
 class FileStorage(Storage):
     @staticmethod
-    def save_data(directory, filename, compressed=True, **kwargs):
-        Path(directory).mkdir(parents=True, exist_ok=True)
-        path = Path(directory, filename)
+    def save_data(path, compressed=True, **kwargs):
+        Path(path).mkdir(parents=True, exist_ok=True)
 
         if compressed:
             np.savez_compressed(path, **kwargs)
