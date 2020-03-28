@@ -19,7 +19,8 @@ def batches(iterator, batch_size):
             yield batch
             batch = []
 
-    yield batch
+    if batch:
+        yield batch
 
 
 class Memoize:
