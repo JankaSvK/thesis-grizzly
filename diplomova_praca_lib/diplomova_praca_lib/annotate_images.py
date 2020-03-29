@@ -49,10 +49,11 @@ def main():
                 features = evaluation_mechanism.features([sample.image for sample in images_data])
                 for image_features, image_data in zip(features, images_data):
                     images_features.append(
-                        RegionsFeaturesRecord(filename=Path(image_data.filename).relative_to(args.images_dir),
-                                              regions_features=image_features))
+                        RegionsFeaturesRecord(
+                            filename=str(Path(image_data.filename).relative_to(args.images_dir).as_posix()),
+                            regions_features=image_features))
 
-            FileStorage.save_data(args.save_location, filename(args.feature_model, Path(directory).name),
+            FileStorage.save_data(Path(args.save_location, filename(args.feature_model, Path(directory).name)),
                                   data=images_features, src_dir=args.images_dir, model=args.feature_model)
             images_features = []
 

@@ -19,12 +19,14 @@ class Storage:
 class FileStorage(Storage):
     @staticmethod
     def save_data(path, compressed=True, **kwargs):
-        Path(path).mkdir(parents=True, exist_ok=True)
+        Path(path.parents[0]).mkdir(parents=True, exist_ok=True)
 
         if compressed:
             np.savez_compressed(path, **kwargs)
         else:
             np.save(path, **kwargs)
+
+        print("Results saved in {}".format(path))
 
     @staticmethod
     def load_data_from_file(filename):
