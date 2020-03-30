@@ -4,11 +4,12 @@ import PIL
 import numpy as np
 
 from diplomova_praca_lib.image_processing import split_image_to_regions, images_as_model_inputs
+from diplomova_praca_lib.models import EvaluationMechanism
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
 from diplomova_praca_lib.utils import batches
 
 
-class EvaluatingSpatially:
+class EvaluatingSpatially(EvaluationMechanism):
     def __init__(self, similarity_measure, model, database):
         self.similarity_measure = similarity_measure
         self.model = model
@@ -72,7 +73,7 @@ class EvaluatingSpatially:
 
 
 
-class EvaluatingRegions:
+class EvaluatingRegions(EvaluationMechanism):
     def __init__(self, similarity_measure, model, database):
         self.similarity_measure = similarity_measure
         self.model = model
