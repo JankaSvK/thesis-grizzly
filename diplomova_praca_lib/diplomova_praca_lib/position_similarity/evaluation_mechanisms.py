@@ -3,7 +3,7 @@ from typing import List
 import PIL
 import numpy as np
 
-from diplomova_praca_lib.image_processing import split_image_to_regions, images_as_model_inputs
+from diplomova_praca_lib.image_processing import split_image_to_regions, normalized_images
 from diplomova_praca_lib.models import EvaluationMechanism
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
 from diplomova_praca_lib.utils import batches
@@ -18,7 +18,7 @@ class EvaluatingSpatially(EvaluationMechanism):
 
     def features(self, images):
         # type: (List[PIL.Image]) -> np.ndarray
-        return self.model.predict(images_as_model_inputs(images))
+        return self.model.predict(normalized_images(images))
 
     @staticmethod
     def avg_pool(features):
@@ -58,7 +58,7 @@ class EvaluatingSpatially(EvaluationMechanism):
         """
         database_items = self.database.records
 
-        query_image_features = self.model.predict(images_as_model_inputs([query_image]))[0]
+        query_image_features = self.model.predict(normalized_images([query_image]))[0]
         query_image_features = np.expand_dims(query_image_features, axis=0)
 
         scores = []
@@ -87,7 +87,7 @@ class EvaluatingRegions(EvaluationMechanism):
         crops, regions_images = map(list, zip(*split_image_to_regions(image, *regions)))
         regions_images.append(image)
 
-        inputs = images_as_model_inputs(regions_images)
+        inputs = normalized_images(regions_images)
         regions_features = self.model.predict(inputs)
 
         images_features = [RegionFeatures(crop=crop, features=features) for crop, features in
@@ -106,7 +106,7 @@ class EvaluatingRegions(EvaluationMechanism):
 
     def best_matches(self, query_crop, query_image):
         database_items = self.database.records
-        query_image_features = self.model.predict(images_as_model_inputs([query_image]))[0]
+        query_image_features = self.model.predict(normalized_images([query_image]))[0]
 
         scores = []
         for path, features in database_items:

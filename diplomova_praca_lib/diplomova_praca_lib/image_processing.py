@@ -25,14 +25,14 @@ def resize_image(image):
     image = tf.keras.preprocessing.image.img_to_array(image)
     return cv2.resize(image, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
 
-def images_as_model_inputs(images):
+def normalized_images(images):
     # type: (List[Image]) -> np.ndarray
     """Preprocess PIL.Images and returns as a batch"""
     images = [resize_image(x) for x in images]
     normalized_images = tf.keras.applications.imagenet_utils.preprocess_input(np.stack(images))
     return normalized_images
 
-def pil_image_to_np_array(pil_image):
+def image_as_array(pil_image):
     return np.array(pil_image)
 
 
