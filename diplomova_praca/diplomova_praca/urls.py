@@ -27,7 +27,7 @@ urlpatterns = [
     path('', position_similarity.views.index),
     path('position_similarity/', position_similarity.views.position_similarity),
     path('face_features/', face_features.views.index),
-    path('face_features/<str:image_id>/', face_features.views.selectImage),
+    path('face_features/post', face_features.views.select_face_post, name="select_face_post"),
     path('position_similarity/post', position_similarity.views.position_similarity_post,
          name="position_similarity_post"),
 

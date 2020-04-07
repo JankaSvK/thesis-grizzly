@@ -6,39 +6,89 @@
 {% endblock %}
 
 {% block content %}
-    <h1>Face Features</h1>
+    {#    <button onclick="sendRequest()">Call Request</button>#}
 
-    <div id="image_table">
-        {#        <a href="00001040"><img class="img_container" src="{% static "images/lookup/00001040.jpg" %}"></a>#}
-        {% for image in images %}
-            <div class="img-container">
-                <div class="img_container" style="position:relative">
-                    <a href="{{ image.link }}">
-                        <img
+    {#    <div class="box">#}
+    {#  <span class="wrap"><span class="touch"></span></span>#}
+    {#  <span class="wrap"><span class="touch"></span></span>#}
+    {#  <span class="wrap"><span class="touch"></span></span>#}
+    {#  <span class="wrap"><span class="touch"></span></span>#}
+    {#        <p>Inside the box</p>#}
+    {#</div>#}
 
-                                src="{{ image.img_src }}"
-                                alt="face"
-                                style="clip-path: inset({{ image.crop }});position:absolute"
-                        >
-                        <img
-                                src="{{ image.img_src }}"
-                                alt="face"
-                                style="opacity:0.5;position:absolute;"
-                        >
-                    </a>
-                </div>
-            </div>
+    <div id="query_zone">
+        <i class="arrow right"></i> <i class="arrow left"></i> <i class="arrow up"></i> <i class="arrow down"></i>
 
-            {% if forloop.counter|divisibleby:4 %}
-                <div class="clear"></div>
-            {% endif %}
-        {% endfor %}
+        <div id="image_table">
+
+        </div>
     </div>
 
     <script>
+        $(document).ready(function () {
+            sendRequest();
+        });
+
+        function som_image(src, crop) {
+            var img_width = 320;
+            var img_height = 180;
+            var fixed_height = 80;
+            var crop_height = img_height * crop['height'];
+            var crop_width = img_width * crop['width'];
+            var crop_x = -crop['x'] * img_width;
+            var crop_y = -crop['y'] * img_height;
+
+            var ratio = fixed_height / crop_height;
+
+            return `<div    class="column"
+                            style="width:${crop_width * ratio}px; height:${crop_height * ratio}px; overflow:hidden;">
+                        <img    src=${src}
+                                style="width:${img_width * ratio}px; height:${img_height * ratio}px; object-position: ${crop_x * ratio}px ${crop_y * ratio}px; object-fit:cover;"
+                        />
+                    </div>`;
+            {# template using inset to crop faces #}
+            {# <img src=${src} style="clip-path: inset(${crop['inset']})"/> #}
+        }
+
+        function row_divider() {
+            return `<div class="clear"></div>`
+        }
+
+        function sendRequest() {
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                url: "{% url 'select_face_post' %}",
+                data: {
+                    "json_data": JSON.stringify({
+                        "face_id": 0
+                    })
+                },
+                success(response) {
+                    console.log(response);
+                    let som_table_content = [];
+                    for (const row of response['table']) {
+                        som_table_content.push(`<div class="row">`);
+                        for (const face of row) {
+                            console.log(face['img_src']);
+                            console.log(face['crop']);
+
+
+                            som_table_content.push(som_image(face['img_src'], face['crop']));
+                        }
+                        som_table_content.push(`</div>`);
+                        som_table_content.push(row_divider());
+                    }
+
+                    $("#image_table").html(som_table_content.join(""));
+                },
+                failure(data) {
+                    console.log("Failure", data);
+                }
+            });
+        }
+
 
 
     </script>
-
-
 {% endblock %}

@@ -13,7 +13,7 @@ class Crop:
     """
     Always stores information between [0,1]
     """
-    def __init__(self, top, left, width=None, height=None, bottom=None, right=None):
+    def __init__(self, left, top,  width=None, height=None, right=None, bottom=None):
         self.top = top
         self.left = left
         if width and height:
