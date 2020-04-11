@@ -1,56 +1,57 @@
-import collections
-
-import random
-from minisom import MiniSom
 import numpy as np
 
 from diplomova_praca_lib.face_features import clustering
-from diplomova_praca_lib.position_similarity.models import Crop
+from diplomova_praca_lib.face_features.map_features import SOM
+from diplomova_praca_lib.face_features.models import FaceCrop
 from diplomova_praca_lib.storage import FileStorage, Database
 from diplomova_praca_lib.utils import filename_without_extensions
-FaceCrop = collections.namedtuple("FaceCrop", ['src', 'crop'])
 
 database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces_2ndtry"))
 
-features = []
-hash_features = []
-for path, all_faces_features in database.records:
-    for crop, face_features in all_faces_features:
-        hash_features.append(FaceCrop(path, crop))
-        features.append(face_features)
 
-som_shape = (6,6)
-som = MiniSom(*som_shape, 128, sigma=0.3, learning_rate=0.5)
-som.train_random(features, 100000)
-winner_coordinates = np.array([som.winner(x) for x in features]).T
-cluster_index = np.ravel_multi_index(winner_coordinates, som_shape)
+# database = Database(FileStorage.load_datafiles(r"/mnt/c/Users/janul/Desktop/saved_annotations/750_faces_2ndtry"))
+class Environment:
+    features_info = []
+    features = []
+    som = None
 
-# Get random image from that particular cluster
-# ma 36 neuronov, kazdy obrazok je priradeny k danemu neuronu.
+    def __init__(self):
+        for path, all_faces_features in database.records:
+            for crop, face_features in all_faces_features:
+                Environment.features_info.append(FaceCrop(path, crop))
+                Environment.features.append(face_features)
 
-
-choices = {}
-for cluster_id in set(cluster_index):
-    features_idxs = [idx for idx, value in enumerate(cluster_index) if value == cluster_id]
-    choice = random.choice(features_idxs)
-    choices[cluster_id] = hash_features[choice]
-
-# print(choices)
-def transform_dic_to_lists(shape, data):
-    result = np.empty(shape=shape + (0,)).tolist()
-    for cluster_id, face_crop in data.items():
-        i,j = np.unravel_index(cluster_id, som_shape)
-        result[i][j] = face_crop
-    return result
-# som = SOM(features)
-a = (transform_dic_to_lists(som_shape, choices))
+        Environment.som = SOM((12, 26), 128)
+        Environment.som.train_som(Environment.features)
 
 
-def fake_request(request):
-    return transform_dic_to_lists(som_shape, choices)
+env = Environment()
+
 
 def face_features_request(request):
-    clusters = clustering.group_clusters_to_lists(features, clustering.split_to_n_clusters(features, 16))
+    som_weights = env.som.som.get_weights()
+    representatives = SOM.closest_representatives2(np.reshape(som_weights, (-1, som_weights.shape[2])), env.features)
+    sampled_grid_shape, sample_grid_idxs = SOM.sample_som(env.som.som_shape, 2)
+
+
+    representatives_info = [Environment.features_info[i_feature] for i_feature in representatives]
+    result = [representatives_info[i_slice * env.som.som_shape[1]:(i_slice + 1) * env.som.som_shape[1]]
+               for i_slice in range(env.som.som_shape[0])]
+
+
+    # result = np.empty(shape=Environment.som.som_shape + (0,)).tolist()
+    # for (i, j), i_feature in Environment.som.closest_representatives(env.features).items():
+    #     result[i][j] = Environment.features_info[i_feature]
+    #
+    sampled_som_idxs = SOM.sample_som(env.som.som_shape, 2)
+
+
+    return result
+
+
+def face_features_request_old(request):
+    clusters = clustering.group_clusters_to_lists(Environment.features,
+                                                  clustering.split_to_n_clusters(Environment.features, 16))
     images_path = []
     for cluster in clusters:
         representative = clustering.find_representative(cluster)

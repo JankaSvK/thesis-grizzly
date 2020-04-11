@@ -1,21 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
+{#{% load staticfiles %}#}
+
 
 {% block styles %}
     <link rel="stylesheet" href="{% static 'face_features/styles.css' %}">
 {% endblock %}
 
 {% block content %}
-    {#    <button onclick="sendRequest()">Call Request</button>#}
-
-    {#    <div class="box">#}
-    {#  <span class="wrap"><span class="touch"></span></span>#}
-    {#  <span class="wrap"><span class="touch"></span></span>#}
-    {#  <span class="wrap"><span class="touch"></span></span>#}
-    {#  <span class="wrap"><span class="touch"></span></span>#}
-    {#        <p>Inside the box</p>#}
-    {#</div>#}
-
     <div id="query_zone">
         <i class="arrow right"></i> <i class="arrow left"></i> <i class="arrow up"></i> <i class="arrow down"></i>
 
@@ -29,22 +21,23 @@
             sendRequest();
         });
 
-        function som_image(src, crop) {
+        function som_image(src, crop, link) {
             var img_width = 320;
             var img_height = 180;
             var fixed_height = 80;
             var crop_height = img_height * crop['height'];
             var crop_width = img_width * crop['width'];
-            var crop_x = -crop['x'] * img_width;
-            var crop_y = -crop['y'] * img_height;
+            var crop_x = crop['x'] * img_width;
+            var crop_y = crop['y'] * img_height;
 
             var ratio = fixed_height / crop_height;
 
+            // TODO: Rewrite as DOM jQuery object
             return `<div    class="column"
                             style="width:${crop_width * ratio}px; height:${crop_height * ratio}px; overflow:hidden;">
-                        <img    src=${src}
-                                style="width:${img_width * ratio}px; height:${img_height * ratio}px; object-position: ${crop_x * ratio}px ${crop_y * ratio}px; object-fit:cover;"
-                        />
+                        <a href="javascript:sendRequest('${link}')"><img src=${src}
+                                style="width:${img_width * ratio}px; height:${img_height * ratio}px; object-position: ${-crop_x * ratio}px ${-crop_y * ratio}px; object-fit:cover;"
+                        /></a>
                     </div>`;
             {# template using inset to crop faces #}
             {# <img src=${src} style="clip-path: inset(${crop['inset']})"/> #}
@@ -54,27 +47,22 @@
             return `<div class="clear"></div>`
         }
 
-        function sendRequest() {
+        function sendRequest(image_src) {
             $.ajax({
                 type: "POST",
                 dataType: 'json',
                 url: "{% url 'select_face_post' %}",
                 data: {
                     "json_data": JSON.stringify({
-                        "face_id": 0
+                        "image_src": image_src
                     })
                 },
                 success(response) {
-                    console.log(response);
                     let som_table_content = [];
                     for (const row of response['table']) {
                         som_table_content.push(`<div class="row">`);
                         for (const face of row) {
-                            console.log(face['img_src']);
-                            console.log(face['crop']);
-
-
-                            som_table_content.push(som_image(face['img_src'], face['crop']));
+                            som_table_content.push(som_image(face['img_src'], face['crop'], face['link']));
                         }
                         som_table_content.push(`</div>`);
                         som_table_content.push(row_divider());

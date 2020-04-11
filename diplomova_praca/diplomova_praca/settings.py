@@ -24,7 +24,7 @@ SECRET_KEY = '4vhebj8zato5fus*2fb^l%pi3$fu_5&o&0#x&lb39%(7ass9vk'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['217.30.72.202', '127.0.0.1', 'onyx']
 
 # Application definition
 
@@ -113,11 +113,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
-
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+# STATIC_ROOT = r"C:\Users\janul\Desktop\thesis\code\diplomova_praca\staticfiles"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
+
 
 # Increase request limit to support more than 2 images
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5 MB
@@ -125,3 +127,10 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5 MB
 
 DATABASE_FACES = None
 
+
+USE_LOCKDOWN = False
+
+if USE_LOCKDOWN:
+    INSTALLED_APPS += ('lockdown',)
+    MIDDLEWARE += ('lockdown.middleware.LockdownMiddleware',)
+    LOCKDOWN_PASSWORDS = ('letmein',)

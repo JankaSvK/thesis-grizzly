@@ -26,6 +26,7 @@ setuptools.setup(
         'Pillow',
         'numpy',
         'opencv-python',
-        'scikit-learn'
+        'scikit-learn',
+        'MiniSom'
     ]
 )
