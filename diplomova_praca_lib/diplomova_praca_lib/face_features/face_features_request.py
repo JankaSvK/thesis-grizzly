@@ -1,8 +1,11 @@
+import collections
+from enum import Enum
+
 import numpy as np
 
 from diplomova_praca_lib.face_features import clustering
 from diplomova_praca_lib.face_features.map_features import SOM
-from diplomova_praca_lib.face_features.models import FaceCrop
+from diplomova_praca_lib.face_features.models import FaceCrop, FaceView, NoMoveError, Coords
 from diplomova_praca_lib.storage import FileStorage, Database
 from diplomova_praca_lib.utils import filename_without_extensions
 
@@ -21,32 +24,73 @@ class Environment:
                 Environment.features_info.append(FaceCrop(path, crop))
                 Environment.features.append(face_features)
 
-        Environment.som = SOM((12, 26), 128)
-        Environment.som.train_som(Environment.features)
+        Environment.som = SOM((100, 200), 128)
+        Environment.som.train_som(Environment.features, epochs=150)
 
 
 env = Environment()
 
 
-def face_features_request(request):
-    som_weights = env.som.som.get_weights()
-    representatives = SOM.closest_representatives2(np.reshape(som_weights, (-1, som_weights.shape[2])), env.features)
-    sampled_grid_shape, sample_grid_idxs = SOM.sample_som(env.som.som_shape, 2)
+class Action(Enum):
+    NONE = 0
+    LEFT = 1
+    RIGHT = 2
+    UP = 3
+    DOWN = 4
+    IN = 5
+    OUT = 6
 
 
-    representatives_info = [Environment.features_info[i_feature] for i_feature in representatives]
-    result = [representatives_info[i_slice * env.som.som_shape[1]:(i_slice + 1) * env.som.som_shape[1]]
-               for i_slice in range(env.som.som_shape[0])]
+curr_faceview = FaceView(*env.som.som_shape)
 
 
-    # result = np.empty(shape=Environment.som.som_shape + (0,)).tolist()
-    # for (i, j), i_feature in Environment.som.closest_representatives(env.features).items():
-    #     result[i][j] = Environment.features_info[i_feature]
-    #
-    sampled_som_idxs = SOM.sample_som(env.som.som_shape, 2)
+def map_movement(action: Action, faceview: FaceView, chosen_coords=None):
+    if action == Action.NONE:
+        return
+
+    try:
+        if action == Action.LEFT:
+            faceview.move_left(2)
+        if action == Action.RIGHT:
+            faceview.move_right(2)
+        if action == Action.DOWN:
+            faceview.move_down(2)
+        if action == Action.UP:
+            faceview.move_up(2)
+        if action == Action.IN:
+            faceview.move_in(0.5, chosen_coords)
+        if action == Action.OUT:
+            faceview.move_out(0.5)
+    except NoMoveError:
+        return
 
 
-    return result
+FaceFeaturesResponse = collections.namedtuple("FaceFeaturesResponse", ["grid", "view"])
+
+
+def face_features_request(action, view, selected_coords=None):
+    # Check the original position
+    if view == None:
+        view = FaceView(*env.som.som_shape)
+
+    true_selected_coords = None
+    if selected_coords:
+        new_x = view.width() * selected_coords.x
+        new_y = view.height() * selected_coords.y
+
+        true_selected_coords = Coords(x = round(new_x + view.top_left.x), y = round(new_y + view.top_left.y))
+
+    map_movement(action, view, true_selected_coords)
+    # som_shape = view.shape()
+    repr = env.som.view_representatives(view)
+    representatives_info = [Environment.features_info[int(i_feature)] for i_feature in repr.flatten()]
+    result = [representatives_info[i_slice * repr.shape[1]:(i_slice + 1) * repr.shape[1]]
+              for i_slice in range(repr.shape[0])]
+
+    return FaceFeaturesResponse(result, view)
+
+# chyba je ze request ti dava absolutnu poziciu vramci usera, nie ako to je vo view. takze treba prepocitaat
+
 
 
 def face_features_request_old(request):
