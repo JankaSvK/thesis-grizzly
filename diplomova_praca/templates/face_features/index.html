@@ -67,9 +67,14 @@
             $.ajax({
                 type: "POST",
                 dataType: 'json',
-                url: "{% url 'select_face_post' %}",
+                {#url: "{% url 'select_face_post' %}",#}
+                url: "{% url 'repr_tree_post' %}",
                 data: {
                     "json_data": JSON.stringify({
+                        "layer": {
+                            "index" : null,
+                            "center" : null
+                        },
                         "action": action,
                         "view": view,
                         "selected": link,

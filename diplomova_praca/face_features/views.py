@@ -5,7 +5,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 
-from diplomova_praca_lib.face_features.face_features_request import face_features_request, Action
+from diplomova_praca_lib.face_features.face_features_request import face_features_request, Action, face_tree_request
 from diplomova_praca_lib.face_features.models import FaceView, Coords
 from diplomova_praca_lib.position_similarity.models import Crop
 from shared.utils import thumbnail_path
@@ -21,6 +21,23 @@ def index(request):
 
 actions = {None: Action.NONE, 'up': Action.UP, 'down': Action.DOWN, 'left': Action.LEFT, 'right': Action.RIGHT,
            'out': Action.OUT, 'in': Action.IN}
+
+
+@csrf_exempt
+def repr_tree_post(request):
+    json_request = json.loads(request.POST['json_data'])
+    print(json_request)
+
+    if json_request['action'] is None:
+        # Initialize default top view
+        face_grid_response = face_tree_request(0, None, None)
+    else:
+        print("sending in action")
+        action = actions[json_request['action']]
+        face_grid_response = face_tree_request(curr_layer=0, chosen=int(json_request['selected']), action=action)
+    return JsonResponse(as_context(face_grid_response.grid, FaceView(100, 200)), status=200)
+
+
 
 @csrf_exempt
 def select_face_post(request):
@@ -44,7 +61,7 @@ def select_face_post(request):
     return JsonResponse(as_context(grid, new_view), status=200)
 
 
-def as_context(grid, view: FaceView):
+def as_context(grid, view: FaceView, center_position = (0,0)):
     context = {}
     context['view'] = {"top_left_x": view.top_left.x, "top_left_y": view.top_left.y,
                        "bottom_right_x": view.bottom_right.x, "bottom_right_y": view.bottom_right.y,
@@ -66,9 +83,14 @@ def as_context(grid, view: FaceView):
                     "height": item.crop.height,
                     "inset": crop_as_css_inset(item.crop)
                 },
+                "feature_id": item.index,
                 "link": item.src,
                 "i_row": i_row,
-                "i_column": i_column
+                "i_column": i_column,
+                "position": {
+                    "x": None,
+                    "y": None
+                }
             })
         context['table'].append(row_items)
 

@@ -1,7 +1,5 @@
-import position_similarity.views
 import face_features.views
-
-from django.http import HttpResponseRedirect
+import position_similarity.views
 
 """diplomova_praca URL Configuration
 
@@ -18,7 +16,6 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
@@ -27,8 +24,9 @@ urlpatterns = [
     path('', position_similarity.views.index),
     path('position_similarity/', position_similarity.views.position_similarity),
     path('face_features/', face_features.views.index),
-    path('face_features/post', face_features.views.select_face_post, name="select_face_post"),
+    # path('face_features/post', face_features.views.select_face_post, name="select_face_post"),
     path('position_similarity/post', position_similarity.views.position_similarity_post,
          name="position_similarity_post"),
+    path('face_features/post', face_features.views.repr_tree_post, name="repr_tree_post"),
 
 ]

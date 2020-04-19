@@ -4,25 +4,27 @@ from enum import Enum
 import numpy as np
 
 from diplomova_praca_lib.face_features import clustering
-from diplomova_praca_lib.face_features.map_features import SOM
+from diplomova_praca_lib.face_features.map_features import SOM, RepresentativesTree
 from diplomova_praca_lib.face_features.models import FaceCrop, FaceView, NoMoveError, Coords
 from diplomova_praca_lib.storage import FileStorage, Database
 from diplomova_praca_lib.utils import filename_without_extensions
 
 database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces_2ndtry"))
-
-
 # database = Database(FileStorage.load_datafiles(r"/mnt/c/Users/janul/Desktop/saved_annotations/750_faces_2ndtry"))
+
 class Environment:
     features_info = []
     features = []
     som = None
 
     def __init__(self):
+        i_feature = 0
         for path, all_faces_features in database.records:
             for crop, face_features in all_faces_features:
-                Environment.features_info.append(FaceCrop(path, crop))
+                Environment.features_info.append(FaceCrop(path, crop, i_feature))
                 Environment.features.append(face_features)
+                i_feature += 1
+
 
         Environment.som = SOM((100, 200), 128)
         Environment.som.train_som(Environment.features, epochs=150)
@@ -66,6 +68,32 @@ def map_movement(action: Action, faceview: FaceView, chosen_coords=None):
 
 
 FaceFeaturesResponse = collections.namedtuple("FaceFeaturesResponse", ["grid", "view"])
+
+repr_tree = RepresentativesTree(env.som.representatives)
+
+Response = collections.namedtuple("Response", ["images_grid", "layer"])
+LayerInfo = collections.namedtuple("LayerInfo", ["layer_index", "top_left", "shape"])
+
+
+def face_tree_request(curr_layer, chosen, action):
+    if curr_layer == 0 and action is None:
+        layer_info = LayerInfo(layer_index=0, top_left=Coords(0, 0), shape=repr_tree.layers[0].shape)
+        return Response(images_grid=map_grid_to_infos(repr_tree.neighbourhood(0, repr_tree.center)), layer=layer_info)
+    if action == Action.IN:
+        new_center = repr_tree.element_position(curr_layer + 1, chosen)
+        chosen_neighbourhood = repr_tree.neighbourhood(curr_layer + 1, new_center
+        return Response(grid=map_grid_to_infos(chosen_neighbourhood), layer_ind=curr_layer + 1)
+    raise ValueError
+
+
+def map_grid_to_infos(grid: np.ndarray):
+    infos = []
+    for row in grid:
+        row_items = []
+        for item in row:
+            row_items.append(Environment.features_info[item])
+        infos.append(row_items)
+    return infos
 
 
 def face_features_request(action, view, selected_coords=None):

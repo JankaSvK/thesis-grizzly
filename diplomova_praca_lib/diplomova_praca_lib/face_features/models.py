@@ -1,6 +1,6 @@
 import collections
 
-FaceCrop = collections.namedtuple("FaceCrop", ['src', 'crop'])
+FaceCrop = collections.namedtuple("FaceCrop", ['src', 'crop', 'index'])
 FaceDetection = collections.namedtuple('FaceDetection', ['crop', 'encoding'])
 FaceDetectionsRecord = collections.namedtuple('Record', ['filename', 'detections'])
 Coords = collections.namedtuple('Coords', ['x', 'y'])
