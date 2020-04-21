@@ -5,7 +5,7 @@ from django.shortcuts import render
 # Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 
-from diplomova_praca_lib.face_features.face_features_request import face_features_request, Action, TreeView
+from diplomova_praca_lib.face_features.face_features_request import Action, TreeView
 from diplomova_praca_lib.face_features.models import FaceView, Coords
 from diplomova_praca_lib.position_similarity.models import Crop
 from shared.utils import thumbnail_path

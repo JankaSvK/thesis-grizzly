@@ -3,12 +3,10 @@ from enum import Enum
 
 import numpy as np
 
-from diplomova_praca_lib.face_features import clustering
 from diplomova_praca_lib.face_features.map_features import SOM, RepresentativesTree
-from diplomova_praca_lib.face_features.models import FaceCrop, FaceView, NoMoveError, Coords
+from diplomova_praca_lib.face_features.models import FaceCrop, FaceView, NoMoveError
 from diplomova_praca_lib.models import Serializable
 from diplomova_praca_lib.storage import FileStorage, Database
-from diplomova_praca_lib.utils import filename_without_extensions
 
 database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces_2ndtry"))
 # database = Database(FileStorage.load_datafiles(r"/mnt/c/Users/janul/Desktop/saved_annotations/750_faces_2ndtry"))
@@ -28,7 +26,7 @@ class Environment:
 
 
         Environment.som = SOM((100, 200), 128)
-        Environment.som.train_som(Environment.features, epochs=150)
+        Environment.som.train_som(Environment.features, epochs=22)
 
 
 env = Environment()
@@ -168,19 +166,15 @@ class TreeView(Serializable):
             raise ValueError("Not supported action for checking.")
 
     def zoom_in(self, x, y):
+        print(x, y)
         x, y = int(x), int(y)
         if not self.can_go(Action.IN):
             return
 
         self.level += 1
-        self.top = round(
-            (self.top + y) * self.repr_tree.FACTOR
-            - self.display_size[0] / 2
-        )
-        self.left = round(
-            (self.left + x) * self.repr_tree.FACTOR
-            - self.display_size[1] / 2
-        )
+        self.top = (self.top + y) * self.repr_tree.FACTOR - self.display_size[0] // 2
+        self.left = (self.left + x) * self.repr_tree.FACTOR - self.display_size[1] // 2
+
 
     def zoom_out(self):
         if not self.can_go(Action.OUT):
@@ -199,28 +193,6 @@ class TreeView(Serializable):
         )
 
 
-def face_tree_request(layer_info, action, selected=None):
-    # tree_view = TreeView(based on POST)
-
-    if layer_info is None:
-        layer_info = LayerInfo(layer_index=0, top_left=Coords(0, 0), shape=repr_tree.layers[0].shape)
-        return Response(images_grid=map_grid_to_infos(repr_tree.neighbourhood(0, repr_tree.center)), layer=layer_info)
-
-    if action == Action.IN:
-        selected = np.array(selected)
-        top_left = np.array(layer_info["top_left"])
-
-        curr_layer_position = selected + top_left
-        next_layer_position = curr_layer_position * 2  # TODO: factor
-
-        chosen_neighbourhood = repr_tree.neighbourhood(layer_info.layer_index, next_layer_position)
-
-        layer_info = LayerInfo(layer_index=layer_info.layer_index + 1, top_left=repr_tree.top_left(next_layer_position),
-                               shape=(-1, -1))
-
-        return Response(images_grid=map_grid_to_infos(chosen_neighbourhood), layer=layer_info)
-    raise ValueError
-
 
 def map_grid_to_infos(grid: np.ndarray):
     infos = []
@@ -231,45 +203,3 @@ def map_grid_to_infos(grid: np.ndarray):
         infos.append(row_items)
     return infos
 
-
-def face_features_request(action, view, selected_coords=None):
-    # Check the original position
-    if view == None:
-        view = FaceView(*env.som.som_shape)
-
-    true_selected_coords = None
-    if selected_coords:
-        new_x = view.width() * selected_coords.x
-        new_y = view.height() * selected_coords.y
-
-        true_selected_coords = Coords(x = round(new_x + view.top_left.x), y = round(new_y + view.top_left.y))
-
-    map_movement(action, view, true_selected_coords)
-    # som_shape = view.shape()
-    repr = env.som.view_representatives(view)
-    representatives_info = [Environment.features_info[int(i_feature)] for i_feature in repr.flatten()]
-    result = [representatives_info[i_slice * repr.shape[1]:(i_slice + 1) * repr.shape[1]]
-              for i_slice in range(repr.shape[0])]
-
-    return FaceFeaturesResponse(result, view)
-
-# chyba je ze request ti dava absolutnu poziciu vramci usera, nie ako to je vo view. takze treba prepocitaat
-
-
-
-def face_features_request_old(request):
-    clusters = clustering.group_clusters_to_lists(Environment.features,
-                                                  clustering.split_to_n_clusters(Environment.features, 16))
-    images_path = []
-    for cluster in clusters:
-        representative = clustering.find_representative(cluster)
-        path, crop = find_source(representative)
-        images_path.append((path, crop))
-    return [(filename_without_extensions(path), crop) for path, crop in images_path]
-
-
-def find_source(query_feature):
-    for path, features in database.records:
-        for crop, f in features:
-            if np.array_equal(f, query_feature):
-                return (path, crop)
