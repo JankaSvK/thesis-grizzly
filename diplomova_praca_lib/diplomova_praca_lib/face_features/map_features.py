@@ -8,15 +8,18 @@ from diplomova_praca_lib.face_features.models import FaceView
 
 
 class RepresentativesTree:
+    FACTOR = 2
+
     def __init__(self, representatives: np.ndarray, display_size=(11, 21)):
         self.representatives = representatives
         self.layers = [representatives] # Smallest has index 0
         self.display_size = display_size
         self.center = self.display_size[0] // 2, self.display_size[1] // 2
-        self.build_tree(2)
+        self.build_tree(self.FACTOR)
 
     def build_tree(self, factor):
         assert factor >= 1
+        assert factor == self.FACTOR
         previous_layer = self.representatives
         while any((a > b for a, b in zip(previous_layer.shape, self.display_size))):
             layer = previous_layer[::factor, ::factor]
@@ -32,18 +35,26 @@ class RepresentativesTree:
     def element_position(self, layer_ind, center):
         return np.argwhere(self.layers[layer_ind] == center)
 
+    def topleft_view(self, level, top_left):
+        return self.layers[level][top_left[0]: top_left[0] + self.display_size[0],
+               top_left[1]: top_left[1] + self.display_size[1]]
+
     def neighbourhood(self, layer_ind: int, center_position: np.ndarray):
         return self.layers[layer_ind][
                center_position[0] - self.display_size[0] // 2:center_position[0] + self.display_size[0] // 2,
                center_position[1] - self.display_size[1] // 2:center_position[1] + self.display_size[1] // 2]
 
-    def layer_up_center(self, layer_ind, center):
-        if np.where(self.layers[layer_ind - 1] == center):
-            return center
+    def top_left(self, center_position: np.ndarray):
+        return max(0, center_position[0] - self.display_size[0] // 2), max(0, center_position[1] - self.display_size[
+            1] // 2)
 
-        curr_relative_position = np.argwhere(self.layers[layer_ind] == center) / self.layers[layer_ind].shape
-        new_position = np.round(curr_relative_position * self.layers[layer_ind - 1].shape)
-        return self.layers[layer_ind - 1][new_position]
+    # def layer_up_center(self, layer_ind, center):
+    #     if np.where(self.layers[layer_ind - 1] == center):
+    #         return center
+    #
+    #     curr_relative_position = np.argwhere(self.layers[layer_ind] == center) / self.layers[layer_ind].shape
+    #     new_position = np.round(curr_relative_position * self.layers[layer_ind - 1].shape)
+    #     return self.layers[layer_ind - 1][new_position]
 
 
 

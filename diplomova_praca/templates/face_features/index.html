@@ -19,28 +19,31 @@
         <div id="image_table">
 
         </div>
-
-        <span id="view_info"></span>
-
     </div>
 
     <script>
-        let display = {
-            width: 0,
-            height: 0,
-            count: 0
-        };
-        var view = null;
-
+        var tree_view = null;
+        var link = null;
         $(document).ready(function () {
             sendRequest(null);
+
         });
 
+        function row_divider() {
+            return `<div class="clear"></div>`
+        }
 
-        function som_image(src, crop, link) {
+        function grid_image(image) {
+            var src = image['img_src'];
+            var crop = image['crop'];
+            var x = image['x'];
+            var y = image['y'];
+
+
             var img_width = 320;
             var img_height = 180;
             var fixed_height = 80;
+
             var crop_height = img_height * crop['height'];
             var crop_width = img_width * crop['width'];
             var crop_x = crop['x'] * img_width;
@@ -48,69 +51,64 @@
 
             var ratio = fixed_height / crop_height;
 
-            // TODO: Rewrite as DOM jQuery object
-            return `<div    class="column"
-                            style="width:${crop_width * ratio}px; height:${crop_height * ratio}px; overflow:hidden;">
-                        <a href="javascript:sendRequest('in', '${link}')"><img src=${src}
-                                style="width:${img_width * ratio}px; height:${img_height * ratio}px; object-position: ${-crop_x * ratio}px ${-crop_y * ratio}px; object-fit:cover;"
-                        /></a>
+            {#TODO: Hide some given properties of styles to css classes#}
+            return `<div class="column" style="
+                        width:${crop_width * ratio}px;
+                        height:${crop_height * ratio}px;
+                        overflow:hidden;"
+                    >
+                        <a href="javascript:sendRequest('in', ${y}, ${x})">
+                            <img src=${src} style="
+                                width:${img_width * ratio}px;
+                                height:${img_height * ratio}px;
+                                object-position: ${-crop_x * ratio}px ${-crop_y * ratio}px;
+                                object-fit:cover;"
+                            />
+                        </a>
                     </div>`;
-            {# template using inset to crop faces #}
-            {# <img src=${src} style="clip-path: inset(${crop['inset']})"/> #}
         }
 
-        function row_divider() {
-            return `<div class="clear"></div>`
+        function update_image_grid(image_grid) {
+            let images_grid = [];
+            for (const row of image_grid) {
+                images_grid.push(`<div class="row">`);
+                for (const image_info of row) {
+                    images_grid.push(grid_image(image_info));
+                }
+                images_grid.push(`</div>`);
+                images_grid.push(row_divider());
+            }
+
+            $("#image_table").html(images_grid.join(""));
         }
 
-        function sendRequest(action, link = null) {
+
+        function sendRequest(action, y = null, x = null) {
+            console.log(tree_view);
+            console.log(action);
+            const data = {
+                "action": action,
+                "x": x,
+                "y": y,
+            };
+            if (tree_view !== null) {
+                data['tree_view'] = tree_view;
+            }
+
             $.ajax({
                 type: "POST",
                 dataType: 'json',
-                {#url: "{% url 'select_face_post' %}",#}
                 url: "{% url 'repr_tree_post' %}",
-                data: {
-                    "json_data": JSON.stringify({
-                        "layer": {
-                            "index" : null,
-                            "center" : null
-                        },
-                        "action": action,
-                        "view": view,
-                        "selected": link,
-                        "display_size": {
-                            "width": display.width,
-                            "height": display.height,
-                            "count": display.count
-                        }
-                    })
-                },
+                data: data,
                 success(response) {
-                    view = response['view'];
-                    let som_table_content = [];
-                    for (const row of response['table']) {
-                        som_table_content.push(`<div class="row">`);
-                        for (const face of row) {
-                            som_table_content.push(som_image(face['img_src'], face['crop'], `${face['i_row']},${face['i_column']}`));
-                        }
-                        som_table_content.push(`</div>`);
-                        som_table_content.push(row_divider());
-                    }
-
-                    $("#image_table").html(som_table_content.join(""));
-                    console.log(view);
-                    $("#view_info").html(JSON.stringify(view, null, 4));
-                    display.width = response['view_width'];
-                    display.height = response['view_height'];
-                    display.count = resposne['view_count'];
+                    console.log(response);
+                    update_image_grid(response['images_grid']);
+                    tree_view = response['tree_view']
                 },
                 failure(data) {
                     console.log("Failure", data);
                 }
             });
         }
-
-
-
     </script>
 {% endblock %}
