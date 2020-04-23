@@ -3,16 +3,21 @@ FROM tensorflow/tensorflow:latest-gpu-py3
 
 
 # Install face recognition dependencies
-
+USER root
 RUN apt update -y; apt install -y \
+gcc-7 \
 git \
 cmake \
 libsm6 \
 libxext6 \
 libxrender-dev \
 python3 \
-python3-pip
+python3-pip \
+libopenblas-dev \
+liblapack-dev
+    
 
+RUN pip3 install --upgrade pip
 RUN pip3 install scikit-build
 
 # Install compilers
@@ -25,14 +30,14 @@ RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 50
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 50
 
 #Install dlib
-
-RUN git clone -b 'v19.16' --single-branch https://github.com/davisking/dlib.git
-RUN mkdir -p /dlib/build
-
-RUN cmake -H/dlib -B/dlib/build -DDLIB_USE_CUDA=1 -DUSE_AVX_INSTRUCTIONS=1
-RUN cmake --build /dlib/build
-
-RUN cd /dlib; python3 /dlib/setup.py install
+#
+#RUN git clone -b 'v19.16' --single-branch https://github.com/davisking/dlib.git
+#RUN mkdir -p /dlib/build
+#
+#RUN cmake -H/dlib -B/dlib/build -DDLIB_USE_CUDA=1 -DUSE_AVX_INSTRUCTIONS=1
+#RUN cmake --build /dlib/build
+#
+#RUN cd /dlib; python3 /dlib/setup.py install
 
 # Install the face recognition package
 

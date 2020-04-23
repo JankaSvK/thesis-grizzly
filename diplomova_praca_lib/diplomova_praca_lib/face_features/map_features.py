@@ -65,8 +65,6 @@ class SOM:
         self.num_features = num_features
         self.som = MiniSom(*som_shape, num_features, sigma=0.3, learning_rate=0.5)
         self.som_size = self.som_shape[0] * self.som_shape[1]
-        self.display_size = (10, 20)  # rows, columns
-        self.display_count = self.display_size[0] * self.display_size[1]
 
 
     def train_som(self, features, epochs=10000):

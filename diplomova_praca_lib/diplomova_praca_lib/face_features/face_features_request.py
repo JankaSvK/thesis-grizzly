@@ -8,7 +8,9 @@ from diplomova_praca_lib.face_features.models import FaceCrop, FaceView, NoMoveE
 from diplomova_praca_lib.models import Serializable
 from diplomova_praca_lib.storage import FileStorage, Database
 
-database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces_2ndtry"))
+# database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces_2ndtry"))
+# database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\3videos-faces-test"))
+database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces"))
 # database = Database(FileStorage.load_datafiles(r"/mnt/c/Users/janul/Desktop/saved_annotations/750_faces_2ndtry"))
 
 class Environment:
@@ -24,13 +26,12 @@ class Environment:
                 Environment.features.append(face_features)
                 i_feature += 1
 
-
-        Environment.som = SOM((100, 200), 128)
-        Environment.som.train_som(Environment.features, epochs=22)
+        Environment.som = SOM((30, 30), 128)
+        Environment.som.train_som(Environment.features, epochs=150)
 
 
 env = Environment()
-
+print(len(env.features))
 
 class Action(Enum):
     NONE = 0
@@ -97,14 +98,22 @@ class TreeView(Serializable):
     def level(self, level):
         self._level = min(max(0, level), len(self.repr_tree.layers))
 
+    def maximal_position(self, axis, level):
+        """Prevents using only a part of the display by scrolling too far."""
+        if self.repr_tree.layers[level].shape[axis] < self.display_size[axis]:
+            return 0  # Smaller view is returned
+
+        return self.repr_tree.layers[level].shape[axis] - self.display_size[axis]
+
     @property
     def top(self):
         return self._top
 
     @top.setter
     def top(self, top):
-        max_position_down = max(0, self.repr_tree.layers[self.level].shape[0] - self.display_size[0] - 1)
-        self._top = min(max(0, top), max_position_down)
+        # TODO: Bug +- 1 error
+        max_position = self.maximal_position(axis=0, level=self.level)
+        self._top = min(max(0, top), max_position)
 
     @property
     def left(self):
@@ -112,8 +121,8 @@ class TreeView(Serializable):
 
     @left.setter
     def left(self, left):
-        max_position_left = max(0, self.repr_tree.layers[self.level].shape[1] - self.display_size[1] - 1)
-        self._left = min(max(0, left), max_position_left)
+        max_position = self.maximal_position(axis=1, level=self.level)
+        self._left = min(max(0, left), max_position)
 
     @property
     def display_size(self):
@@ -151,11 +160,9 @@ class TreeView(Serializable):
         if action == Action.LEFT:
             return self.left > 0
         elif action == Action.RIGHT:
-            max_position_right = self.repr_tree.layers[self.level].shape[1] - self.display_size[1] - 1
-            return self.left < max_position_right
+            return self.left < self.maximal_position(axis=1, level=self.level)
         elif action == Action.DOWN:
-            max_position_down = self.repr_tree.layers[self.level].shape[0] - self.display_size[0] - 1
-            return self.top < max_position_down
+            return self.top < self.maximal_position(axis=0, level=self.level)
         elif action == Action.UP:
             return self.top > 0
         elif action == Action.OUT:
