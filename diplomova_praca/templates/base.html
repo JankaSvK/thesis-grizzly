@@ -9,25 +9,43 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-    <link rel="stylesheet" href="{% static "position_similarity/styles.css" %}">
+    <link rel="stylesheet" href="{% static "styles.css" %}">
+    <script src="{% static 'js/search_results_update.js' %}"></script>
+
     {% block styles %}
     {% endblock %}
     <title>Grizzly</title>
 </head>
 
 <body>
-<header>
-    <div class="centered_container">
+<div id="page_content">
+    <header class="full-width-borders">
+        <h1>Grizzly</h1>
         <ul>
-            <li>Grizzly</li>
             <li><a href="/position_similarity">Spatial Search</a></li>
             <li><a href="/face_features">Face Search</a></li>
         </ul>
-    </div>
-</header>
+    </header>
 
-{% block content %}
-{% endblock %}
+    <section class="content">
+        {% block content %}
+        {% endblock %}
+    </section>
+
+    {% block search_results %}
+        <section id="results" class="full-width-borders">
+            <h1>Results</h1>
+            <div class="search_results">
+                {#Automatically generated images#}
+            </div>
+            <div style="clear: both;"></div>
+        </section>
+    {% endblock %}
+
+    <div class="background_fill"></div>
+
+    <footer class="full-width-borders"><a href="https://github.com/JankaSvK/thesis-grizzly">GitHub</a></footer>
+</div>
 </body>
 </html>
 

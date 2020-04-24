@@ -1,8 +1,12 @@
 {% extends 'base.html' %}
+
 {% load static %}
+{% block styles %}
+    <link rel="stylesheet" href="{% static "position_similarity/styles.css" %}">
+{% endblock %}
 {% block content %}
     <section id="canvas" class="centered_container">
-        <h1>Query</h1>
+        <h2>Query</h2>
         <div id="container">
             <div id="canvas_overlay" style="background-image: url('{{ search_image }}')">
             </div>
@@ -19,17 +23,6 @@
         <a href="javascript:showImageTemporarly(false)" id="show_image_hide" style="display:none;">Hide searched
             image</a>
     </section>
-
-    <div id="results">
-        <section id="ranking" class="centered_container">
-            <h1>Results</h1>
-            <div class="ranking_table">
-                <div class="clear"></div>
-            </div>
-            <div class="clear"></div>
-        </section>
-    </div>
-    <footer></footer>
 
     <script>
         var available_id = 0;
@@ -69,20 +62,7 @@
                     })
                 },
                 success(response) {
-                    let ranking_table_content = [];
-                    let remainder = 0
-                    for (const image of response['ranking_results']) {
-                        ranking_table_content.push("<div class='img-container'><img src=" + image['img_src'] + "></div>");
-                        if (remainder === 3) {
-                            remainder = 0;
-                            ranking_table_content.push("<div class=\"clear\"></div>");
-                        } else {
-                            remainder++;
-                        }
-                    }
-
-                    $(".ranking_table").html(ranking_table_content.join(""));
-
+                    image_table($(".search_results"), response['ranking_results']);
                 },
                 failure(data) {
                     console.log("Failure", data); // TODO

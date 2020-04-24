@@ -1,0 +1,143 @@
+$min_content_width: 800px;
+$highlight_background_color: #2b2b2b;
+$contrastive_text_color: white;
+
+html {
+  height: 100%;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  overflow-x: hidden;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+#page_content {
+  width: 70%;
+  min-width: $min_content_width;
+  margin: 0 auto;
+  min-height: 100vh;
+  position: relative;
+}
+
+header {
+  background-color: $highlight_background_color;
+  width: 100%;
+  display:table;
+  color: $contrastive_text_color;
+
+  h1 {
+    float:left;
+  }
+}
+
+header ul {
+  padding-top:10px;
+  float: left;
+  list-style: none;
+}
+
+header ul li {
+  padding-right: 20px;
+  font-size: 20px;
+  display:inline;
+  vertical-align: middle;
+}
+
+header li a {
+  text-decoration: none;
+  color: $contrastive_text_color;
+}
+
+header li a:hover {
+  background-color: #111;
+}
+
+h1 {
+  color: lightgrey;
+  background-color: $highlight_background_color;
+  font-size: 30px;
+}
+
+
+header div {
+  font-size: 2em;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.content {
+  min-height: 400px;
+  padding: 5px;
+}
+
+.background_fill {
+  height:100%;
+  background-color: $highlight_background_color;
+}
+
+footer {
+  background-color: $highlight_background_color;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 2.5rem;            /* Footer height */
+}
+
+.centered_container {
+  width: 80%;
+  margin: 0 auto
+}
+
+.full-width-borders {
+  /* Credits: https://css-tricks.com/multiple-class-id-selectors/ */
+  margin: 0 -601.5rem;
+  padding: 0.25rem 1.5rem;
+  border-left: 600rem solid $highlight_background_color;
+  border-right: 600rem solid $highlight_background_color;
+}
+
+#results {
+  background-color: $highlight_background_color;
+  .search_results {
+    text-align: center;
+
+    .item {
+      max-width: 100%;
+      min-width: 80px;
+      float: left;
+
+      img {
+        min-width: 100%;
+      }
+    }
+  }
+}
+
+
+.img-container {
+  float: left;
+  width: 24%;
+  padding: 5px;
+  position: relative;
+}
+
+.img-container .close {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 100;
+}
+
+.clear {
+  content: "";
+  clear: both;
+  display: table;
+}
