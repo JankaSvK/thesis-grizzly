@@ -1,5 +1,6 @@
 import face_features.views
 import position_similarity.views
+import shared.views
 
 """diplomova_praca URL Configuration
 
@@ -28,5 +29,6 @@ urlpatterns = [
     path('position_similarity/post', position_similarity.views.position_similarity_post,
          name="position_similarity_post"),
     path('face_features/post', face_features.views.repr_tree_post, name="repr_tree_post"),
+    path('video_images/post', shared.views.video_images, name="video_images_post"),
 
 ]

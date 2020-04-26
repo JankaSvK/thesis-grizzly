@@ -15,6 +15,13 @@ def available_images():
     """
     return [path for path in Path(THUMBNAILS_PATH).rglob('*.jpg')]
 
+@Memoize
+def directories():
+    return [x for x in Path(THUMBNAILS_PATH).iterdir() if x.is_dir()]
+
+@Memoize
+def dir_files(dir:Path):
+    return [path for path in dir.rglob('*.jpg')]
 
 def random_image_path():
     return Path("/", random.choice(available_images()))

@@ -141,3 +141,21 @@ footer {
   clear: both;
   display: table;
 }
+
+.wrap_corner_icon {
+  display: inline-block;
+  position: relative;
+}
+
+.icon_top_right {
+  opacity: 0.1;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.icon:hover,
+.icon:focus {
+  opacity: 1.0;
+  filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
+}

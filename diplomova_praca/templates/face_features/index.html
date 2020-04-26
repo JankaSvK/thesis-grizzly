@@ -22,6 +22,8 @@
     </div>
 
     <script>
+        var src_dict = {};
+
         var tree_view = null;
         var link = null;
         $(document).ready(function () {
@@ -35,6 +37,10 @@
 
         function grid_image(image) {
             var src = image['img_src'];
+
+            var new_id = Object.keys(src_dict).length;
+            src_dict[new_id] = src;
+
             var crop = image['crop'];
             var x = image['x'];
             var y = image['y'];
@@ -52,7 +58,7 @@
             var ratio = fixed_height / crop_height;
 
             {#TODO: Hide some given properties of styles to css classes#}
-            return `<div class="column" style="
+            return `<div class="column wrap_corner_icon" style="
                         width:${crop_width * ratio}px;
                         height:${crop_height * ratio}px;
                         overflow:hidden;"
@@ -64,6 +70,9 @@
                                 object-position: ${-crop_x * ratio}px ${-crop_y * ratio}px;
                                 object-fit:cover;"
                             />
+                        </a>
+                        <a href='javascript:video_images_request(${new_id})'>
+                            <img src="{% static "images/icon_eye.svg" %}" class="icon_top_right icon" />
                         </a>
                     </div>`;
         }
@@ -80,6 +89,26 @@
             }
 
             $("#image_table").html(images_grid.join(""));
+        }
+
+
+        function video_images_request(id) {
+            const data = {
+                "src": src_dict[id]
+            };
+            $.ajax({
+                type: "POST",
+                dataType: 'json',
+                url: "{% url 'video_images_post' %}",
+                data: data,
+                success(response) {
+                    console.log(response);
+                    image_table($(".search_results"), response['files']);
+                },
+                failure(data) {
+                    console.log("Failure", data);
+                }
+            });
         }
 
 
