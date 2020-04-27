@@ -2,6 +2,10 @@
 {% load static %}
 {#{% load staticfiles %}#}
 
+{% block javascript %}
+    <script src="{% static 'js/hiding_overlay_image.js' %}"></script>
+{% endblock %}
+
 
 {% block styles %}
     <link rel="stylesheet" href="{% static 'face_features/styles.css' %}">
@@ -9,24 +13,34 @@
 
 {% block content %}
 
-    <div id="query_zone">
-        <a href="javascript:sendRequest('right')"><i class="arrow right"></i></a>
-        <a href="javascript:sendRequest('left')"><i class="arrow left"></i></a>
-        <a href="javascript:sendRequest('up')"><i class="arrow up"></i></a>
-        <a href="javascript:sendRequest('down')"><i class="arrow down"></i></a>
-        <a href="javascript:sendRequest('out')">OUT</a>
+    <div class="image_overlay_wrap">
+        <div id="overlay" class="image_overlay" style="background-image: url('{{ search_image }}')">
+        </div>
 
-        <div id="image_table">
+        <div id="query_zone">
+            <a href="javascript:sendRequest('right')"><i class="arrow right"></i></a>
+            <a href="javascript:sendRequest('left')"><i class="arrow left"></i></a>
+            <a href="javascript:sendRequest('up')"><i class="arrow up"></i></a>
+            <a href="javascript:sendRequest('down')"><i class="arrow down"></i></a>
+            <a href="javascript:sendRequest('out')">OUT</a>
 
+            <a href="javascript:showImageTemporarly(true);" id="show_image_show">Show searched
+                image</a>
+            <a href="javascript:showImageTemporarly(false);" id="show_image_hide" style="display:none;">Hide searched
+                image</a>
+
+            <div id="image_table">
+
+            </div>
         </div>
     </div>
-
     <script>
         var src_dict = {};
 
         var tree_view = null;
         var link = null;
         $(document).ready(function () {
+            showImageTemporarly(true);
             sendRequest(null);
 
         });

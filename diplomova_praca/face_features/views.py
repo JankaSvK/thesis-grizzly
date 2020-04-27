@@ -1,21 +1,17 @@
-import json
-
 from django.http import JsonResponse
 from django.shortcuts import render
-# Create your views here.
 from django.views.decorators.csrf import csrf_exempt
 
-from diplomova_praca_lib.face_features.face_features_request import Action, TreeView
-from diplomova_praca_lib.face_features.models import FaceView, Coords
+from diplomova_praca_lib.face_features.face_features_request import TreeView
 from diplomova_praca_lib.position_similarity.models import Crop
-from shared.utils import thumbnail_path
+from shared.utils import thumbnail_path, random_image_path
 
 THUMBNAILS_PATH = "images/lookup/thumbnails/"
 
 
 @csrf_exempt
 def index(request):
-    context = {}
+    context = {"search_image": random_image_path().as_posix()}
     return render(request, 'face_features/index.html', context)
 
 
@@ -63,12 +59,19 @@ def preprocess_image_grid(images_grid):
         for i_item, item in enumerate(row):
             row_items.append({
                 "img_src": path_preprocess(item.src),
-                "crop": crop_preprocess(item.crop),
+                "crop": crop_preprocess(size_up(item.crop)),
                 "x": i_item,
                 "y": i_row
             })
         images_grid_preprocessed.append(row_items)
     return images_grid_preprocessed
+
+
+def size_up(crop: Crop):
+    size_up_c = 0.01
+    return Crop(left=max(0, crop.left - size_up_c), top=max(0, crop.top - size_up_c),
+                right=min(1, crop.right + size_up_c),
+                bottom=min(1, crop.bottom + size_up_c))
 
 #
 # @csrf_exempt
