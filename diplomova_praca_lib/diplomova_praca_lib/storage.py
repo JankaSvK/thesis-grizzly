@@ -34,9 +34,10 @@ class FileStorage(Storage):
 
     @staticmethod
     def load_datafiles(dir_path):
-        datafiles =  list(Path(dir_path).rglob('*.npz'))
+        datafiles = Path(dir_path).rglob('*.npz')
         data = [(FileStorage.load_data_from_file(f))['data'] for f in datafiles]
-        return list(itertools.chain(*data))
+        return np.concatenate(data)
+        # return list(itertools.chain(*data))
 
     @staticmethod
     def load_image_from_file(filename):
