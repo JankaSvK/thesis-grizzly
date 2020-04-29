@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from diplomova_praca_lib.face_features.face_features_request import TreeView
 from diplomova_praca_lib.position_similarity.models import Crop
+from face_features.models import FaceFeaturesSubmission
 from shared.utils import thumbnail_path, random_image_path
 
 THUMBNAILS_PATH = "images/lookup/thumbnails/"
@@ -14,6 +15,15 @@ def index(request):
     context = {"search_image": random_image_path().as_posix()}
     return render(request, 'face_features/index.html', context)
 
+
+@csrf_exempt
+def submit(request):
+    record = FaceFeaturesSubmission()
+    record.request = request.POST.get('request', '')
+    record.selected = request.POST.get('selected', '')
+    record.num_hints = request.POST.get('num_hints', '')
+    record.save()
+    return JsonResponse({}, status=200)
 
 @csrf_exempt
 def repr_tree_post(request):

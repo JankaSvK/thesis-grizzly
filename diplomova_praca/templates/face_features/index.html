@@ -105,6 +105,25 @@
             $("#image_table").html(images_grid.join(""));
         }
 
+        function submit(chosen) {
+            const data = {
+                "request": "{{ search_image }}",
+                "selected": chosen,
+                "num_hints": num_hints_for_overlay,
+            };
+            console.log(data);
+            $.ajax({
+                type: "POST",
+                url: "{% url 'video_images_submit' %}",
+                data: data,
+                success(response) {
+                    console.log(response);
+                },
+                failure(data) {
+                    console.log("Failure", data);
+                }
+            });}
+
 
         function video_images_request(id) {
             const data = {
@@ -117,7 +136,8 @@
                 data: data,
                 success(response) {
                     console.log(response);
-                    image_table($(".search_results"), response['files']);
+                    {#image_table(dom_element=$(".search_results"), images=response['files'], submit_func=null, submit_icon_path={% static "images/icon_eye.svg" %});#}
+                    image_table($(".search_results"), response['files'], "{% static "images/icon_submit.svg" %}");
                 },
                 failure(data) {
                     console.log("Failure", data);

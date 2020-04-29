@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'position_similarity.apps.PositionSimilarityConfig',
+    'face_features'
 ]
 
 MIDDLEWARE = [
