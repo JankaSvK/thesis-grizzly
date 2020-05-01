@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import numpy as np
+
 
 def cap_value(value, minimum, maximum):
     return max(minimum, min(value, maximum))
@@ -22,6 +24,11 @@ def batches(iterator, batch_size):
     if batch:
         yield batch
 
+def k_largest(a, k):
+    return np.argpartition(a, -k)[-k:].tolist()
+
+def sorted_indexes(a, reverse=True):
+    return list(sorted(range(len(a)), key=lambda k: a[k], reverse=reverse))
 
 class Memoize:
     def __init__(self, f):
@@ -33,3 +40,5 @@ class Memoize:
             self.memo[args] = self.f(*args)
         # Warning: You may wish to do a deepcopy here if returning objects
         return self.memo[args]
+
+

@@ -1,3 +1,4 @@
+import pickle
 from pathlib import Path
 
 import numpy as np
@@ -7,7 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from diplomova_praca_lib import storage
 
 DATA_PATH = r"C:\Users\janul\Desktop\saved_annotations\750_resnet50_new"
-OUTPUT_DIR = r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres"
+OUTPUT_DIR = r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2"
 
 
 def main():
@@ -24,11 +25,14 @@ def main():
     scaler = StandardScaler()
     features_normalized = scaler.fit_transform(dataset_features)
 
-    pca = PCA(n_components=0.8)
+    pca = PCA(n_components=256)
     features_transformed = pca.fit_transform(features_normalized)
 
+    print("Components = ", pca.n_components_, ";\nTotal explained variance = ",
+          round(pca.explained_variance_ratio_.sum(), 5))
+
     storage.FileStorage.save_data(Path(OUTPUT_DIR, "data"), features=features_transformed, crops=crops, paths=paths,
-                                  pca_params=pca.get_params(), scaler=scaler.get_params())
+                                  pca=pickle.dumps(pca), scaler=pickle.dumps(scaler))
 
 
 if __name__ == '__main__':

@@ -50,7 +50,7 @@
             console.log(getAllImagesPositions());
 
             $.ajax({
-                type: "POST",
+                type: 'POST',
                 dataType: 'json',
                 url: "{% url 'position_similarity_post' %}",
                 data: {

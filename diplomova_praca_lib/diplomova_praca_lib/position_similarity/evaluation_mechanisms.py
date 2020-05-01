@@ -6,7 +6,7 @@ import numpy as np
 from diplomova_praca_lib.image_processing import split_image_to_regions, normalized_images
 from diplomova_praca_lib.models import EvaluationMechanism
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
-from diplomova_praca_lib.utils import batches
+from diplomova_praca_lib.utils import batches, k_largest, sorted_indexes
 
 
 class EvaluatingSpatially(EvaluationMechanism):
@@ -71,6 +71,15 @@ class EvaluatingSpatially(EvaluationMechanism):
         sorted_scores_idx = list(sorted(range(len(scores)), key=lambda k: scores[k], reverse=True))
         return [database_items[score_idx][0] for score_idx in sorted_scores_idx]
 
+class EvaluatingRegions2:
+    def __init__(self, similarity_measure):
+        self.similarity_measure = similarity_measure
+
+    def best_match(self, query, features, num_results):
+        similarities = self.similarity_measure([query], features)[0]
+        largest_idxs = k_largest(similarities, num_results)
+        largest_values = similarities[largest_idxs]
+        return list(np.array(largest_idxs)[sorted_indexes(largest_values)])
 
 
 class EvaluatingRegions(EvaluationMechanism):
