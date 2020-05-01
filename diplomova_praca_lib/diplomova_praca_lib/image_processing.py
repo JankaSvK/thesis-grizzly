@@ -20,15 +20,18 @@ def crop_image(image: PIL.Image, crop: Crop):
     width, height = image.size
     return image.crop((crop.left * width, crop.top * height, crop.right * width, crop.bottom * height))
 
-def resize_image(image):
-    # type: (Image) -> np.ndarray
-    image = tf.keras.preprocessing.image.img_to_array(image)
-    return cv2.resize(image, dsize=(224, 224), interpolation=cv2.INTER_CUBIC)
+
+def img_as_array(img):
+    return tf.keras.preprocessing.image.img_to_array(img)
+
+
+def resize_image(image, target_shape=(224, 224)):
+    return cv2.resize(image, dsize=target_shape, interpolation=cv2.INTER_CUBIC)
 
 def normalized_images(images):
     # type: (List[Image]) -> np.ndarray
     """Preprocess PIL.Images and returns as a batch"""
-    images = [resize_image(x) for x in images]
+    images = [resize_image(tf.keras.preprocessing.image.img_to_array(x)) for x in images]
     normalized_images = tf.keras.applications.imagenet_utils.preprocess_input(np.stack(images))
     return normalized_images
 

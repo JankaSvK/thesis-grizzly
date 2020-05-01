@@ -1,6 +1,8 @@
-import logging
-import tensorflow
 import numpy as np
+import tensorflow
+import tensorflow as tf
+
+from diplomova_praca_lib.image_processing import resize_image
 
 
 class FeatureVectorModel:
@@ -12,14 +14,30 @@ class FeatureVectorModel:
 
 
 class Resnet50(FeatureVectorModel):
-    def __init__(self):
+    def __init__(self, input_shape=(224, 224, 3)):
         super().__init__()
+
+        self.input_shape = input_shape
 
         # returns (1,2048)
         self.model = tensorflow.keras.applications.resnet50.ResNet50(weights='imagenet',
                                                                      pooling='avg',
-                                                                     include_top=False)
+                                                                     include_top=False, input_shape=input_shape)
         # logging.debug(self.model.summary())
+
+    def resize_and_preprocess(self, images):
+        images = [resize_image(tf.keras.preprocessing.image.img_to_array(x), target_shape=self.input_shape[:2])
+                  for x in images]
+        normalized_images = self.preprocess_input(np.stack(images))
+        return normalized_images
+
+    def preprocess_input(self, images):
+        from tensorflow.keras.applications.resnet50 import preprocess_input
+        return preprocess_input(images)
+
+    def predict_on_images(self, images):
+        images = self.resize_and_preprocess(images)
+        return self.predict(images)
 
 
 class Resnet50Antepenultimate(FeatureVectorModel):

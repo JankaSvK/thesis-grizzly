@@ -1,23 +1,22 @@
 import base64
 import pickle
 import re
+from collections import defaultdict
 from io import BytesIO
 from urllib.parse import urlparse
 
 import numpy as np
 import requests
 from PIL import Image
-from sklearn.decomposition import PCA
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.preprocessing import StandardScaler
 
-from diplomova_praca_lib.image_processing import normalized_images
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
     EvaluatingRegions2
 from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate
-from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest
+from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, Crop
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
 from diplomova_praca_lib.storage import FileStorage, Database
+from diplomova_praca_lib.utils import concatenate_lists
 
 
 class Environment:
@@ -50,27 +49,64 @@ class Environment:
 #     ranking = RankingMechanism.summing(best_matches)
 #     return [str(path) for path in ranking[:Environment.results_limit]]
 
-data = FileStorage.load_data_from_file(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
-pca = pickle.loads(data['pca'])
-scaler = pickle.loads(data['scaler'])
-features = data['features']
-paths = data['paths']
-model = Resnet50()
-import cProfile as profile
+
+class RegionsData:
+    def __init__(self, data):
+        self.data = data
+        self.features = data['features']
+        self.src_paths = data['paths']
+        self.crops = data['crops']
+        self.pca = pickle.loads(data['pca'])
+        self.scaler = pickle.loads(data['scaler'])
+
+        self.crop_idxs = self._get_crop_idxs()
+        self.unique_crops = self.crop_idxs.keys()
+
+    def _get_crop_idxs(self):
+        crops_lists = defaultdict(list)
+        for i_crop, crop in enumerate(self.crops):
+            crops_lists[crop].append(i_crop)
+        return crops_lists
+
+    def related_crops(self, crop: Crop):
+        return [c for c in self.unique_crops if crop.iou(c) > 0]
+
+
+class RegionsEnvironment:
+    def __init__(self, data_path):
+        data = FileStorage.load_data_from_file(data_path)
+        self.regions_data = RegionsData(data)
+
+        self.pca = pickle.loads(data['pca'])
+        self.scaler = pickle.loads(data['scaler'])
+        self.model = Resnet50()
+
+    def pca_transform(self, features):
+        return self.pca.transform(self.scaler.transform(features))
+
+regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
+
 def position_similarity_request(request: PositionSimilarityRequest):
     downloaded_images = [download_image(request_image.url) for request_image in request.images]
-    eval = EvaluatingRegions2(similarity_measure=cosine_similarity)
     if not downloaded_images:
         return []
-    query = downloaded_images[0]
-    query_features = model.predict(normalized_images([query]))[0]
-    query_transformed = pca.transform(scaler.transform(np.expand_dims(query_features, axis=0)))[0]
-    best_matches = eval.best_match(query_transformed, features, 100)
 
-    return list(paths[best_matches])
+    eval = EvaluatingRegions2(similarity_measure=cosine_similarity)
 
+    model_features = regions_env.model.predict_on_images(downloaded_images)
+    pca_features = regions_env.pca_transform(model_features)
 
+    matches = []
+    for image_info, pca_feature in zip(request.images, pca_features):
+        related_crops = regions_env.regions_data.related_crops(image_info.crop)
+        related_crops_features_idxs = concatenate_lists([regions_env.regions_data.crop_idxs[c] for c in related_crops])
+        features = regions_env.regions_data.features[related_crops_features_idxs]
 
+        highest_similarity_features_idxs = eval.best_match(pca_feature, features, 100)
+        matches.append(np.array(related_crops_features_idxs)[highest_similarity_features_idxs])
+
+    ranked_results = RankingMechanism.summing(matches)
+    return [regions_env.regions_data.src_paths[match] for match in ranked_results[:Environment.results_limit]]
 
 def spatial_similarity_request(request: PositionSimilarityRequest):
     # Spatial similarity

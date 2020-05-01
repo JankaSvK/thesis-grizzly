@@ -27,6 +27,18 @@ class Crop:
         return "%s(left=%s, top=%s, right=%s, bottom=%s)" % (
         self.__class__.__name__, self.left, self.top, self.right, self.bottom)
 
+    def __hash__(self):
+        return hash((self.top, self.left, self.width, self.height))
+
+    def __eq__(self, other):
+        return (
+                isinstance(other, Crop)
+                and self.top == other.top
+                and self.left == other.left
+                and self.width == other.width
+                and self.height == other.height
+        )
+
     def normalize(self, image_width, image_height):
         self.top /= image_height
         self.left /= image_width

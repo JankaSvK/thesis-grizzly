@@ -30,6 +30,10 @@ def k_largest(a, k):
 def sorted_indexes(a, reverse=True):
     return list(sorted(range(len(a)), key=lambda k: a[k], reverse=reverse))
 
+def concatenate_lists(list_of_lists):
+    import itertools
+    return list(itertools.chain(*list_of_lists))
+
 class Memoize:
     def __init__(self, f):
         self.f = f
