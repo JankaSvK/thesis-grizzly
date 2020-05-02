@@ -3,7 +3,8 @@ from typing import List
 import PIL
 import numpy as np
 
-from diplomova_praca_lib.image_processing import split_image_to_regions, normalized_images
+from diplomova_praca_lib.image_processing import split_image_to_regions, normalized_images, \
+    split_image_to_square_regions, crop_image
 from diplomova_praca_lib.models import EvaluationMechanism
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
 from diplomova_praca_lib.utils import batches, k_largest, sorted_indexes
@@ -71,33 +72,39 @@ class EvaluatingSpatially(EvaluationMechanism):
         sorted_scores_idx = list(sorted(range(len(scores)), key=lambda k: scores[k], reverse=True))
         return [database_items[score_idx][0] for score_idx in sorted_scores_idx]
 
-class EvaluatingRegions2:
-    def __init__(self, similarity_measure):
-        self.similarity_measure = similarity_measure
 
-    def best_match(self, query, features, num_results):
-        similarities = self.similarity_measure([query], features)[0]
-        largest_idxs = k_largest(similarities, num_results)
-        largest_values = similarities[largest_idxs]
-        return list(np.array(largest_idxs)[sorted_indexes(largest_values)])
-
+def closest_match(query, features, num_results, similarity_measure):
+    similarities = similarity_measure([query], features)[0]
+    largest_idxs = k_largest(similarities, num_results)
+    largest_values = similarities[largest_idxs]
+    return list(np.array(largest_idxs)[sorted_indexes(largest_values)])
 
 class EvaluatingRegions(EvaluationMechanism):
-    def __init__(self, similarity_measure, model, database):
-        self.similarity_measure = similarity_measure
+    def __init__(self, model, database):
         self.model = model
         self.database = database
 
+    # def features(self, images):
+    #     # type: (List[PIL.Image]) -> List[List[RegionFeatures]]
+    #     return [self.features_on_image_regions(image) for image in images]
+
     def features(self, images):
-        # type: (List[PIL.Image]) -> List[List[RegionFeatures]]
-        return [self.features_on_image_regions(image) for image in images]
+        crops = split_image_to_square_regions(region_size=self.model.input_shape)
+        images_features = []
+        for image in images:
+            image_crops = [crop_image(image, crop) for crop in crops]
+            crops_features = self.model.predict_on_images(image_crops)
+
+            images_features.append([RegionFeatures(crop=crop, features=features) for crop, features in
+                                    zip(crops, crops_features)])
+        return images_features
+
 
     def features_on_image_regions(self, image, regions=(4, 3)):
         crops, regions_images = map(list, zip(*split_image_to_regions(image, *regions)))
         regions_images.append(image)
 
-        inputs = normalized_images(regions_images)
-        regions_features = self.model.predict(inputs)
+        regions_features = self.model.predict_on_images(regions_images)
 
         images_features = [RegionFeatures(crop=crop, features=features) for crop, features in
                            zip(crops, regions_features)]
@@ -112,19 +119,3 @@ class EvaluatingRegions(EvaluationMechanism):
         ious_sorted_indexes = list(sorted(range(len(ious)), key=lambda k: ious[k], reverse=True))
 
         return ious_sorted_indexes
-
-    def best_matches(self, query_crop, query_image):
-        database_items = self.database.records
-        query_image_features = self.model.predict(normalized_images([query_image]))[0]
-
-        scores = []
-        for path, features in database_items:
-            highest_iou_region_idx = \
-                (EvaluatingRegions.regions_overlap_ordering(query_crop, [rf.crop for rf in features]))[0]
-            # TODO: why accesssing directly regions features did not work
-            # print(db_item[1][highest_iou_region_idx].crop)
-            db_feature = features[highest_iou_region_idx].features
-            scores.append(self.similarity_measure([db_feature], [query_image_features])[0])
-
-        sorted_scores_idx = list(sorted(range(len(scores)), key=lambda k: scores[k], reverse=True))
-        return [database_items[score_idx][0] for score_idx in sorted_scores_idx]

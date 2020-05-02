@@ -7,8 +7,9 @@ from sklearn.preprocessing import StandardScaler
 
 from diplomova_praca_lib import storage
 
-DATA_PATH = r"C:\Users\janul\Desktop\saved_annotations\750_resnet50_new"
-OUTPUT_DIR = r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2"
+# DATA_PATH = r"C:\Users\janul\Desktop\saved_annotations\750_resnet50_new"
+DATA_PATH = r"C:\Users\janul\Desktop\saved_annotations\50-regions-mobilenetv2"
+OUTPUT_DIR = r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_features_mobilenetv2"
 
 
 def main():
@@ -25,7 +26,7 @@ def main():
     scaler = StandardScaler()
     features_normalized = scaler.fit_transform(dataset_features)
 
-    pca = PCA(n_components=256)
+    pca = PCA(n_components=0.8)
     features_transformed = pca.fit_transform(features_normalized)
 
     print("Components = ", pca.n_components_, ";\nTotal explained variance = ",

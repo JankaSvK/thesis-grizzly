@@ -10,6 +10,19 @@ from diplomova_praca_lib.position_similarity.models import Crop
 from diplomova_praca_lib.utils import cap_value
 
 
+def split_image_to_square_regions(image_shape = (180, 320), region_size=(50, 50), num_regions=(5, 8)):
+    coords = [[round((image_shape[axis] - region_size[axis]) / (num_regions[axis] - 1) * i_region)
+               for i_region in range(num_regions[axis])]
+              for axis in (0, 1)]
+
+    crops = []
+    for coord_x in coords[1]:
+        for coord_y in coords[0]:
+            crops.append(Crop(top=coord_y, left=coord_x, width=region_size[1], height=region_size[0]))
+            crops[-1].normalize(image_height=image_shape[0], image_width=image_shape[1])
+
+    return crops
+
 def split_image_to_regions(image, num_horizontal_regions, num_vertical_regions):
     h, w, _ = np.shape(image)
     regions_crops = compute_image_regions(w, h, num_horizontal_regions, num_vertical_regions, 0.5)
@@ -18,6 +31,7 @@ def split_image_to_regions(image, num_horizontal_regions, num_vertical_regions):
 
 def crop_image(image: PIL.Image, crop: Crop):
     width, height = image.size
+
     return image.crop((crop.left * width, crop.top * height, crop.right * width, crop.bottom * height))
 
 

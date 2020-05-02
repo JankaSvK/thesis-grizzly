@@ -11,7 +11,7 @@ from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity
 
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
-    EvaluatingRegions2
+    EvaluatingRegions2, closest_match
 from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, Crop
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
@@ -91,8 +91,6 @@ def position_similarity_request(request: PositionSimilarityRequest):
     if not downloaded_images:
         return []
 
-    eval = EvaluatingRegions2(similarity_measure=cosine_similarity)
-
     model_features = regions_env.model.predict_on_images(downloaded_images)
     pca_features = regions_env.pca_transform(model_features)
 
@@ -102,7 +100,7 @@ def position_similarity_request(request: PositionSimilarityRequest):
         related_crops_features_idxs = concatenate_lists([regions_env.regions_data.crop_idxs[c] for c in related_crops])
         features = regions_env.regions_data.features[related_crops_features_idxs]
 
-        highest_similarity_features_idxs = eval.best_match(pca_feature, features, 100)
+        highest_similarity_features_idxs = closest_match(pca_feature, features, 100, similarity_measure=cosine_similarity)
         matches.append(np.array(related_crops_features_idxs)[highest_similarity_features_idxs])
 
     ranked_results = RankingMechanism.summing(matches)

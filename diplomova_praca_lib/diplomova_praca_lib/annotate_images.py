@@ -6,7 +6,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from diplomova_praca_lib.face_features.feature_vector_models import EvaluatingFaces
 from diplomova_praca_lib.models import DatabaseRecord
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially
-from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate
+from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate, MobileNetV2
 from diplomova_praca_lib.storage import FileStorage
 from diplomova_praca_lib.utils import batches
 
@@ -18,7 +18,7 @@ def main():
                         default='resnet50',
                         const='all',
                         nargs='?',
-                        choices=['resnet50', 'resnet50antepenultimate', 'faces'],
+                        choices=['resnet50', 'resnet50antepenultimate', 'faces', 'mobilenetv2'],
                         help='Feature vector model to compute (default: %(default)s)')
     parser.add_argument("--save_location", default="", type=str,
                         help="Path to directory where precomputed models are saved.")
@@ -33,6 +33,9 @@ def main():
         features_model = Resnet50Antepenultimate()
         evaluation_mechanism = EvaluatingSpatially(similarity_measure=cosine_similarity, model=features_model,
                                                    database=None)
+    elif args.feature_model == 'mobilenetv2':
+        features_model = MobileNetV2(input_shape=(50, 50, 3))
+        evaluation_mechanism = EvaluatingRegions(model=features_model, database=None)
     elif args.feature_model == 'faces':
         evaluation_mechanism = EvaluatingFaces()  # images_features.append(FaceDetectionsRecord(filename=image.filename, detections=face_features(image.image)))
     else:
@@ -57,7 +60,7 @@ def main():
                                    features=image_features))
 
         FileStorage.save_data(Path(args.save_location, filename(args.feature_model, Path(directory).name)),
-                              data=images_features, src_dir=args.images_dir, model=args.feature_model)
+                              data=images_features, src_dir=args.images_dir, model=repr(evaluation_mechanism.model))
         images_features = []
 
 
