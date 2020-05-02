@@ -11,7 +11,7 @@ from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity
 
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
-    EvaluatingRegions2, closest_match
+    closest_match
 from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, Crop
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
@@ -29,8 +29,7 @@ class Environment:
     @staticmethod
     def initialize(regions_path, spatially_path):
         Environment.database_regions = Database(FileStorage.load_datafiles(regions_path))
-        Environment.evaluating_regions = EvaluatingRegions(similarity_measure=cosine_similarity, model=Resnet50(),
-                                                           database=Environment.database_regions)
+        Environment.evaluating_regions = EvaluatingRegions(model=Resnet50(), database=Environment.database_regions)
 
         Environment.database_spatially = Database(FileStorage.load_datafiles(spatially_path))
 

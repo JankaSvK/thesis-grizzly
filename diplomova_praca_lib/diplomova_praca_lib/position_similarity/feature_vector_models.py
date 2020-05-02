@@ -6,7 +6,7 @@ from diplomova_praca_lib.image_processing import resize_image
 
 
 class FeatureVectorModel:
-    def __init__(self, input_shape):
+    def __init__(self, input_shape=(224, 224, 3)):
         self.model = None
         self.input_shape = input_shape
 
