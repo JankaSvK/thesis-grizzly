@@ -28,6 +28,8 @@ urlpatterns = [
     # path('face_features/post', face_features.views.select_face_post, name="select_face_post"),
     path('position_similarity/post', position_similarity.views.position_similarity_post,
          name="position_similarity_post"),
+    path('position_similarity/submit_collage', position_similarity.views.position_similarity_submit_collage,
+         name="position_similarity_submit_collage"),
     path('face_features/post', face_features.views.repr_tree_post, name="repr_tree_post"),
     path('video_images/post', shared.views.video_images, name="video_images_post"),
     path('video_images/submit', face_features.views.submit, name="video_images_submit"),

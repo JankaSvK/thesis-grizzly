@@ -2,12 +2,12 @@
 
 {% load static %}
 {% block styles %}
-    <link rel="stylesheet" href="{% static "position_similarity/styles.css" %}">
+    <link rel="stylesheet" href="{% static "styles/position_similarity_styles.css" %}">
 {% endblock %}
 {% block content %}
     <section id="canvas" class="centered_container">
         <h2>Query</h2>
-        <div id="container">
+        <div id="collage_canvas">
             <div id="canvas_overlay" style="background-image: url('{{ search_image }}')">
             </div>
         </div>
@@ -15,13 +15,16 @@
                id="image_url">
         <button type="button" id="add_image">Add image</button>
         <select id="position_method" onChange="sendRequest()">
-            <option value="regions">Regions Similarity (4x3)</option>
+            <option value="regions">Regions Similarity</option>
             <option value="spatially">Spatial Similarity</option>
         </select>
         <a href="javascript:showImageTemporarly(true)" id="show_image_show">Show searched
             image</a>
         <a href="javascript:showImageTemporarly(false)" id="show_image_hide" style="display:none;">Hide searched
             image</a>
+
+        <a href="javascript:submitCollage()">Submit Collage</a>
+
     </section>
 
     <script>
@@ -29,7 +32,7 @@
 
         function getAllImagesPositions() {
             let images = jQuery(".canvas_image");
-            let canvas = jQuery("#container");
+            let canvas = jQuery("#collage_canvas");
             let images_information = [];
             for (var i = 0; i < images.length; i++) {
                 let image = images.eq(i);
@@ -43,6 +46,20 @@
             }
 
             return images_information;
+        }
+
+        function submitCollage() {
+            $.ajax({
+                type: 'POST',
+                dataType: 'json',
+                url: "{% url 'position_similarity_submit_collage' %}",
+                data: {
+                    "json_data": JSON.stringify({
+                        "images": getAllImagesPositions(),
+                        "overlay_image": $("#canvas_overlay").css("background-image"),
+                    })
+                }
+            });
         }
 
         function sendRequest() {
@@ -74,7 +91,7 @@
             const image = jQuery(".canvas_image");
 
             image.draggable({
-                containment: "#container",
+                containment: "#collage_canvas",
                 stop: function (event, ui) {
                     sendRequest()
                 }
@@ -82,7 +99,7 @@
 
             image.resizable({
                 aspectRatio: true,
-                containment: "#container",
+                containment: "#collage_canvas",
                 stop: function (event, ui) {
                     sendRequest()
                 }
@@ -135,7 +152,7 @@
 
                 $('#add_image').click(function () {
                     const url = ($('#image_url').val());
-                    $("#container").append(canvas_image_html("image_" + available_id, url));
+                    $("#collage_canvas").append(canvas_image_html("image_" + available_id, url));
                     available_id++;
 
                     reloadResizeable();
@@ -159,7 +176,7 @@
                     var reader = new FileReader();
                     reader.onload = function (event) {
                         const encoded_image = event.target.result;
-                        $("#container").append(canvas_image_html("image_" + available_id, encoded_image));
+                        $("#collage_canvas").append(canvas_image_html("image_" + available_id, encoded_image));
                         available_id++;
                         reloadResizeable();
                     };

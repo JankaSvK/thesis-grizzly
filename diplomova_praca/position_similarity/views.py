@@ -9,7 +9,7 @@ from diplomova_praca_lib.position_similarity.models import UrlImage, PositionSim
 from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request, \
     spatial_similarity_request
 from shared.utils import random_image_path, thumbnail_path
-from .models import PositionRequest
+from .models import PositionRequest, Collage
 
 
 @csrf_exempt
@@ -50,11 +50,21 @@ def position_similarity_post(request):
     return JsonResponse(context, status=200)
 
 
+
+@csrf_exempt
+def position_similarity_submit_collage(request):
+    json_data = json.loads(request.POST['json_data'])
+
+    collage = Collage()
+    collage.overlay_image = json_data['overlay_image']
+    collage.images = json_data['images']
+    collage.save()
+
+    return JsonResponse({}, status=200)
+
 def json_to_position_similarity_request(json_data):
     images = []
     for image in json_data:
         url_image = UrlImage(image["url"], Crop(*[image[attr] for attr in ["top", "left", "width", "height"]]))
         images.append(url_image)
     return PositionSimilarityRequest(images)
-
-
