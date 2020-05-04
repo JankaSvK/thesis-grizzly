@@ -27,15 +27,14 @@ def main():
     evaluation_mechanism = None
     if args.feature_model == 'resnet50':
         features_model = Resnet50()
-        evaluation_mechanism = EvaluatingRegions(similarity_measure=cosine_similarity, model=features_model,
-                                                 database=None)
+        evaluation_mechanism = EvaluatingRegions(model=features_model, database=None)
     elif args.feature_model == 'resnet50antepenultimate':
         features_model = Resnet50Antepenultimate()
         evaluation_mechanism = EvaluatingSpatially(similarity_measure=cosine_similarity, model=features_model,
                                                    database=None)
     elif args.feature_model == 'mobilenetv2':
-        features_model = MobileNetV2(input_shape=(50, 50, 3))
-        evaluation_mechanism = EvaluatingRegions(model=features_model, database=None)
+        features_model = MobileNetV2(input_shape=(96, 96, 3))
+        evaluation_mechanism = EvaluatingRegions(model=features_model, database=None, num_regions=(3, 4))
     elif args.feature_model == 'faces':
         evaluation_mechanism = EvaluatingFaces()  # images_features.append(FaceDetectionsRecord(filename=image.filename, detections=face_features(image.image)))
     else:

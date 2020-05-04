@@ -80,16 +80,14 @@ def closest_match(query, features, num_results, similarity_measure):
     return list(np.array(largest_idxs)[sorted_indexes(largest_values)])
 
 class EvaluatingRegions(EvaluationMechanism):
-    def __init__(self, model, database):
+    def __init__(self, model, database, num_regions = None):
         self.model = model
         self.database = database
+        self.num_regions = num_regions
 
-    # def features(self, images):
-    #     # type: (List[PIL.Image]) -> List[List[RegionFeatures]]
-    #     return [self.features_on_image_regions(image) for image in images]
 
     def features(self, images):
-        crops = split_image_to_square_regions(region_size=self.model.input_shape)
+        crops = split_image_to_square_regions(region_size=self.model.input_shape, num_regions=self.num_regions)
         images_features = []
         for image in images:
             image_crops = [crop_image(image, crop) for crop in crops]
@@ -100,22 +98,27 @@ class EvaluatingRegions(EvaluationMechanism):
         return images_features
 
 
-    def features_on_image_regions(self, image, regions=(4, 3)):
-        crops, regions_images = map(list, zip(*split_image_to_regions(image, *regions)))
-        regions_images.append(image)
+    # def features(self, images):
+    #     # type: (List[PIL.Image]) -> List[List[RegionFeatures]]
+    #     return [self.features_on_image_regions(image) for image in images]
 
-        regions_features = self.model.predict_on_images(regions_images)
+    #
+    # def features_on_image_regions(self, image, regions=(4, 3)):
+    #     crops, regions_images = map(list, zip(*split_image_to_regions(image, *regions)))
+    #     regions_images.append(image)
+    #
+    #     regions_features = self.model.predict_on_images(regions_images)
+    #
+    #     images_features = [RegionFeatures(crop=crop, features=features) for crop, features in
+    #                        zip(crops, regions_features)]
+    #     images_features.append(RegionFeatures(crop=Crop(0, 0, 1, 1), features=regions_features[-1]))
+    #
+    #     return images_features
 
-        images_features = [RegionFeatures(crop=crop, features=features) for crop, features in
-                           zip(crops, regions_features)]
-        images_features.append(RegionFeatures(crop=Crop(0, 0, 1, 1), features=regions_features[-1]))
-
-        return images_features
-
-    @staticmethod
-    def regions_overlap_ordering(query_crop: Crop, image_crops: List[Crop]):
-        # Returns ordering of image  crops (their indexes) based on the overlap
-        ious = [query_crop.iou(image_crop) for image_crop in image_crops]
-        ious_sorted_indexes = list(sorted(range(len(ious)), key=lambda k: ious[k], reverse=True))
-
-        return ious_sorted_indexes
+    # @staticmethod
+    # def regions_overlap_ordering(query_crop: Crop, image_crops: List[Crop]):
+    #     # Returns ordering of image  crops (their indexes) based on the overlap
+    #     ious = [query_crop.iou(image_crop) for image_crop in image_crops]
+    #     ious_sorted_indexes = list(sorted(range(len(ious)), key=lambda k: ious[k], reverse=True))
+    #
+    #     return ious_sorted_indexes
