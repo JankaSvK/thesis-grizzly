@@ -10,9 +10,10 @@ import requests
 from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity
 
+from diplomova_praca_lib.image_processing import resize_with_padding
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
     closest_match
-from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate
+from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate, MobileNetV2
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, Crop
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
 from diplomova_praca_lib.storage import FileStorage, Database
@@ -71,6 +72,17 @@ class RegionsData:
         return [c for c in self.unique_crops if crop.iou(c) > 0]
 
 
+def model_factory(model_repr):
+    # Example: 'MobileNetV2(model=mobilenetv2_1.00_224, input_shape=(50, 50, 3))'
+    class_name = model_repr[:model_repr.index('(')]
+    input_shape = eval(model_repr[model_repr.index('input_shape=') + len('input_shape='):-1])
+
+    class_object = {"MobileNetV2": MobileNetV2,
+                    "Resnet50": Resnet50,
+                    "Resnet50Antepenultimate": Resnet50Antepenultimate}[class_name]
+
+    return class_object(input_shape=input_shape)
+
 class RegionsEnvironment:
     def __init__(self, data_path):
         data = FileStorage.load_data_from_file(data_path)
@@ -78,15 +90,19 @@ class RegionsEnvironment:
 
         self.pca = pickle.loads(data['pca'])
         self.scaler = pickle.loads(data['scaler'])
-        self.model = Resnet50()
+        self.model = model_factory(pickle.loads(data['model']))
 
     def pca_transform(self, features):
         return self.pca.transform(self.scaler.transform(features))
 
-regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
+# regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
+regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\750_mobbilenetv23\data.npz")
 
 def position_similarity_request(request: PositionSimilarityRequest):
-    downloaded_images = [download_image(request_image.url) for request_image in request.images]
+    downloaded_images = [
+        resize_with_padding(download_image(request_image.url), expected_size=regions_env.model.input_shape) for
+        request_image in request.images]
+
     if not downloaded_images:
         return []
 

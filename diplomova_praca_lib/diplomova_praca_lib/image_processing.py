@@ -11,6 +11,8 @@ from diplomova_praca_lib.utils import cap_value
 
 
 def split_image_to_square_regions(image_shape = (180, 320), region_size=(50, 50), num_regions=(5, 8)):
+    assert all([region_size[axis] * num_regions[axis] > image_shape[axis] for axis in (0,1)])
+
     coords = [[round((image_shape[axis] - region_size[axis]) / (num_regions[axis] - 1) * i_region)
                for i_region in range(num_regions[axis])]
               for axis in (0, 1)]
@@ -83,3 +85,16 @@ def compute_image_regions(image_width, image_height, num_horizontal_regions, num
 
     assert len(regions) == num_vertical_regions * num_horizontal_regions
     return regions
+
+
+
+def resize_with_padding(img, expected_size):
+    from PIL import ImageOps
+
+    img.thumbnail((expected_size[0], expected_size[1]))
+    delta_width = expected_size[0] - img.size[0]
+    delta_height = expected_size[1] - img.size[1]
+    pad_width = delta_width // 2
+    pad_height = delta_height // 2
+    padding = (pad_width, pad_height, delta_width - pad_width, delta_height - pad_height)
+    return ImageOps.expand(img, padding)
