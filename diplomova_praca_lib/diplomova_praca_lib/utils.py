@@ -24,8 +24,12 @@ def batches(iterator, batch_size):
     if batch:
         yield batch
 
-def k_largest(a, k):
-    return np.argpartition(a, -k)[-k:].tolist()
+
+def k_smallest_sorted(a, k):
+    """Uses hybrid sorting. Finds firstly k-smallest elements (with no ordering) and then orders this smaller set."""
+    k_smallest_idxs = np.argpartition(a, k)[:k]
+    return k_smallest_idxs[np.argsort(a[k_smallest_idxs])]
+
 
 def sorted_indexes(a, reverse=True):
     return list(sorted(range(len(a)), key=lambda k: a[k], reverse=reverse))

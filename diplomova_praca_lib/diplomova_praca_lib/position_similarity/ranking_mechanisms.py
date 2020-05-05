@@ -1,14 +1,27 @@
 from collections import defaultdict
 from typing import List
 
-
-def defaultdic(param):
-    pass
+import numpy as np
 
 
 class RankingMechanism:
     def __init__(self):
         pass
+
+    @staticmethod
+    def average(rankings):
+        """Rankings are the distance"""
+        pass
+
+    @staticmethod
+    def borda_count(rankings):
+        """Only names"""
+        elements = defaultdict(int)
+        for ranking in rankings:
+            for item, weight in zip(ranking, np.linspace(1,0, num=len(ranking))):
+                elements[item] += weight
+
+        return [k for k, v in sorted(elements.items(), key=lambda item: -item[1])]
 
     @staticmethod
     def summing(rankings: List[str]):

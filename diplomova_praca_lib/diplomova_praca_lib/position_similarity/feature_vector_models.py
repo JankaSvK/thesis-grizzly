@@ -6,9 +6,9 @@ from diplomova_praca_lib.image_processing import resize_image
 
 
 class FeatureVectorModel:
-    def __init__(self, input_shape=(224, 224, 3)):
+    def __init__(self):
         self.model = None
-        self.input_shape = input_shape
+        self.input_shape = None
 
     def __repr__(self):
         return "%s(model=%s, input_shape=%s)" % (
@@ -50,7 +50,8 @@ class Resnet50(FeatureVectorModel):
 
 class MobileNetV2(FeatureVectorModel):
     def __init__(self, input_shape=(50, 50, 3)):
-        super().__init__(input_shape)
+        super().__init__()
+        self.input_shape = input_shape
         self.model = tensorflow.keras.applications.mobilenet_v2.MobileNetV2(weights='imagenet',
                                                                             pooling='avg',
                                                                             include_top=False, input_shape=input_shape)

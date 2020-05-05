@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import numpy as np
 import requests
 from PIL import Image
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import cosine_similarity, cosine_distances, euclidean_distances
 
 from diplomova_praca_lib.image_processing import resize_with_padding
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
@@ -60,13 +60,27 @@ class RegionsData:
         self.scaler = pickle.loads(data['scaler'])
 
         self.crop_idxs = self._get_crop_idxs()
-        self.unique_crops = self.crop_idxs.keys()
+        self.unique_crops = list(self.crop_idxs.keys())
+        self.unique_src_paths = {x: i for i, x in enumerate(set(self.src_paths))}
+        self.unique_src_paths_list = len(self.unique_src_paths.keys()) * [None]
+        for x, i in self.unique_src_paths.items():
+            self.unique_src_paths_list[i] = x
 
     def _get_crop_idxs(self):
         crops_lists = defaultdict(list)
         for i_crop, crop in enumerate(self.crops):
             crops_lists[crop].append(i_crop)
         return crops_lists
+
+    def highest_iou_crop(self, crop: Crop):
+        max_iou = 0
+        max_crop = None
+        for c in self.unique_crops:
+            if c.iou(crop) > max_iou:
+                max_iou = c.iou(crop)
+                max_crop = c
+
+        return max_crop
 
     def related_crops(self, crop: Crop):
         return [c for c in self.unique_crops if crop.iou(c) > 0]
@@ -90,36 +104,52 @@ class RegionsEnvironment:
 
         self.pca = pickle.loads(data['pca'])
         self.scaler = pickle.loads(data['scaler'])
-        self.model = model_factory(pickle.loads(data['model']))
+        if 'model' in data.keys():
+            self.model = model_factory(str(data['model']))
+        else:
+            self.model = Resnet50(input_shape=(224,224,3))
 
     def pca_transform(self, features):
         return self.pca.transform(self.scaler.transform(features))
 
+
 # regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
-regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\750_mobbilenetv23\data.npz")
+regions_env = RegionsEnvironment(
+    r"C:\Users\janul\Desktop\saved_annotations\experiments\750_mobbilenetv2-12regions\data.npz")
 
 def position_similarity_request(request: PositionSimilarityRequest):
     downloaded_images = [
-        resize_with_padding(download_image(request_image.url), expected_size=regions_env.model.input_shape) for
-        request_image in request.images]
+        resize_with_padding(download_image(request_image.url), expected_size=regions_env.model.input_shape)
+        for request_image in request.images]
 
+    # downloaded_images = [downloaded_images[0]]
     if not downloaded_images:
         return []
 
     model_features = regions_env.model.predict_on_images(downloaded_images)
     pca_features = regions_env.pca_transform(model_features)
 
-    matches = []
+    matched_crop_idxs = []
+    matched_src_idxs = []
     for image_info, pca_feature in zip(request.images, pca_features):
-        related_crops = regions_env.regions_data.related_crops(image_info.crop)
+        related_crops = [regions_env.regions_data.highest_iou_crop(image_info.crop)]
+        # related_crops = regions_env.regions_data.related_crops(image_info.crop) # TOOD need to prrocess features semarately
         related_crops_features_idxs = concatenate_lists([regions_env.regions_data.crop_idxs[c] for c in related_crops])
         features = regions_env.regions_data.features[related_crops_features_idxs]
 
-        highest_similarity_features_idxs = closest_match(pca_feature, features, 100, similarity_measure=cosine_similarity)
-        matches.append(np.array(related_crops_features_idxs)[highest_similarity_features_idxs])
+        highest_similarity_features_idxs = closest_match(pca_feature, features, Environment.results_limit,
+                                                         distance=cosine_distances)
+        idxs_crops_sorted_by_distance = np.array(related_crops_features_idxs)[highest_similarity_features_idxs]
+        # The address of image is needed, not the crop
+        matched_crop_idxs.append(idxs_crops_sorted_by_distance)
+        matched_src_idxs.append(
+            [regions_env.regions_data.unique_src_paths[regions_env.regions_data.src_paths[i_crop]] for i_crop in
+             idxs_crops_sorted_by_distance])
 
-    ranked_results = RankingMechanism.summing(matches)
-    return [regions_env.regions_data.src_paths[match] for match in ranked_results[:Environment.results_limit]]
+    # ranked_results = RankingMechanism.summing(matches)
+    # ranked_results = RankingMechanism.borda_count(matched_crop_idxs)
+    ranked_results = RankingMechanism.borda_count(matched_src_idxs)
+    return [regions_env.regions_data.unique_src_paths_list[match] for match in ranked_results[:Environment.results_limit]]
 
 def spatial_similarity_request(request: PositionSimilarityRequest):
     # Spatial similarity
