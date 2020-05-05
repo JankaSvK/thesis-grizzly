@@ -15,7 +15,7 @@ class FeatureVectorModel:
             self.__class__.__name__, self.model.name, self.input_shape)
 
     def predict(self, model_input: np.ndarray):
-        return self.model.predict(model_input)
+        return self.model.predict(model_input, batch_size=128)
 
     def resize_and_preprocess(self, images):
         images = [resize_image(tf.keras.preprocessing.image.img_to_array(x), target_shape=self.input_shape[:2])

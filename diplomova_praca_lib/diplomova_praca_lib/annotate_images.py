@@ -26,8 +26,8 @@ def main():
 
     evaluation_mechanism = None
     if args.feature_model == 'resnet50':
-        features_model = Resnet50()
-        evaluation_mechanism = EvaluatingRegions(model=features_model, database=None)
+        features_model = Resnet50(input_shape=(96, 96, 3))
+        evaluation_mechanism = EvaluatingRegions(model=features_model, database=None, num_regions=(3, 4))
     elif args.feature_model == 'resnet50antepenultimate':
         features_model = Resnet50Antepenultimate()
         evaluation_mechanism = EvaluatingSpatially(similarity_measure=cosine_similarity, model=features_model,
@@ -51,7 +51,7 @@ def main():
             continue
 
         print("Processing directory {}".format(directory))
-        for images_data in batches(FileStorage.load_images_continuously(directory), batch_size=32):
+        for images_data in batches(FileStorage.load_images_continuously(directory), batch_size=128):
             features = evaluation_mechanism.features([sample.image for sample in images_data])
             for image_features, image_data in zip(features, images_data):
                 images_features.append(

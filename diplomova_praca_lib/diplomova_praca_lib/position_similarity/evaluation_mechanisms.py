@@ -3,11 +3,11 @@ from typing import List
 import PIL
 import numpy as np
 
-from diplomova_praca_lib.image_processing import split_image_to_regions, normalized_images, \
+from diplomova_praca_lib.image_processing import normalized_images, \
     split_image_to_square_regions, crop_image
 from diplomova_praca_lib.models import EvaluationMechanism
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
-from diplomova_praca_lib.utils import batches, sorted_indexes, k_smallest_sorted
+from diplomova_praca_lib.utils import batches, k_smallest_sorted
 
 
 class EvaluatingSpatially(EvaluationMechanism):
@@ -85,37 +85,13 @@ class EvaluatingRegions(EvaluationMechanism):
 
     def features(self, images):
         crops = split_image_to_square_regions(region_size=self.model.input_shape, num_regions=self.num_regions)
-        images_features = []
-        for image in images:
-            image_crops = [crop_image(image, crop) for crop in crops]
-            crops_features = self.model.predict_on_images(image_crops)
 
-            images_features.append([RegionFeatures(crop=crop, features=features) for crop, features in
-                                    zip(crops, crops_features)])
+        cropped_images = [crop_image(image, crop) for image in images for crop in crops]
+        predictions = self.model.predict_on_images(cropped_images)
+        prediction_iterator = iter(predictions)
+
+        images_features = [[RegionFeatures(crop=crop, features=next(prediction_iterator))
+                            for crop in crops]
+                           for _ in images]
+
         return images_features
-
-
-    # def features(self, images):
-    #     # type: (List[PIL.Image]) -> List[List[RegionFeatures]]
-    #     return [self.features_on_image_regions(image) for image in images]
-
-    #
-    # def features_on_image_regions(self, image, regions=(4, 3)):
-    #     crops, regions_images = map(list, zip(*split_image_to_regions(image, *regions)))
-    #     regions_images.append(image)
-    #
-    #     regions_features = self.model.predict_on_images(regions_images)
-    #
-    #     images_features = [RegionFeatures(crop=crop, features=features) for crop, features in
-    #                        zip(crops, regions_features)]
-    #     images_features.append(RegionFeatures(crop=Crop(0, 0, 1, 1), features=regions_features[-1]))
-    #
-    #     return images_features
-
-    # @staticmethod
-    # def regions_overlap_ordering(query_crop: Crop, image_crops: List[Crop]):
-    #     # Returns ordering of image  crops (their indexes) based on the overlap
-    #     ious = [query_crop.iou(image_crop) for image_crop in image_crops]
-    #     ious_sorted_indexes = list(sorted(range(len(ious)), key=lambda k: ious[k], reverse=True))
-    #
-    #     return ious_sorted_indexes
