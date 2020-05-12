@@ -1,12 +1,10 @@
 import glob
-import itertools
 import logging
 import os
 from pathlib import Path
 from typing import Iterable
 
 import numpy as np
-import tensorflow
 
 from diplomova_praca_lib.position_similarity.models import ImageData
 
@@ -17,6 +15,31 @@ class Storage:
 
 
 class FileStorage(Storage):
+    @staticmethod
+    def load_features_datafiles(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz"):
+        filenames = list(Path(path).rglob(filename_regex))
+        files = [FileStorage.load_data_from_file(d) for d in filenames]
+
+        result = {}
+        for key in retrieve_merged + retrieve_once:
+            result[key] = []
+            for i_f, f in enumerate(files):
+                if key not in f:
+                    logging.warning("`%s` not available in `%s`" % (key, str(filenames[i_f])))
+                    continue
+
+                if key in retrieve_merged:
+                    result[key] += list(f[key])
+                if key in retrieve_once and key not in result:
+                    logging.info("`%s` retrieved from `%s`" % (key, str(filenames[i_f])))
+                    result[key] = f[key]
+
+
+        for key in retrieve_once:
+            result[key] = files[0][key]
+
+        return result
+
     @staticmethod
     def save_data(path, compressed=True, **kwargs):
         Path(path.parents[0]).mkdir(parents=True, exist_ok=True)
@@ -41,6 +64,7 @@ class FileStorage(Storage):
 
     @staticmethod
     def load_image_from_file(filename):
+        import tensorflow
         return tensorflow.keras.preprocessing.image.load_img(filename)
 
     @staticmethod

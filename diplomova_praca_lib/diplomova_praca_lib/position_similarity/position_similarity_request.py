@@ -113,9 +113,9 @@ class RegionsEnvironment:
         return self.pca.transform(self.scaler.transform(features))
 
 
-# regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
-regions_env = RegionsEnvironment(
-    r"C:\Users\janul\Desktop\saved_annotations\experiments\750_mobbilenetv2-12regions\data.npz")
+regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
+# regions_env = RegionsEnvironment(
+#     r"C:\Users\janul\Desktop\saved_annotations\experiments\750_mobbilenetv2-12regions\data.npz")
 
 def position_similarity_request(request: PositionSimilarityRequest):
     downloaded_images = [

@@ -1,9 +1,25 @@
 import sqlite3
 
 import numpy as np
+import collections
+
+import logging
 
 from diplomova_praca_lib.position_similarity.models import UrlImage, Crop, PositionSimilarityRequest
 from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request, Environment
+
+
+logging.basicConfig(level=logging.INFO)
+
+Collage = collections.namedtuple('Collage', "id timestamp query images")
+
+def retrieve_collages():
+    conn = sqlite3.connect(r'C:\Users\janul\Desktop\thesis\code\diplomova_praca\db.sqlite3')
+    conn.row_factory = (lambda cursor, row: Collage(*row))
+    c = conn.cursor()
+    c.execute('SELECT * FROM position_similarity_collage')
+    fetched_queries = c.fetchall()
+    return fetched_queries
 
 
 def json_to_position_similarity_request(json_data):
@@ -24,26 +40,23 @@ def recall_graph(x, y):
            title='Recall based on ranking')
     plt.show()
 
+fetched_collages = retrieve_collages()
 
-conn = sqlite3.connect(r'C:\Users\janul\Desktop\thesis\code\diplomova_praca\db.sqlite3')
-c = conn.cursor()
-c.execute('SELECT * FROM position_similarity_collage')
-fetched_queries = c.fetchall()
-Environment.results_limit = 100000
-overlay_image = fetched_queries[0][2]
-overlay_image = overlay_image[overlay_image.index('thumbnails/') + len('thumbnails/'):-2]
+Environment.results_limit = 30000
+# query_image = fetched_queries[0][2]
+# query_image = query_image[query_image.index('thumbnails/') + len('thumbnails/'):-2]
 
 ranks = []
-for query in fetched_queries:
-    id, created, overlay_image, request_images = query
+for collage in fetched_collages:
+    query_image = collage.query[collage.query.index('thumbnails/') + len('thumbnails/'):-2]
+    logging.info('Processing query image %s' % query_image)
 
-    overlay_image = overlay_image[overlay_image.index('thumbnails/') + len('thumbnails/'):-2]
-    print(overlay_image)
-    images = eval(fetched_queries[0][3])
+    print(query_image)
+    images = eval(collage.images)
     closest_images = position_similarity_request(json_to_position_similarity_request(images))
 
     try:
-        rank = closest_images.index(overlay_image)
+        rank = closest_images.index(query_image)
     except ValueError:
         rank = Environment.results_limit + 1
     ranks.append(rank)
