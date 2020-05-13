@@ -3,6 +3,8 @@ $canvas_width: $canvas_scale_to_image * 320px;
 $canvas_height: $canvas_scale_to_image * 180px;
 
 
+
+
 #collage_canvas {
     background-color: #F9f9f9;
     width: $canvas_width;
@@ -11,6 +13,13 @@ $canvas_height: $canvas_scale_to_image * 180px;
     max-height: $canvas_height;
     position: relative;
     margin: 0 auto
+}
+
+#canvas_tools {
+    width: $canvas_width;
+    max-width: $canvas_width;
+    position: relative;
+    margin: 0 auto;
 }
 
 #canvas_overlay {

@@ -2,6 +2,11 @@ $min_content_width: 800px;
 $highlight_background_color: #2b2b2b;
 $contrastive_text_color: white;
 
+$accent_color: orange;
+.mdl-icon-toggle.is-checked .mdl-icon-toggle__label {
+  color: $accent_color;
+}
+
 html {
   height: 100%;
   position: relative;
@@ -172,7 +177,7 @@ footer {
   top: 0;
   width: 640px;
   height: 360px;
-  border: 5px solid $highlight_background_color;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
   background-repeat: no-repeat !important;
   background-size: contain !important;
 }

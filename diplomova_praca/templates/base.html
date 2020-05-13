@@ -8,6 +8,9 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{% static "favicon/favicon-16x16.png" %}">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-orange.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 
     <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
     <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
@@ -15,6 +18,7 @@
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <link rel="stylesheet" href="{% static "styles/styles.css" %}">
     <script src="{% static 'js/search_results_update.js' %}"></script>
 
@@ -27,34 +31,61 @@
 </head>
 
 <body>
-<div id="page_content">
-    <header class="full-width-borders">
-        <h1>Grizzly</h1>
-        <ul>
-            <li><a href="/position_similarity">Spatial Search</a></li>
-            <li><a href="/face_features">Face Search</a></li>
-        </ul>
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+    <header class="mdl-layout__header mdl-layout__header-- ">
+        <div class="mdl-layout__header-row">
+            <!-- Title -->
+            <span class="mdl-layout-title">Grizzly</span>
+            <!-- Add spacer, to align navigation to the right -->
+            <div class="mdl-layout-spacer"></div>
+            <!-- Navigation -->
+            <nav class="mdl-navigation">
+                <a class="mdl-navigation__link" href="/position_similarity">Spatial Search</a>
+                <a class="mdl-navigation__link" href="/face_features">Face Search</a>
+            </nav>
+        </div>
     </header>
 
-    <section class="content">
-        {% block content %}
-        {% endblock %}
-    </section>
+    <main class="mdl-layout__content">
+        <div class="page-content" id="page_content">
 
-    {% block search_results %}
-        <section id="results" class="full-width-borders">
-            <h1>Results</h1>
-            <div class="search_results">
-                {#Automatically generated images#}
-            </div>
-            <div style="clear: both;"></div>
-        </section>
-    {% endblock %}
+            {#            <section class="content">#}
+            {% block content %}
+            {% endblock %}
+            {#    </section>#}
 
-    <div class="background_fill"></div>
+            {% block search_results %}
+                <section id="results" class="full-width-borders">
+                    <h1>Results</h1>
+                    <div class="search_results">
+                        {#Automatically generated images#}
+                    </div>
+                    <div style="clear: both;"></div>
+                </section>
+            {% endblock %}
+            {##}
+            {##}
+            {#    <div class="background_fill"></div>#}
+            {##}
+            {#        </div>#}
 
-    <footer class="full-width-borders"><a href="https://github.com/JankaSvK/thesis-grizzly">GitHub</a></footer>
+        </div>
+    </main>
+
+
+    {#    <footer class="full-width-borders"><a href="https://github.com/JankaSvK/thesis-grizzly">GitHub</a></footer>#}
+    {#</div>#}
+    <footer class="mdl-mini-footer" >
+        <div class="mdl-mini-footer__left-section">
+            <div class="mdl-logo">Grizzly</div>
+            <ul class="mdl-mini-footer__link-list">
+                <li><a href="https://github.com/JankaSvK/thesis-grizzly">GitHub</a></li>
+            </ul>
+        </div>
+    </footer>
 </div>
+{#<div id="page_content">#}
+
 </body>
 </html>
 
