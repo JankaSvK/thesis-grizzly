@@ -7,7 +7,7 @@ from typing import Iterable
 import numpy as np
 
 from diplomova_praca_lib.position_similarity.models import ImageData
-
+from collections import defaultdict
 
 class Storage:
     def __init__(self):
@@ -16,27 +16,24 @@ class Storage:
 
 class FileStorage(Storage):
     @staticmethod
-    def load_features_datafiles(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz"):
+    def load_multiple_files_multiple_keys(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz"):
         filenames = list(Path(path).rglob(filename_regex))
         files = [FileStorage.load_data_from_file(d) for d in filenames]
 
         result = {}
         for key in retrieve_merged + retrieve_once:
-            result[key] = []
             for i_f, f in enumerate(files):
                 if key not in f:
                     logging.warning("`%s` not available in `%s`" % (key, str(filenames[i_f])))
                     continue
 
                 if key in retrieve_merged:
+                    if key not in result:
+                        result[key] = []
                     result[key] += list(f[key])
                 if key in retrieve_once and key not in result:
                     logging.info("`%s` retrieved from `%s`" % (key, str(filenames[i_f])))
                     result[key] = f[key]
-
-
-        for key in retrieve_once:
-            result[key] = files[0][key]
 
         return result
 

@@ -43,15 +43,13 @@ def recall_graph(x, y):
 fetched_collages = retrieve_collages()
 
 Environment.results_limit = 30000
-# query_image = fetched_queries[0][2]
-# query_image = query_image[query_image.index('thumbnails/') + len('thumbnails/'):-2]
 
+query_images = []
 ranks = []
 for collage in fetched_collages:
     query_image = collage.query[collage.query.index('thumbnails/') + len('thumbnails/'):-2]
     logging.info('Processing query image %s' % query_image)
-
-    print(query_image)
+    query_images.append(query_image)
     images = eval(collage.images)
     closest_images = position_similarity_request(json_to_position_similarity_request(images))
 
@@ -62,7 +60,7 @@ for collage in fetched_collages:
     ranks.append(rank)
 
 ranks = np.array(ranks)
-print(ranks)
+print("\n".join(map(str, zip(query_images, ranks))))
 
 x = np.arange(150)
 y = [np.count_nonzero(ranks < r) for r in x]

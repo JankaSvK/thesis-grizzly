@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 import numpy as np
 import requests
 from PIL import Image
-from sklearn.metrics.pairwise import cosine_similarity, cosine_distances, euclidean_distances
+from sklearn.metrics.pairwise import cosine_similarity, cosine_distances
 
 from diplomova_praca_lib.image_processing import resize_with_padding
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
@@ -56,8 +56,8 @@ class RegionsData:
         self.features = data['features']
         self.src_paths = data['paths']
         self.crops = data['crops']
-        self.pca = pickle.loads(data['pca'])
-        self.scaler = pickle.loads(data['scaler'])
+        # self.pca = pickle.loads(data['pca'])
+        # self.scaler = pickle.loads(data['scaler'])
 
         self.crop_idxs = self._get_crop_idxs()
         self.unique_crops = list(self.crop_idxs.keys())
@@ -99,21 +99,17 @@ def model_factory(model_repr):
 
 class RegionsEnvironment:
     def __init__(self, data_path):
-        data = FileStorage.load_data_from_file(data_path)
-        self.regions_data = RegionsData(data)
-
-        self.pca = pickle.loads(data['pca'])
-        self.scaler = pickle.loads(data['scaler'])
-        if 'model' in data.keys():
-            self.model = model_factory(str(data['model']))
-        else:
-            self.model = Resnet50(input_shape=(224,224,3))
-
-    def pca_transform(self, features):
-        return self.pca.transform(self.scaler.transform(features))
+        self.data = FileStorage.load_multiple_files_multiple_keys(path=data_path,
+                                                                  retrieve_merged=['features', 'crops', 'paths'],
+                                                                  retrieve_once=['pipeline', 'model'])
+        self.preprocessing = pickle.loads(self.data['pipeline'])
+        self.model = model_factory(str(self.data['model']))
+        self.data['features'] = np.array(self.data['features'])
+        self.regions_data = RegionsData(self.data)
 
 
-regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
+# regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\saved_annotations\experiments\compressed_featueres2\data.npz")
+regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM")
 # regions_env = RegionsEnvironment(
 #     r"C:\Users\janul\Desktop\saved_annotations\experiments\750_mobbilenetv2-12regions\data.npz")
 
@@ -127,7 +123,7 @@ def position_similarity_request(request: PositionSimilarityRequest):
         return []
 
     model_features = regions_env.model.predict_on_images(downloaded_images)
-    pca_features = regions_env.pca_transform(model_features)
+    pca_features = regions_env.preprocessing.transform(model_features)
 
     matched_crop_idxs = []
     matched_src_idxs = []
