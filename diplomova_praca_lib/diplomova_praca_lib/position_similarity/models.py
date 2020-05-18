@@ -113,9 +113,19 @@ class Crop:
 
         return iou
 
+class PositionSimilarityResponse:
+    def __init__(self, ranked_paths = None, searched_image_rank = None, matched_regions = None):
+        self.searched_image_rank = searched_image_rank
+        self.ranked_paths = ranked_paths
+        self.matched_regions = matched_regions
+
+class PositionSimilarityRequest:
+    def __init__(self, images=None, query_image=None):
+        self.images = images
+        self.query_image = query_image
+
 
 RegionFeatures = collections.namedtuple("RegionFeatures", ["crop", "features"])
 UrlImage = collections.namedtuple('UrlImage', ['url', 'crop'])
-PositionSimilarityRequest = collections.namedtuple('PositionSimilarityRequest', ['images'])
 RegionsFeaturesRecord = collections.namedtuple("RegionsFeaturesRecord", ["filename", "regions_features"])
 ImageData = collections.namedtuple("Image", ["filename", "image"])

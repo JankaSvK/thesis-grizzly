@@ -1,9 +1,8 @@
+@import "colors";
+
 $canvas_scale_to_image: 3;
 $canvas_width: $canvas_scale_to_image * 320px;
 $canvas_height: $canvas_scale_to_image * 180px;
-
-
-
 
 #collage_canvas {
     background-color: #F9f9f9;

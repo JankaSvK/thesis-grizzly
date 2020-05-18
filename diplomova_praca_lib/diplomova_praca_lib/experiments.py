@@ -1,4 +1,5 @@
 import sqlite3
+from decimal import Decimal
 
 import numpy as np
 import collections
@@ -7,7 +8,7 @@ import logging
 
 from diplomova_praca_lib.position_similarity.models import UrlImage, Crop, PositionSimilarityRequest
 from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request, Environment
-
+from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,13 +23,6 @@ def retrieve_collages():
     return fetched_queries
 
 
-def json_to_position_similarity_request(json_data):
-    images = []
-    for image in json_data:
-        url_image = UrlImage(image["url"], Crop(*[image[attr] for attr in ["top", "left", "width", "height"]]))
-        images.append(url_image)
-    return PositionSimilarityRequest(images)
-
 
 def recall_graph(x, y):
     import matplotlib.pyplot as plt
@@ -42,26 +36,30 @@ def recall_graph(x, y):
 
 fetched_collages = retrieve_collages()
 
-Environment.results_limit = 30000
 
 query_images = []
 ranks = []
 for collage in fetched_collages:
-    query_image = collage.query[collage.query.index('thumbnails/') + len('thumbnails/'):-2]
+
+    query_image = path_from_css_background(collage.query)
     logging.info('Processing query image %s' % query_image)
     query_images.append(query_image)
     images = eval(collage.images)
-    closest_images = position_similarity_request(json_to_position_similarity_request(images))
 
-    try:
+    request = PositionSimilarityRequest(images=images_with_position_from_json(images),
+                                        query_image=query_image)
+    response = position_similarity_request(request)
+    closest_images = response.ranked_paths
+
+    if query_image in closest_images:
         rank = closest_images.index(query_image)
-    except ValueError:
-        rank = Environment.results_limit + 1
+    else:
+        rank = 20000
     ranks.append(rank)
 
 ranks = np.array(ranks)
 print("\n".join(map(str, zip(query_images, ranks))))
 
-x = np.arange(150)
+x = np.arange(max(ranks))
 y = [np.count_nonzero(ranks < r) for r in x]
 recall_graph(x, y)

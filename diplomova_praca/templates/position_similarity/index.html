@@ -99,6 +99,11 @@
             console.log("Sending request.");
             console.log(getAllImagesPositions());
 
+            if(getAllImagesPositions().length < 1){
+                $("#results").hide();
+                return;
+            }
+
             $.ajax({
                 type: 'POST',
                 dataType: 'json',
@@ -116,7 +121,12 @@
                 },
                 success(response) {
                     $("#loading").hide();
+                    $("#results").show();
+
                     image_table($(".search_results"), response['ranking_results']);
+                    $("#search_image_rank_value").text(response['search_image_rank']);
+                    console.log(response);
+
                 },
                 failure(data) {
                     console.log("Failure", data); // TODO
@@ -186,6 +196,8 @@
 
         (function ($) {
             $(document).ready(function () {
+                $("#additional_ranking_information").show();
+
                 $(function () {
                     showImageTemporarly(true);
                 });

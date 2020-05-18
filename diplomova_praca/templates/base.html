@@ -34,11 +34,8 @@
 <div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
     <header class="mdl-layout__header mdl-layout__header-- ">
         <div class="mdl-layout__header-row">
-            <!-- Title -->
             <span class="mdl-layout-title">Grizzly</span>
-            <!-- Add spacer, to align navigation to the right -->
             <div class="mdl-layout-spacer"></div>
-            <!-- Navigation -->
             <nav class="mdl-navigation">
                 <a class="mdl-navigation__link" href="/position_similarity">Spatial Search</a>
                 <a class="mdl-navigation__link" href="/face_features">Face Search</a>
@@ -47,36 +44,30 @@
     </header>
 
     <main class="mdl-layout__content">
+        <div class="mdl-layout-spacer"></div>
         <div class="page-content" id="page_content">
 
-            {#            <section class="content">#}
             {% block content %}
             {% endblock %}
-            {#    </section>#}
 
             {% block search_results %}
-                <section id="results" class="full-width-borders">
-                    <h1>Results</h1>
+                <section id="results" style="display:none">
+                    <h3>Results</h3>
+                    <div id="additional_ranking_information" style="display:none">
+                        <div id="search_image_rank">Rank of searched image: <span id="search_image_rank_value"></span></div>
+                    </div>
                     <div class="search_results">
-                        {#Automatically generated images#}
+                        {# Automatically generated images #}
                     </div>
                     <div style="clear: both;"></div>
                 </section>
             {% endblock %}
-            {##}
-            {##}
-            {#    <div class="background_fill"></div>#}
-            {##}
-            {#        </div>#}
 
         </div>
     </main>
 
-
-    {#    <footer class="full-width-borders"><a href="https://github.com/JankaSvK/thesis-grizzly">GitHub</a></footer>#}
-    {#</div>#}
-    <footer class="mdl-mini-footer" >
-        <div class="mdl-mini-footer__left-section">
+    <footer class="mdl-mini-footer">
+        <div class="mdl-mini-footer__middle-section">
             <div class="mdl-logo">Grizzly</div>
             <ul class="mdl-mini-footer__link-list">
                 <li><a href="https://github.com/JankaSvK/thesis-grizzly">GitHub</a></li>
@@ -84,7 +75,6 @@
         </div>
     </footer>
 </div>
-{#<div id="page_content">#}
 
 </body>
 </html>

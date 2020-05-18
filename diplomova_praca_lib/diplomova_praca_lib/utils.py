@@ -2,6 +2,8 @@ from pathlib import Path
 
 import numpy as np
 
+from diplomova_praca_lib.position_similarity.models import UrlImage, Crop
+
 
 def cap_value(value, minimum, maximum):
     return max(minimum, min(value, maximum))
@@ -50,3 +52,13 @@ class Memoize:
         return self.memo[args]
 
 
+def images_with_position_from_json(json_data):
+    images = []
+    for image in json_data:
+        url_image = UrlImage(image["url"], Crop(*[image[attr] for attr in ["top", "left", "width", "height"]]))
+        images.append(url_image)
+    return images
+
+
+def path_from_css_background(long_path):
+    return long_path[long_path.index('thumbnails/') + len('thumbnails/'):-2]
