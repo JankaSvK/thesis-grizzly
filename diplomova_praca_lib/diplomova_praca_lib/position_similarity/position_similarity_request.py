@@ -1,4 +1,5 @@
 import base64
+import logging
 import pickle
 import re
 from collections import defaultdict
@@ -19,6 +20,7 @@ from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMe
 from diplomova_praca_lib.storage import FileStorage, Database
 from diplomova_praca_lib.utils import concatenate_lists
 
+logging.basicConfig(level=logging.INFO)
 
 class Environment:
     database_spatially = None
@@ -107,27 +109,38 @@ def position_similarity_request(request: PositionSimilarityRequest):
     if not downloaded_images:
         return []
 
-    model_features = regions_env.model.predict_on_images(downloaded_images)
-    pca_features = regions_env.preprocessing.transform(model_features)
+    images_features = regions_env.model.predict_on_images(downloaded_images)
+    images_features_transformed = regions_env.preprocessing.transform(images_features)
 
-    matched_crop_idxs = []
-    for image_info, pca_feature in zip(request.images, pca_features):
-        related_crops = regions_env.regions_data.related_crops(image_info.crop)[:3]
-        related_crops_features_idxs = concatenate_lists([regions_env.regions_data.crop_idxs[c] for c in related_crops])
-        features = regions_env.regions_data.features[related_crops_features_idxs]
+    crop_ranking_per_image = []
+    for image_info, image_features in zip(request.images, images_features_transformed):
+        related_crops = regions_env.regions_data.related_crops(image_info.crop)
+        logging.info("%d related crops" % len(related_crops))
+        related_crops_idxs = concatenate_lists((regions_env.regions_data.crop_idxs[c] for c in related_crops))
+        features = regions_env.regions_data.features[related_crops_idxs]
 
-        highest_similarity_features_idxs = closest_match(pca_feature, features, Environment.results_limit,
-                                                         distance=cosine_distances)
-        idxs_crops_sorted_by_distance = np.array(related_crops_features_idxs)[highest_similarity_features_idxs]
+        closest_features_idxs, distances = closest_match(image_features, features, distance=cosine_distances)
 
-        # The address of image is needed, not the crop
-        matched_crop_idxs.append(idxs_crops_sorted_by_distance)
+        # Indexes with features are only a subset of whole data, we have to transform back
+        closest_crops_idxs = np.array(related_crops_idxs)[closest_features_idxs]
+        crop_ranking_per_image.append(zip(closest_crops_idxs, distances))
 
-    # Get paths for that
-    matched_src_rankings = [list(map(crop_idx_to_src_idx, crop_ranking)) for crop_ranking in matched_crop_idxs]
-    matched_crops = [[regions_env.regions_data.crops[i_crop] for i_crop in ranking] for ranking in matched_crop_idxs]
+    images_crop_distances = defaultdict(list)
+    for ranking in crop_ranking_per_image:
+        best_crop_per_image = best_crop_only(ranking)
+        for image, value in best_crop_per_image.items():
+            images_crop_distances[image].append(value)
 
-    ranked_results = RankingMechanism.borda_count(matched_src_rankings)
+    images_with_crop_distances = {id_: [distance for crop_id, distance in values]
+                                  for id_, values in images_crop_distances.items()}
+
+    images_with_crop_distances = images_with_crop_distances.items()
+
+    ranked_results = [img_idx for img_idx, _ in RankingMechanism.rank_func(images_with_crop_distances)]
+
+    # ranked_results = RankingMechanism.average(itertools.chain.from_iterable((d.items() for d in winning_crops)))
+    # matched_src_rankings = [list(map(crop_idx_to_src_idx, crop_ranking)) for crop_ranking in matched_crop_idxs]
+    # ranked_results = RankingMechanism.borda_count(matched_src_rankings)
 
     matched_paths = [regions_env.regions_data.unique_src_paths_list[match] for match in ranked_results]
 
@@ -139,8 +152,16 @@ def position_similarity_request(request: PositionSimilarityRequest):
     return PositionSimilarityResponse(
         ranked_paths=matched_paths,
         searched_image_rank=searched_image_rank,
-        matched_regions=matched_crops
     )
+
+
+def best_crop_only(ranking):
+    images_closest_crop = defaultdict(list)
+    for crop_idx, distance in ranking:
+        if not crop_idx_to_src_idx(crop_idx) in images_closest_crop:
+            images_closest_crop[crop_idx_to_src_idx(crop_idx)] = (crop_idx, distance)
+    return images_closest_crop
+
 
 
 def crop_idx_to_src_idx(crop_idx):

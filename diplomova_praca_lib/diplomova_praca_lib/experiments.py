@@ -5,6 +5,7 @@ import numpy as np
 import collections
 
 import logging
+from typing import *
 
 from diplomova_praca_lib.position_similarity.models import UrlImage, Crop, PositionSimilarityRequest
 from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request, Environment
@@ -14,7 +15,7 @@ logging.basicConfig(level=logging.INFO)
 
 Collage = collections.namedtuple('Collage', "id timestamp query images")
 
-def retrieve_collages():
+def retrieve_collages() -> List[Collage]:
     conn = sqlite3.connect(r'C:\Users\janul\Desktop\thesis\code\diplomova_praca\db.sqlite3')
     conn.row_factory = (lambda cursor, row: Collage(*row))
     c = conn.cursor()
@@ -58,6 +59,7 @@ for collage in fetched_collages:
     ranks.append(rank)
 
 ranks = np.array(ranks)
+print("Average rank", np.average(ranks))
 print("\n".join(map(str, zip(query_images, ranks))))
 
 x = np.arange(max(ranks))

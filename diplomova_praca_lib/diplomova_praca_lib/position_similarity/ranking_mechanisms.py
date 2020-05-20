@@ -9,9 +9,9 @@ class RankingMechanism:
         pass
 
     @staticmethod
-    def average(rankings):
-        """Rankings are the distance"""
-        pass
+    def rank_func(ranking, func=np.min):
+        return sorted(ranking, key=lambda item: func(item[1]))
+
 
     @staticmethod
     def borda_count(rankings):

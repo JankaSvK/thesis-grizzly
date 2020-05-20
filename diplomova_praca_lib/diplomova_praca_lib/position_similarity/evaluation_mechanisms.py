@@ -72,9 +72,14 @@ class EvaluatingSpatially(EvaluationMechanism):
         sorted_scores_idx = list(sorted(range(len(scores)), key=lambda k: scores[k], reverse=True))
         return [database_items[score_idx][0] for score_idx in sorted_scores_idx]
 
-def closest_match(query, features, num_results, distance):
+def closest_match(query, features, num_results = None, distance = None):
     distances = distance([query], features)[0]
-    return k_smallest_sorted(distances, num_results)
+    if num_results == None:
+        sorted_idxs = np.argsort(distances)
+        return sorted_idxs, distances[sorted_idxs]
+
+    sorted_idxs = k_smallest_sorted(distances, num_results)
+    return sorted_idxs, distances[sorted_idxs]
 
 class EvaluatingRegions(EvaluationMechanism):
     def __init__(self, model, database, num_regions = None):

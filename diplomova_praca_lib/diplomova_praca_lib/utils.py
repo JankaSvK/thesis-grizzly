@@ -38,7 +38,7 @@ def sorted_indexes(a, reverse=True):
 
 def concatenate_lists(list_of_lists):
     import itertools
-    return list(itertools.chain(*list_of_lists))
+    return list(itertools.chain.from_iterable(list_of_lists))
 
 class Memoize:
     def __init__(self, f):
