@@ -84,4 +84,19 @@
   display: table;
 }
 
+#results .search_results .item svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+#results .search_results .item svg rect {
+  stroke: orange;
+  stroke-width: 2;
+  fill-opacity: 0;
+  stroke-opacity: 1;
+}
+
 /*# sourceMappingURL=position_similarity_styles.css.map */

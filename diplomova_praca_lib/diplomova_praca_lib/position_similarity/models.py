@@ -1,4 +1,5 @@
 import collections
+from typing import Dict, List
 
 
 class ImageRecord:
@@ -113,7 +114,14 @@ class Crop:
 
         return iou
 
+    def as_quadruple(self):
+        return (self.left, self.top, self.width, self.height)
+
 class PositionSimilarityResponse:
+    ranked_paths: List[str]
+    matched_regions: Dict[str, List[Crop]]
+    searched_image_rank: int
+
     def __init__(self, ranked_paths = None, searched_image_rank = None, matched_regions = None):
         self.searched_image_rank = searched_image_rank
         self.ranked_paths = ranked_paths

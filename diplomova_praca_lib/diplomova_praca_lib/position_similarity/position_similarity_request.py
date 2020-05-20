@@ -4,6 +4,7 @@ import pickle
 import re
 from collections import defaultdict
 from io import BytesIO
+from typing import Dict, List, Tuple
 from urllib.parse import urlparse
 
 import numpy as np
@@ -97,11 +98,13 @@ class RegionsEnvironment:
         self.model = model_factory(str(self.data['model']))
         self.data['features'] = np.array(self.data['features'])
         self.regions_data = RegionsData(self.data)
+        self.ranking_func = np.min
 
 
 regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM")
 
-def position_similarity_request(request: PositionSimilarityRequest):
+
+def position_similarity_request(request: PositionSimilarityRequest) -> PositionSimilarityResponse:
     downloaded_images = [
         resize_with_padding(download_image(request_image.url), expected_size=regions_env.model.input_shape)
         for request_image in request.images]
@@ -125,18 +128,19 @@ def position_similarity_request(request: PositionSimilarityRequest):
         closest_crops_idxs = np.array(related_crops_idxs)[closest_features_idxs]
         crop_ranking_per_image.append(zip(closest_crops_idxs, distances))
 
-    images_crop_distances = defaultdict(list)
+    images_with_best_crops_and_distances = defaultdict(list)
     for ranking in crop_ranking_per_image:
         best_crop_per_image = best_crop_only(ranking)
         for image, value in best_crop_per_image.items():
-            images_crop_distances[image].append(value)
+            images_with_best_crops_and_distances[image].append(value)
 
     images_with_crop_distances = {id_: [distance for crop_id, distance in values]
-                                  for id_, values in images_crop_distances.items()}
+                                  for id_, values in images_with_best_crops_and_distances.items()}
 
     images_with_crop_distances = images_with_crop_distances.items()
 
-    ranked_results = [img_idx for img_idx, _ in RankingMechanism.rank_func(images_with_crop_distances)]
+    ranked_results = [img_idx for img_idx, _ in
+                      RankingMechanism.rank_func(images_with_crop_distances, func=regions_env.ranking_func)]
 
     # ranked_results = RankingMechanism.average(itertools.chain.from_iterable((d.items() for d in winning_crops)))
     # matched_src_rankings = [list(map(crop_idx_to_src_idx, crop_ranking)) for crop_ranking in matched_crop_idxs]
@@ -152,7 +156,16 @@ def position_similarity_request(request: PositionSimilarityRequest):
     return PositionSimilarityResponse(
         ranked_paths=matched_paths,
         searched_image_rank=searched_image_rank,
+        matched_regions=image_src_with_best_regions(images_with_best_crops_and_distances)
     )
+
+
+def image_src_with_best_regions(obtained_regions: Dict[int, List[Tuple[int, float]]]) -> Dict[str, List[Crop]]:
+    return {
+        regions_env.regions_data.unique_src_paths_list[id_]:
+            [regions_env.regions_data.crops[crop_id] for crop_id, distance in values]
+        for id_, values in obtained_regions.items()
+    }
 
 
 def best_crop_only(ranking):

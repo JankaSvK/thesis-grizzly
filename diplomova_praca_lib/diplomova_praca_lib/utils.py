@@ -55,7 +55,8 @@ class Memoize:
 def images_with_position_from_json(json_data):
     images = []
     for image in json_data:
-        url_image = UrlImage(image["url"], Crop(*[image[attr] for attr in ["top", "left", "width", "height"]]))
+        url_image = UrlImage(image["url"],
+                             Crop(top=image['top'], left=image['left'], width=image['width'], height=image['height']))
         images.append(url_image)
     return images
 

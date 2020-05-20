@@ -56,6 +56,8 @@
 
     <script>
         var available_id = 0;
+        const image_width = 320;
+        const image_height = 180;
         var method = 'regions';
 
         function checkCheckbox() {
@@ -124,6 +126,7 @@
                     $("#results").show();
 
                     image_table($(".search_results"), response['ranking_results']);
+                    addRegions(response['matched_regions']);
                     $("#search_image_rank_value").text(response['search_image_rank']);
                     console.log(response);
 
@@ -132,6 +135,27 @@
                     console.log("Failure", data); // TODO
                 }
             });
+        }
+
+        function addRegions(regions) {
+            console.log(regions);
+            let result_images = $("#results .search_results .item img");
+
+            for (const image of result_images) {
+                if ($(image).attr('src') in regions) {
+                    for (const region of regions[$(image).attr('src')]) {
+                        highlightRegion($(image), region[0] * image_width, region[1] * image_height, region[2] * image_width, region[3] * image_height)
+                    }
+                }
+            }
+
+        }
+
+
+        function highlightRegion(element, x, y, width, height) {
+            $(element).after(`<svg>
+                    <rect x='${x}' y='${y}' width='${width}' height='${height}'/>
+                </svg>`);
         }
 
         function reloadResizeable() {
@@ -174,6 +198,7 @@
 
         var timeout;
         var num_hints = 0;
+
         function showImageTemporarly(to_display) {
             console.log(to_display);
             $("#image_show_toggle").prop("checked", to_display);

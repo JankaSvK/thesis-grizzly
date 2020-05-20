@@ -5,8 +5,7 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from diplomova_praca_lib.position_similarity.models import UrlImage, PositionSimilarityRequest, Crop, \
-    PositionSimilarityResponse
+from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, PositionSimilarityResponse
 from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request, \
     spatial_similarity_request
 from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background
@@ -52,12 +51,17 @@ def position_similarity_post(request):
     images_to_render = closest_images[:100]
     context = {
         "ranking_results": [{"img_src": thumbnail_path(path)} for path in images_to_render],
-        "search_image_rank": response.searched_image_rank
+        "search_image_rank": response.searched_image_rank,
+        "matched_regions": transform_crops_to_rectangles(response.matched_regions, images_to_render)
     }
 
     save_request.save()
     return JsonResponse(context, status=200)
 
+
+def transform_crops_to_rectangles(matched_regions, images_to_render):
+    return {thumbnail_path(image): list(map(lambda x: x.as_quadruple(), regions)) for image, regions in
+            matched_regions.items() if image in images_to_render}
 
 
 @csrf_exempt
