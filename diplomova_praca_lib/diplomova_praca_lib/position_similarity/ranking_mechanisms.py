@@ -1,5 +1,5 @@
 from collections import defaultdict
-from typing import List
+from typing import List, Callable, Dict, Tuple
 
 import numpy as np
 
@@ -9,7 +9,8 @@ class RankingMechanism:
         pass
 
     @staticmethod
-    def rank_func(ranking, func=np.min):
+    def rank_func(ranking: List[Tuple[int, List[float]]],
+                  func: Callable[[List[float]], float] = np.min) -> List[Tuple[int, float]]:
         return sorted(ranking, key=lambda item: func(item[1]))
 
 

@@ -111,7 +111,6 @@ class TreeView(Serializable):
 
     @top.setter
     def top(self, top):
-        # TODO: Bug +- 1 error
         max_position = self.maximal_position(axis=0, level=self.level)
         self._top = min(max(0, top), max_position)
 

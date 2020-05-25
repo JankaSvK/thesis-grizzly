@@ -90,7 +90,7 @@ def model_factory(model_repr):
     return class_object(input_shape=input_shape)
 
 class RegionsEnvironment:
-    def __init__(self, data_path):
+    def __init__(self, data_path, ranking_func=np.min):
         self.data = FileStorage.load_multiple_files_multiple_keys(path=data_path,
                                                                   retrieve_merged=['features', 'crops', 'paths'],
                                                                   retrieve_once=['pipeline', 'model'])
@@ -98,7 +98,11 @@ class RegionsEnvironment:
         self.model = model_factory(str(self.data['model']))
         self.data['features'] = np.array(self.data['features'])
         self.regions_data = RegionsData(self.data)
-        self.ranking_func = np.min
+        self.ranking_func = ranking_func
+        self.maximum_related_crops = None
+
+    def model_title(self):
+        return str(self.data['model'])
 
 
 regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM")
@@ -110,7 +114,7 @@ def position_similarity_request(request: PositionSimilarityRequest) -> PositionS
         for request_image in request.images]
 
     if not downloaded_images:
-        return []
+        return PositionSimilarityResponse(ranked_paths=[])
 
     images_features = regions_env.model.predict_on_images(downloaded_images)
     images_features_transformed = regions_env.preprocessing.transform(images_features)
@@ -118,6 +122,9 @@ def position_similarity_request(request: PositionSimilarityRequest) -> PositionS
     crop_ranking_per_image = []
     for image_info, image_features in zip(request.images, images_features_transformed):
         related_crops = regions_env.regions_data.related_crops(image_info.crop)
+        if regions_env.maximum_related_crops:
+            related_crops = related_crops[:regions_env.maximum_related_crops]
+
         logging.info("%d related crops" % len(related_crops))
         related_crops_idxs = concatenate_lists((regions_env.regions_data.crop_idxs[c] for c in related_crops))
         features = regions_env.regions_data.features[related_crops_idxs]

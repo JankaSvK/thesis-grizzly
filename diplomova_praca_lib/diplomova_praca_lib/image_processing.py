@@ -9,7 +9,6 @@ from PIL import Image
 from diplomova_praca_lib.position_similarity.models import Crop
 from diplomova_praca_lib.utils import cap_value
 
-
 def split_image_to_square_regions(image_shape = (180, 320), region_size=(50, 50), num_regions=(5, 8)):
     assert all([region_size[axis] * num_regions[axis] > image_shape[axis] for axis in (0,1)])
 

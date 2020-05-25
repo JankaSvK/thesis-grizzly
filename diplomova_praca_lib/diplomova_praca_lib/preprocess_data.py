@@ -6,7 +6,7 @@ from pathlib import Path
 import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import Normalizer
+from sklearn.preprocessing import Normalizer, FunctionTransformer
 
 from diplomova_praca_lib import storage
 
@@ -64,8 +64,6 @@ def region_records_to_cols(source_data):
     return data
 
 
-
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default=None, type=str)
@@ -73,24 +71,27 @@ def main():
     parser.add_argument("--fit", default=False, type=bool)
     parser.add_argument("--transform", default=False, type=bool)
     parser.add_argument("--learned_model", default=None, type=str)
+    parser.add_argument("--empty_pipeline", default=False, type=bool)
     args = parser.parse_args()
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%I-%M-%S_%p")
 
     if args.learned_model:
         pipeline = np.load(args.learned_model, allow_pickle=True)
+    elif args.empty_pipeline:
+        pipeline = make_pipeline(FunctionTransformer(func=None, validate=False))
     else:
         pipeline = make_pipeline(Normalizer(), PCA(n_components=0.8))
 
+
     if args.fit or (args.transform and not args.learned_model):
-        # total_count = count_total(args.input)
-        total_count = 111764
+        total_count = count_total(args.input)
         sampled_records = sample_images(args.input, 10000, total_count)
         sampled_features = np.vstack([regions_features_only(x) for x in sampled_records])
         print("Obtained features with following shape", sampled_features.shape)
 
         pipeline.fit(sampled_features)
-        report_pca(pipeline['pca'])
+        if "pca" in pipeline: report_pca(pipeline['pca'])
         output_path = Path(args.output, timestamp, "pipeline.npz")
         storage.FileStorage.save_data(path=output_path, pipeline=pickle.dumps(pipeline))
 
