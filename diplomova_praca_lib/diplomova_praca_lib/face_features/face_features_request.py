@@ -1,37 +1,44 @@
 import collections
+import pickle
 from enum import Enum
 
 import numpy as np
 
 from diplomova_praca_lib.face_features.map_features import SOM, RepresentativesTree
-from diplomova_praca_lib.face_features.models import FaceCrop, FaceView, NoMoveError
+from diplomova_praca_lib.face_features.models import FaceView, NoMoveError, FaceCrop
 from diplomova_praca_lib.models import Serializable
 from diplomova_praca_lib.storage import FileStorage, Database
+from diplomova_praca_lib.utils import load_from_file
 
-# database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces_2ndtry"))
-# database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\3videos-faces-test"))
-database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces"))
-# database = Database(FileStorage.load_datafiles(r"/mnt/c/Users/janul/Desktop/saved_annotations/750_faces_2ndtry"))
 
 class Environment:
     features_info = []
     features = []
     som = None
 
-    def __init__(self):
-        i_feature = 0
-        for path, all_faces_features in database.records:
-            for crop, face_features in all_faces_features:
-                Environment.features_info.append(FaceCrop(path, crop))
-                Environment.features.append(face_features)
-                i_feature += 1
+    def __init__(self, data_path):
+        data = FileStorage.load_multiple_files_multiple_keys(path=data_path, retrieve_merged=['features', 'crops', 'paths'])
+        Environment.features = data['features']
+        paths = data['paths']
+        crops = data['crops']
 
-        Environment.som = SOM((30, 30), 128)
-        Environment.som.train_som(Environment.features, epochs=150)
+        Environment.features_info = []
+        for path, crop in zip(paths, crops):
+            Environment.features_info.append(FaceCrop(path, crop))
+
+        self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")
+
+    def train_som(self, shape, epochs):
+        Environment.som = SOM(shape, 128)
+        Environment.som.train_som(Environment.features, epochs=epochs)
+
+    def load_som(self, path):
+        with open(path, 'rb') as handle:
+            Environment.som = pickle.load(handle)
 
 
-env = Environment()
-print(len(env.features))
+# database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces"))
+env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\transformed_face_features")
 
 class Action(Enum):
     NONE = 0
@@ -72,10 +79,7 @@ def map_movement(action: Action, faceview: FaceView, chosen_coords=None):
 
 
 FaceFeaturesResponse = collections.namedtuple("FaceFeaturesResponse", ["grid", "view"])
-
-
 Response = collections.namedtuple("Response", ["images_grid", "layer"])
-
 LayerInfo = collections.namedtuple("LayerInfo", ["layer_index", "top_left", "shape"])
 
 

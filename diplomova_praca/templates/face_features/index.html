@@ -138,6 +138,7 @@
                     console.log(response);
                     {#image_table(dom_element=$(".search_results"), images=response['files'], submit_func=null, submit_icon_path={% static "images/icon_eye.svg" %});#}
                     image_table($(".search_results"), response['files'], "{% static "images/icon_submit.svg" %}");
+                    $("#results").show();
                 },
                 failure(data) {
                     console.log("Failure", data);

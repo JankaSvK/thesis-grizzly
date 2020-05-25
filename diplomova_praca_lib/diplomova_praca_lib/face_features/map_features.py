@@ -1,10 +1,12 @@
 import typing
+from pathlib import Path
 
 import numpy as np
 import sklearn
 from minisom import MiniSom
 
 from diplomova_praca_lib.face_features.models import FaceView
+from diplomova_praca_lib.utils import timestamp_directory, dump_to_file
 
 
 class RepresentativesTree:
@@ -48,27 +50,26 @@ class RepresentativesTree:
         return max(0, center_position[0] - self.display_size[0] // 2), max(0, center_position[1] - self.display_size[
             1] // 2)
 
-    # def layer_up_center(self, layer_ind, center):
-    #     if np.where(self.layers[layer_ind - 1] == center):
-    #         return center
-    #
-    #     curr_relative_position = np.argwhere(self.layers[layer_ind] == center) / self.layers[layer_ind].shape
-    #     new_position = np.round(curr_relative_position * self.layers[layer_ind - 1].shape)
-    #     return self.layers[layer_ind - 1][new_position]
-
-
-
 
 class SOM:
+    log_dir = Path(r"C:\Users\janul\Desktop\thesis_tmp_files\som")
+
     def __init__(self, som_shape=(6, 6), num_features=128):
         self.som_shape = som_shape
         self.num_features = num_features
         self.som = MiniSom(*som_shape, num_features, sigma=0.3, learning_rate=0.5)
         self.som_size = self.som_shape[0] * self.som_shape[1]
 
+    def train_som(self, features, epochs=None, save_som=True):
+        if epochs is None:
+            epochs = len(features) * 30 # Each sample is on average provided 30 times
 
-    def train_som(self, features, epochs=10000):
         self.som.train_random(features, epochs, verbose=True)
+
+        if save_som and self.log_dir:
+            som_log_file = Path(timestamp_directory(self.log_dir), "som.pickle")
+            dump_to_file(som_log_file, self.som)
+
         self.representatives = self.closest_representatives(self.som.get_weights().reshape(-1, self.num_features),
                                                             features)
         self.representatives = self.representatives.reshape(self.som_shape)

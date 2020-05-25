@@ -17,6 +17,11 @@ class Storage:
 class FileStorage(Storage):
     @staticmethod
     def load_multiple_files_multiple_keys(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz"):
+        if not retrieve_once:
+            retrieve_once = []
+        if not retrieve_merged:
+            retrieve_merged = []
+
         filenames = list(Path(path).rglob(filename_regex))
         files = [FileStorage.load_data_from_file(d) for d in filenames]
 
