@@ -68,8 +68,10 @@ class SOM:
 
         if save_som and self.log_dir:
             som_log_file = Path(timestamp_directory(self.log_dir), "som.pickle")
+            print("SOM saved in", som_log_file)
             dump_to_file(som_log_file, self.som)
 
+    def get_representatives(self, features):
         self.representatives = self.closest_representatives(self.som.get_weights().reshape(-1, self.num_features),
                                                             features)
         self.representatives = self.representatives.reshape(self.som_shape)
