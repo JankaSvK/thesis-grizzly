@@ -26,7 +26,11 @@ class Environment:
         for path, crop in zip(paths, crops):
             Environment.features_info.append(FaceCrop(path, crop))
 
-        self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")
+        self.som = SOM((300, 300), 128)
+        self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\som.pickle")
+        self.som.set_representatives(Environment.features)
+
+        # self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")
 
     def train_som(self, shape, epochs):
         Environment.som = SOM(shape, 128)

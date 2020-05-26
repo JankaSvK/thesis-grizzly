@@ -71,7 +71,7 @@ class SOM:
             print("SOM saved in", som_log_file)
             dump_to_file(som_log_file, self.som)
 
-    def get_representatives(self, features):
+    def set_representatives(self, features):
         self.representatives = self.closest_representatives(self.som.get_weights().reshape(-1, self.num_features),
                                                             features)
         self.representatives = self.representatives.reshape(self.som_shape)
