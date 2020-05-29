@@ -12,7 +12,7 @@ def main():
     parser.add_argument('--output', default=None, type=str)
     parser.add_argument('--pretrained', default=None, type=str)
     parser.add_argument('--epochs', default=None, type=int)
-    parser.add_argument('--batch_epochs', default=10000, type=int)
+    parser.add_argument('--batch_epochs', default=100000, type=int)
     args = parser.parse_args()
 
 
@@ -29,7 +29,7 @@ def main():
     if args.epochs:
         training_epochs = args.epochs
     else:
-        training_epochs = len(features) * 100
+        training_epochs = len(features) * 1000
 
     iterations = training_epochs // args.batch_epochs
     for i in range(iterations):

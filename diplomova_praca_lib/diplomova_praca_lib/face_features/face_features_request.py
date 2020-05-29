@@ -30,8 +30,8 @@ class Environment:
         for i_crop, (path, crop) in enumerate(zip(Environment.paths, Environment.crops)):
             Environment.features_info.append(FaceCrop(src=path, crop=crop, idx=i_crop))
 
-        self.som = SOM((300, 300), 128)
-        self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\som.pickle")
+        self.som = SOM((50, 50), 128)
+        self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\50-50som_100times_dataset.pickle")
         self.som.set_representatives(Environment.features)
 
         # self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")
