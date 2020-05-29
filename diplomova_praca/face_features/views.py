@@ -2,7 +2,8 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from diplomova_praca_lib.face_features.face_features_request import TreeView
+from diplomova_praca_lib.face_features.face_features_request import TreeView, images_with_closest_faces
+from diplomova_praca_lib.face_features.models import ClosestFacesRequest
 from diplomova_praca_lib.position_similarity.models import Crop
 from face_features.models import FaceFeaturesSubmission
 from shared.utils import thumbnail_path, random_image_path
@@ -23,6 +24,19 @@ def submit(request):
     record.num_hints = request.POST.get('num_hints', '')
     record.save()
     return JsonResponse({}, status=200)
+
+
+@csrf_exempt
+def images_with_closest_faces_post(request):
+    face_id = int(request.POST.get('id', None))
+    request = ClosestFacesRequest(face_id=face_id)
+    response = images_with_closest_faces(request)
+
+    context = {
+        "images": [{"img_src": thumbnail_path(face_crop.src)} for face_crop in response.closest_faces],
+    }
+
+    return JsonResponse(context, status=200)
 
 @csrf_exempt
 def repr_tree_post(request):
@@ -70,7 +84,8 @@ def preprocess_image_grid(images_grid):
                 "img_src": path_preprocess(item.src),
                 "crop": crop_preprocess(size_up(item.crop)),
                 "x": i_item,
-                "y": i_row
+                "y": i_row,
+                "face_index": item.idx
             })
         images_grid_preprocessed.append(row_items)
     return images_grid_preprocessed

@@ -80,3 +80,13 @@ def load_from_file(path):
     import pickle
     with open(path, 'rb') as handle:
         return pickle.load(handle)
+
+
+def closest_match(query, features, num_results = None, distance = None):
+    distances = distance([query], features)[0]
+    if num_results == None:
+        sorted_idxs = np.argsort(distances)
+        return sorted_idxs, distances[sorted_idxs]
+
+    sorted_idxs = k_smallest_sorted(distances, num_results)
+    return sorted_idxs, distances[sorted_idxs]

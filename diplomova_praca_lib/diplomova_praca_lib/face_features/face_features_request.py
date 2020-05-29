@@ -1,14 +1,18 @@
 import collections
 import pickle
+from bisect import bisect_left
 from enum import Enum
+from typing import List
 
 import numpy as np
+from sklearn.metrics import euclidean_distances
 
 from diplomova_praca_lib.face_features.map_features import SOM, RepresentativesTree
-from diplomova_praca_lib.face_features.models import FaceView, NoMoveError, FaceCrop
+from diplomova_praca_lib.face_features.models import FaceView, NoMoveError, FaceCrop, ClosestFacesRequest, \
+    ClosestFacesResponse
 from diplomova_praca_lib.models import Serializable
-from diplomova_praca_lib.storage import FileStorage, Database
-from diplomova_praca_lib.utils import load_from_file
+from diplomova_praca_lib.storage import FileStorage
+from diplomova_praca_lib.utils import load_from_file, closest_match
 
 
 class Environment:
@@ -19,12 +23,12 @@ class Environment:
     def __init__(self, data_path):
         data = FileStorage.load_multiple_files_multiple_keys(path=data_path, retrieve_merged=['features', 'crops', 'paths'])
         Environment.features = data['features']
-        paths = data['paths']
-        crops = data['crops']
+        Environment.paths = data['paths']
+        Environment.crops = data['crops']
 
         Environment.features_info = []
-        for path, crop in zip(paths, crops):
-            Environment.features_info.append(FaceCrop(path, crop))
+        for i_crop, (path, crop) in enumerate(zip(Environment.paths, Environment.crops)):
+            Environment.features_info.append(FaceCrop(src=path, crop=crop, idx=i_crop))
 
         self.som = SOM((300, 300), 128)
         self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\som.pickle")
@@ -59,6 +63,18 @@ actions = {None: Action.NONE, 'up': Action.UP, 'down': Action.DOWN, 'left': Acti
 
 
 curr_faceview = FaceView(*env.som.som_shape)
+
+
+def images_with_closest_faces(request: ClosestFacesRequest) -> ClosestFacesResponse:
+    query_features = Environment.features[request.face_id]
+    matches_sorted, distances = closest_match(query_features, Environment.features, distance=euclidean_distances)
+    last_matched_image_idx = bisect_left(distances, 0.6)
+
+    response = ClosestFacesResponse()
+    response.closest_faces = [Environment.features_info[i] for i in matches_sorted[:last_matched_image_idx]]
+    response.distances = distances[:last_matched_image_idx]
+
+    return response
 
 
 def map_movement(action: Action, faceview: FaceView, chosen_coords=None):
@@ -208,7 +224,7 @@ class TreeView(Serializable):
 
 
 
-def map_grid_to_infos(grid: np.ndarray):
+def map_grid_to_infos(grid: np.ndarray) -> List[List[FaceCrop]]:
     infos = []
     for row in grid:
         row_items = []

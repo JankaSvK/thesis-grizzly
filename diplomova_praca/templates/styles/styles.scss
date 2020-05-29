@@ -147,17 +147,21 @@ header div {
   position: relative;
 }
 
-.icon_top_right {
-  opacity: 0.1;
+.top_right_icon_box {
   position: absolute;
-  top: 0;
-  right: 0;
+  top:0;
+  right:0;
+}
+
+.icon {
+  opacity: 0.1;
   min-width: 10px !important;
 }
 
 .icon:hover,
 .icon:focus {
   opacity: 1.0;
+  color: $color-accent;
   filter: invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%);
 }
 

@@ -1,6 +1,9 @@
 import collections
+from typing import List, NamedTuple
 
-FaceCrop = collections.namedtuple("FaceCrop", ['src', 'crop'])
+from diplomova_praca_lib.position_similarity.models import Crop
+
+# FaceCrop = collections.namedtuple("FaceCrop", ['src', 'crop'])
 FaceDetection = collections.namedtuple('FaceDetection', ['crop', 'encoding'])
 FaceDetectionsRecord = collections.namedtuple('Record', ['filename', 'detections'])
 
@@ -8,9 +11,27 @@ FaceDetectionsRecord = collections.namedtuple('Record', ['filename', 'detections
 Coords = collections.namedtuple('Coords', ['x', 'y'])
 
 
+class FaceCrop(NamedTuple):
+    crop: Crop
+    src: str
+    idx: int
+
+    def __eq__(self, other):
+        return self.src == other.src and self.crop == other.crop
+
+
+
 class NoMoveError(Exception):
     pass
 
+
+class ClosestFacesRequest(NamedTuple):
+    face_id: int
+
+
+class ClosestFacesResponse:
+    closest_faces: List[FaceCrop]
+    distances: List[float]
 
 class FaceView:
     def __init__(self, max_height, max_width, top_left_x: int = 0, top_left_y: int = 0, bottom_right_x=None,

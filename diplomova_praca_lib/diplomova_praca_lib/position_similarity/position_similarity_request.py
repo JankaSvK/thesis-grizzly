@@ -13,13 +13,12 @@ from PIL import Image
 from sklearn.metrics.pairwise import cosine_similarity, cosine_distances
 
 from diplomova_praca_lib.image_processing import resize_with_padding
-from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
-    closest_match
+from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially
 from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate, MobileNetV2
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, Crop, PositionSimilarityResponse
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
 from diplomova_praca_lib.storage import FileStorage, Database
-from diplomova_praca_lib.utils import concatenate_lists
+from diplomova_praca_lib.utils import concatenate_lists, closest_match
 
 logging.basicConfig(level=logging.INFO)
 

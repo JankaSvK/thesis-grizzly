@@ -70,7 +70,7 @@
             var crop_y = crop['y'] * img_height;
 
             var ratio = fixed_height / crop_height;
-
+            console.log(image['face_index']);
             {#TODO: Hide some given properties of styles to css classes#}
             return `<div class="column wrap_corner_icon" style="
                         width:${crop_width * ratio}px;
@@ -85,9 +85,11 @@
                                 object-fit:cover;"
                             />
                         </a>
-                        <a href='javascript:video_images_request(${new_id})'>
-                            <img src="{% static "images/icon_eye.svg" %}" class="icon_top_right icon" />
-                        </a>
+                        <div class="top_right_icon_box">
+                            <a href='javascript:video_images_request(${new_id})'  class="icon"><img src="{% static "images/movie-24px.svg" %}" /></a>
+                            <a href='javascript:closest_images_to_face(${image['face_index']})'  class="icon"><img src="{% static "images/face-24px.svg" %}" /></a>
+                        </div>
+
                     </div>`;
         }
 
@@ -124,6 +126,24 @@
                 }
             });}
 
+        function closest_images_to_face(id) {
+            console.log("closest face");
+            console.log(id);
+            $.ajax({
+                type: "POST",
+                url: "{% url 'closest_images_to_face' %}",
+                data: {"id": id},
+                success(response) {
+                    console.log(response);
+                    image_table($(".search_results"), response['images'], "{% static "images/icon_submit.svg" %}");
+                    $("#results").show();
+                },
+                failure(data) {
+                    console.log("Failure", data);
+                }
+            });
+
+        }
 
         function video_images_request(id) {
             const data = {
