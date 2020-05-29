@@ -20,7 +20,7 @@ def main():
     data = FileStorage.load_multiple_files_multiple_keys(path=args.input, retrieve_merged=['features', 'crops', 'paths'])
     features = data['features']
 
-    som = SOM(som_shape=(300, 300))
+    som = SOM(som_shape=(50, 50))
     som.log_dir = Path(args.output)
 
     if args.pretrained:
