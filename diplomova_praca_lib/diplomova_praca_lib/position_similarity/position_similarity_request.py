@@ -143,14 +143,10 @@ def position_similarity_request(request: PositionSimilarityRequest) -> PositionS
     images_with_crop_distances = {id_: [distance for crop_id, distance in values]
                                   for id_, values in images_with_best_crops_and_distances.items()}
 
-    images_with_crop_distances = images_with_crop_distances.items()
+    images_with_crop_distances = list(images_with_crop_distances.items())
 
     ranked_results = [img_idx for img_idx, _ in
                       RankingMechanism.rank_func(images_with_crop_distances, func=regions_env.ranking_func)]
-
-    # ranked_results = RankingMechanism.average(itertools.chain.from_iterable((d.items() for d in winning_crops)))
-    # matched_src_rankings = [list(map(crop_idx_to_src_idx, crop_ranking)) for crop_ranking in matched_crop_idxs]
-    # ranked_results = RankingMechanism.borda_count(matched_src_rankings)
 
     matched_paths = [regions_env.regions_data.unique_src_paths_list[match] for match in ranked_results]
 
