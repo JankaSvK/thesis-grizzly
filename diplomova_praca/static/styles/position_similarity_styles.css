@@ -99,4 +99,8 @@
   stroke-opacity: 1;
 }
 
+.menu_item_selected {
+  background-color: Moccasin;
+}
+
 /*# sourceMappingURL=position_similarity_styles.css.map */

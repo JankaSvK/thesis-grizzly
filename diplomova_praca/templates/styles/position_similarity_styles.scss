@@ -118,3 +118,7 @@ $canvas_height: $canvas_scale_to_image * 180px;
         }
     }
 }
+
+.menu_item_selected {
+    background-color: $color-accent_light;
+}

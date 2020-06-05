@@ -96,9 +96,6 @@ header div {
   border-right: 600rem solid #2b2b2b;
 }
 
-#results {
-  background-color: "102, 153, 204";
-}
 #results .search_results {
   text-align: center;
 }

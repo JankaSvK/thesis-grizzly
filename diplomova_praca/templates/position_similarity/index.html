@@ -28,8 +28,14 @@
             </button>
 
             <ul class="mdl-menu mdl-menu--bottom-left mdl-js-menu mdl-js-ripple-effect" for="demo-menu-lower-left">
-                <li class="mdl-menu__item" onclick="method='regions';sendRequest()">Regions Similarity</li>
-                <li class="mdl-menu__item" onclick="method='spatially';sendRequest()">Spatial Similarity</li>
+                <li class="mdl-menu__item menu_item_selected" id="menu_item_regions"
+                    onclick="method='regions';update_selected_method('#menu_item_regions');sendRequest()">Regions
+                </li>
+                <li class="mdl-menu__item"
+                    onclick="method='spatially';update_selected_method('#menu_item_custom_cutting');sendRequest()"
+                    id="menu_item_custom_cutting">Custom
+                    cutting
+                </li>
             </ul>
 
             <label class="mdl-icon-toggle mdl-js-icon-toggle  mdl-js-ripple-effect" for="image_show_toggle"
@@ -151,6 +157,11 @@
 
         }
 
+        function update_selected_method(id) {
+            $(id).siblings().removeClass("menu_item_selected");
+            $(id).addClass("menu_item_selected");
+        }
+
 
         function highlightRegion(element, x, y, width, height) {
             $(element).after(`<svg>
@@ -159,10 +170,11 @@
         }
 
         function reloadResizeable() {
-            const image = jQuery(".canvas_image");
+            const image = $(".canvas_image");
+            const containment = $("#collage_canvas");
 
             image.draggable({
-                containment: "#collage_canvas",
+                containment: containment,
                 stop: function (event, ui) {
                     sendRequest()
                 }
@@ -170,7 +182,7 @@
 
             image.resizable({
                 aspectRatio: true,
-                containment: "#collage_canvas",
+                containment: containment,
                 stop: function (event, ui) {
                     sendRequest()
                 }
