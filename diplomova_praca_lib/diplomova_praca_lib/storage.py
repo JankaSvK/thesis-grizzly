@@ -16,7 +16,7 @@ class Storage:
 
 class FileStorage(Storage):
     @staticmethod
-    def load_multiple_files_multiple_keys(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz"):
+    def load_multiple_files_multiple_keys(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz", num_files_limit=None):
         if not retrieve_once:
             retrieve_once = []
         if not retrieve_merged:
@@ -24,6 +24,9 @@ class FileStorage(Storage):
 
         filenames = list(Path(path).rglob(filename_regex))
         files = [FileStorage.load_data_from_file(d) for d in filenames]
+
+        if num_files_limit:
+            files = files[:num_files_limit]
 
         result = {}
         for key in retrieve_merged + retrieve_once:

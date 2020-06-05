@@ -10,9 +10,8 @@ from sklearn.metrics import euclidean_distances
 from diplomova_praca_lib.face_features.map_features import SOM, RepresentativesTree
 from diplomova_praca_lib.face_features.models import FaceView, NoMoveError, FaceCrop, ClosestFacesRequest, \
     ClosestFacesResponse
-from diplomova_praca_lib.models import Serializable
 from diplomova_praca_lib.storage import FileStorage
-from diplomova_praca_lib.utils import load_from_file, closest_match
+from diplomova_praca_lib.utils import load_from_file, closest_match, Serializable
 
 
 class Environment:
@@ -31,7 +30,7 @@ class Environment:
             Environment.features_info.append(FaceCrop(src=path, crop=crop, idx=i_crop))
 
         self.som = SOM((50, 50), 128)
-        self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\50-50som_100times_dataset.pickle")
+        self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\50-50som_397times_dataset.pickle")
         self.som.set_representatives(Environment.features)
 
         # self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")

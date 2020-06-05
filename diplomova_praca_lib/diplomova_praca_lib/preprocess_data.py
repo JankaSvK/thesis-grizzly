@@ -9,6 +9,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer, FunctionTransformer
 
 from diplomova_praca_lib import storage
+from diplomova_praca_lib.utils import enhance_dims, reduce_dims
 
 
 def count_total(path):
@@ -55,6 +56,9 @@ def regions_features_only(record):
     return np.vstack([x.features for x in record[1]])
 
 
+def spatial_features_only(record):
+    return record[1]
+
 def region_records_to_cols(source_data):
     data = []
     for src_path, crops_data in source_data:
@@ -64,6 +68,18 @@ def region_records_to_cols(source_data):
     return data
 
 
+def sample_from_4dimensional_features(data):
+    batch, rows, cols, num_features = data.shape
+    sampled_y_idxs = np.random.randint(0, rows, size=batch)
+    sampled_x_idxs = np.random.randint(0, cols, size=batch)
+    return data[np.arange(batch), sampled_y_idxs, sampled_x_idxs, :]
+
+
+def pipeline_with_dim_reduction(pipeline_steps, shape):
+    decrease_dims = ('reduce_dims', FunctionTransformer(reduce_dims, validate=False))
+    increase_dims = ('enhance_dims', FunctionTransformer(enhance_dims, kw_args={"shape": shape}, validate=False))
+    return [decrease_dims, *pipeline_steps, increase_dims]
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default=None, type=str)
@@ -72,26 +88,40 @@ def main():
     parser.add_argument("--transform", default=False, type=bool)
     parser.add_argument("--learned_model", default=None, type=str)
     parser.add_argument("--empty_pipeline", default=False, type=bool)
+    parser.add_argument("--regions", action='store_true')
+    parser.add_argument("--count", default=None, type=int)
+    parser.add_argument("--samples", default=10000, type=int)
     args = parser.parse_args()
 
     timestamp = datetime.now().strftime("%Y-%m-%d_%I-%M-%S_%p")
-
     if args.learned_model:
         pipeline = np.load(args.learned_model, allow_pickle=True)
     elif args.empty_pipeline:
         pipeline = make_pipeline(FunctionTransformer(func=None, validate=False))
     else:
-        pipeline = make_pipeline(Normalizer(), PCA(n_components=0.8))
+        pipeline = make_pipeline(Normalizer(), PCA(n_components=0.9))
+
 
 
     if args.fit or (args.transform and not args.learned_model):
-        total_count = count_total(args.input)
-        sampled_records = sample_images(args.input, 10000, total_count)
-        sampled_features = np.vstack([regions_features_only(x) for x in sampled_records])
+        if args.count:
+            total_count = args.count
+        else:
+            total_count = count_total(args.input)
+        sampled_records = sample_images(args.input, min(total_count, args.samples), total_count)
+
+        if args.regions:
+            sampled_features = np.vstack([regions_features_only(x) for x in sampled_records])
+        else:
+            sampled_features = np.array([spatial_features_only(x) for x in sampled_records])
+
         print("Obtained features with following shape", sampled_features.shape)
 
+        if sampled_features.ndim > 2:
+            pipeline.steps = pipeline_with_dim_reduction(pipeline.steps, sampled_features.shape[1:-1])
+
         pipeline.fit(sampled_features)
-        if "pca" in pipeline: report_pca(pipeline['pca'])
+        if "pca" in pipeline.named_steps: report_pca(pipeline['pca'])
         output_path = Path(args.output, timestamp, "pipeline.npz")
         storage.FileStorage.save_data(path=output_path, pipeline=pickle.dumps(pipeline))
 
@@ -99,11 +129,23 @@ def main():
         for file_path in Path(args.input).rglob('*.npz'):
             loaded_file = np.load(str(file_path), allow_pickle=True)
             data = loaded_file['data']
-            crops, paths, crop_features = zip(*region_records_to_cols(data))
-            transformed_features = pipeline.transform(crop_features)
+
+            if args.regions:
+                crops, paths, features = zip(*region_records_to_cols(data))
+                to_save = {"crops": crops, "paths": paths}
+            else:
+                paths, features = zip(*data)
+                features = np.array(features)
+                to_save = {"paths": paths}
+
+            if features.ndim > 2 and 'enhance_dims' not in pipeline.named_steps:
+                pipeline.steps = pipeline_with_dim_reduction(pipeline.steps, features.shape[1:-1])
+
+            to_save['features'] = pipeline.transform(features)
             output_path = Path(args.output, timestamp, file_path.name)
+
             storage.FileStorage.save_data(path=output_path, pipeline=pickle.dumps(pipeline), model=loaded_file['model'],
-                                          features=transformed_features, crops=crops, paths=paths)
+                                          **to_save)
 
 if __name__ == '__main__':
     main()

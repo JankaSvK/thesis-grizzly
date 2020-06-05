@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 
 import numpy as np
@@ -82,6 +83,14 @@ def load_from_file(path):
         return pickle.load(handle)
 
 
+def reduce_dims(data):
+    return data.reshape(-1, data.shape[-1])
+
+
+def enhance_dims(data, shape):
+    return data.reshape(-1, *shape, data.shape[1])
+
+
 def closest_match(query, features, num_results = None, distance = None):
     distances = distance([query], features)[0]
     if num_results == None:
@@ -90,3 +99,31 @@ def closest_match(query, features, num_results = None, distance = None):
 
     sorted_idxs = k_smallest_sorted(distances, num_results)
     return sorted_idxs, distances[sorted_idxs]
+
+
+class Serializable:
+    raw_init_params = []
+    serializable_init_params = {}
+
+    def __init__(self, **kwargs):
+        assert set(self.raw_init_params) | set(self.serializable_init_params.keys()) >= set(kwargs.keys())
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+    def serialize(self):
+        to_serialize = {}
+        for key in self.raw_init_params:
+            to_serialize[key] = getattr(self, key)
+
+        for key in self.serializable_init_params:
+            to_serialize[key] = getattr(self, key).serialize()
+
+        return json.dumps(to_serialize)
+
+    @classmethod
+    def deserialize(cls, serialized):
+        deserialized = json.loads(serialized)
+        for key in cls.serializable_init_params:
+            deserialized[key] = cls.serializable_init_params[key].deserialize(deserialized[key])
+
+        return cls(**deserialized)

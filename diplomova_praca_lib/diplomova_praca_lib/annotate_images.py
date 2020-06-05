@@ -29,7 +29,7 @@ def main():
         features_model = Resnet50(input_shape=(96, 96, 3))
         evaluation_mechanism = EvaluatingRegions(model=features_model, database=None, num_regions=(3, 4))
     elif args.feature_model == 'resnet50antepenultimate':
-        features_model = Resnet50Antepenultimate()
+        features_model = Resnet50Antepenultimate(input_shape=(96, 96, 3))
         evaluation_mechanism = EvaluatingSpatially(similarity_measure=cosine_similarity, model=features_model,
                                                    database=None)
     elif args.feature_model == 'mobilenetv2':

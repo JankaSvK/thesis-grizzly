@@ -31,22 +31,32 @@ class EvaluatingSpatially(EvaluationMechanism):
         """
         return np.mean(features, axis=(1,2))
 
-    def crop_features_vectors_to_query(self, query_crop: Crop, features_vectors):
+    @staticmethod
+    def crop_features_vectors_to_query(query_crop: Crop, features_vectors):
         """
         Crops 3D feature vector to specified crop
         :param query_crop: Region of interest
         :param feature_vector: 4D feature vector (batch, x, y, layers).
         :return: Subset of feature vector from defined crop as result of mean over multiple channels (batch, .
         """
-        batch_size, x_features, y_features, channels = features_vectors.shape
+        batch_size, y_features, x_features, channels = features_vectors.shape
 
         xmin, ymin, xmax, ymax = query_crop.left * x_features, query_crop.top * y_features, query_crop.right * x_features, query_crop.bottom * y_features
         xmin, ymin, xmax, ymax = [round(x) for x in [xmin, ymin, xmax, ymax]]
 
-        if xmax - xmin < 1 or ymax - ymin < 1:
-            raise ValueError
+        if xmax == xmin:
+            if xmax + 1 <= x_features:
+                xmax += 1
+            elif xmin - 1 >= 0:
+                xmin -= 1
 
-        subimage_features = features_vectors[:, xmin:xmax, ymin:ymax, :]
+        if ymax == ymin:
+            if ymax + 1 <= y_features:
+                ymax += 1
+            elif ymin - 1 >= 0:
+                ymin -= 1
+
+        subimage_features = features_vectors[:, ymin:ymax, xmin:xmax, :]
         return EvaluatingSpatially.avg_pool(subimage_features)
 
     def best_matches(self, query_crop: Crop, query_image: PIL.Image):

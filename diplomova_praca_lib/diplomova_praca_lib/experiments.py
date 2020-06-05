@@ -2,8 +2,8 @@ import collections
 import logging
 import sqlite3
 from typing import *
-import matplotlib.pyplot as plt
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 import diplomova_praca_lib
@@ -98,10 +98,15 @@ def recall_graph(x, y):
     plt.show()
 
 
-load_environment_again(r"C:\Users\janul\Desktop\output\2020-05-24_01-02-43_PM")
-fetched_collages = retrieve_collages()
-fetched_collages = fetched_collages
-print("Fetched")
-requests = [collage_as_request(collage) for collage in fetched_collages]
-print("Prepared")
-test_ranking_funcs(requests=requests)
+def main():
+    # load_environment_again(r"C:\Users\janul\Desktop\output\2020-05-24_01-02-43_PM")
+    fetched_collages = retrieve_collages()
+    fetched_collages = fetched_collages
+    print("Fetched")
+    requests = [collage_as_request(collage) for collage in fetched_collages]
+    print("Prepared")
+    test_ranking_funcs(requests=requests)
+
+
+if __name__ == '__main__':
+    main()
