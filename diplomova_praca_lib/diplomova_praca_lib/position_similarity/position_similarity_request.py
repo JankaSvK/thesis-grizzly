@@ -32,14 +32,14 @@ class Environment:
 
     @staticmethod
     def initialize(regions_path, spatially_path):
-        Environment.database_regions = Database(FileStorage.load_datafiles(regions_path))
-        Environment.evaluating_regions = EvaluatingRegions(model=Resnet50(), database=Environment.database_regions)
+        pass
+        # Environment.database_regions = Database(FileStorage.load_datafiles(regions_path))
+        # Environment.evaluating_regions = EvaluatingRegions(model=Resnet50(), database=Environment.database_regions)
 
-        Environment.database_spatially = Database(FileStorage.load_datafiles(spatially_path))
-
-        Environment.evaluating_spatially = EvaluatingSpatially(similarity_measure=cosine_similarity,
-                                                               model=Resnet50Antepenultimate(),
-                                                               database=Environment.database_spatially)
+        # Environment.database_spatially = Database(FileStorage.load_datafiles(spatially_path))
+        #
+        # Environment.evaluating_spatially = EvaluatingSpatially(model=Resnet50Antepenultimate(),
+        #                                                        database=Environment.database_spatially)
 
 class RegionsData:
     def __init__(self, data):

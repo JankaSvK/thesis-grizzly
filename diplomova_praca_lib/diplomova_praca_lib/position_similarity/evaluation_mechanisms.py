@@ -7,14 +7,11 @@ from diplomova_praca_lib.image_processing import normalized_images, \
     split_image_to_square_regions, crop_image
 from diplomova_praca_lib.models import EvaluationMechanism
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
-from diplomova_praca_lib.utils import batches
 
 
 class EvaluatingSpatially(EvaluationMechanism):
-    def __init__(self, similarity_measure, model, database):
-        self.similarity_measure = similarity_measure
+    def __init__(self, model):
         self.model = model
-        self.database = database
 
 
     def features(self, images):
@@ -59,34 +56,33 @@ class EvaluatingSpatially(EvaluationMechanism):
         subimage_features = features_vectors[:, ymin:ymax, xmin:xmax, :]
         return EvaluatingSpatially.avg_pool(subimage_features)
 
-    def best_matches(self, query_crop: Crop, query_image: PIL.Image):
-        """
-        Sorts the database items based on the similarity to the query.
-        :param query_crop: Position of queried image
-        :param query_image:  PIL.Image of query
-        :param database_items: List of features (result of apentultimate layer -- i.e. 3D)
-        :return: List of sorted database items based on their similarity to query
-        """
-        database_items = self.database.records
-
-        query_image_features = self.model.predict(normalized_images([query_image]))[0]
-        query_image_features = np.expand_dims(query_image_features, axis=0)
-
-        scores = []
-        for batch in batches(database_items, 32):
-            batch_features = np.asarray([feature_vector for path, feature_vector in batch])
-            cropped_features = self.crop_features_vectors_to_query(query_crop, batch_features)
-            batch_scores = self.similarity_measure(cropped_features, EvaluatingSpatially.avg_pool(query_image_features))
-            scores.extend(batch_scores.flatten())  # Use queue heap that stores only best 100
-
-        sorted_scores_idx = list(sorted(range(len(scores)), key=lambda k: scores[k], reverse=True))
-        return [database_items[score_idx][0] for score_idx in sorted_scores_idx]
+    # def best_matches(self, query_crop: Crop, query_image: PIL.Image):
+    #     """
+    #     Sorts the database items based on the similarity to the query.
+    #     :param query_crop: Position of queried image
+    #     :param query_image:  PIL.Image of query
+    #     :param database_items: List of features (result of apentultimate layer -- i.e. 3D)
+    #     :return: List of sorted database items based on their similarity to query
+    #     """
+    #     database_items = self.database.records
+    #
+    #     query_image_features = self.model.predict(normalized_images([query_image]))[0]
+    #     query_image_features = np.expand_dims(query_image_features, axis=0)
+    #
+    #     scores = []
+    #     for batch in batches(database_items, 32):
+    #         batch_features = np.asarray([feature_vector for path, feature_vector in batch])
+    #         cropped_features = self.crop_features_vectors_to_query(query_crop, batch_features)
+    #         batch_scores = self.similarity_measure(cropped_features, EvaluatingSpatially.avg_pool(query_image_features))
+    #         scores.extend(batch_scores.flatten())  # Use queue heap that stores only best 100
+    #
+    #     sorted_scores_idx = list(sorted(range(len(scores)), key=lambda k: scores[k], reverse=True))
+    #     return [database_items[score_idx][0] for score_idx in sorted_scores_idx]
 
 
 class EvaluatingRegions(EvaluationMechanism):
-    def __init__(self, model, database, num_regions = None):
+    def __init__(self, model, num_regions = None):
         self.model = model
-        self.database = database
         self.num_regions = num_regions
 
 

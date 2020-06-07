@@ -1,0 +1,5 @@
+--images_dir=/mnt/0/first750/ --feature_model=mobilenetv2 --save_location=/mnt/0/750_mobilenetv2
+--images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_test_test --feature_model=mobilenetv2
+--images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_test_test --feature_model=mobilenetv2
+--images_dir=/mnt/0/first750/ --feature_model=mobilenetv2 --save_location=/mnt/0/750_mobilenetv2
+--images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_test_test --feature_model=mobilenetv2

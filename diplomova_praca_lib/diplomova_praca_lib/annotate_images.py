@@ -6,7 +6,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 from diplomova_praca_lib.face_features.feature_vector_models import EvaluatingFaces
 from diplomova_praca_lib.models import DatabaseRecord
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially
-from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate, MobileNetV2
+from diplomova_praca_lib.position_similarity.feature_vector_models import Resnet50, Resnet50Antepenultimate, \
+    MobileNetV2, MobileNetV2Antepenultimate
 from diplomova_praca_lib.storage import FileStorage
 from diplomova_praca_lib.utils import batches
 
@@ -14,29 +15,31 @@ from diplomova_praca_lib.utils import batches
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--images_dir", default=None, type=str, help="Path to image directory.")
-    parser.add_argument('--feature_model',
-                        default='resnet50',
-                        const='all',
-                        nargs='?',
-                        choices=['resnet50', 'resnet50antepenultimate', 'faces', 'mobilenetv2'],
-                        help='Feature vector model to compute (default: %(default)s)')
     parser.add_argument("--save_location", default="", type=str,
                         help="Path to directory where precomputed models are saved.")
+    parser.add_argument("--input_size", default=96, type=int, help="Input shape for model (square width)")
+    parser.add_argument("--num_regions", default=None, type=str, help="Number of regions \"vertically,horizzontaly\".")
+    parser.add_argument('--feature_model', default='resnet50v2', type=str,
+                        help='Feature vector model to compute (default: %(default)s)')
     args = parser.parse_args()
 
-    evaluation_mechanism = None
-    if args.feature_model == 'resnet50':
-        features_model = Resnet50(input_shape=(96, 96, 3))
-        evaluation_mechanism = EvaluatingRegions(model=features_model, database=None, num_regions=(3, 4))
-    elif args.feature_model == 'resnet50antepenultimate':
-        features_model = Resnet50Antepenultimate(input_shape=(96, 96, 3))
-        evaluation_mechanism = EvaluatingSpatially(similarity_measure=cosine_similarity, model=features_model,
-                                                   database=None)
+    input_shape = (args.input_size, args.input_size, 3)
+    num_regions =  tuple(map(int, args.num_regions.split(","))) if args.num_regions else None
+
+    if args.feature_model == 'resnet50v2':
+        features_model = Resnet50(input_shape=input_shape)
+        evaluation_mechanism = EvaluatingRegions(model=features_model, num_regions=num_regions)
+    elif args.feature_model == 'resnet50v2antepenultimate':
+        features_model = Resnet50Antepenultimate(input_shape=input_shape)
+        evaluation_mechanism = EvaluatingSpatially(model=features_model)
     elif args.feature_model == 'mobilenetv2':
-        features_model = MobileNetV2(input_shape=(96, 96, 3))
-        evaluation_mechanism = EvaluatingRegions(model=features_model, database=None, num_regions=(3, 4))
+        features_model = MobileNetV2(input_shape=input_shape)
+        evaluation_mechanism = EvaluatingRegions(model=features_model, num_regions=num_regions)
+    elif args.feature_model == 'mobilenetv2antepenultimate':
+        features_model = MobileNetV2Antepenultimate(input_shape=input_shape)
+        evaluation_mechanism = EvaluatingSpatially(model=features_model)
     elif args.feature_model == 'faces':
-        evaluation_mechanism = EvaluatingFaces()  # images_features.append(FaceDetectionsRecord(filename=image.filename, detections=face_features(image.image)))
+        evaluation_mechanism = EvaluatingFaces()
     else:
         raise ValueError('Unknown `feature_model`.')
 
