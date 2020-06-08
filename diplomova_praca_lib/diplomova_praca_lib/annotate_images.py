@@ -3,7 +3,8 @@ from pathlib import Path
 
 from diplomova_praca_lib.face_features.feature_vector_models import EvaluatingFaces
 from diplomova_praca_lib.models import DatabaseRecord
-from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially
+from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
+    EvaluatingWholeImage
 from diplomova_praca_lib.position_similarity.feature_vector_models import MobileNetV2, MobileNetV2Antepenultimate, \
     Resnet50V2Antepenultimate, Resnet50V2
 from diplomova_praca_lib.storage import FileStorage
@@ -16,7 +17,7 @@ def main():
     parser.add_argument("--save_location", default="", type=str,
                         help="Path to directory where precomputed models are saved.")
     parser.add_argument("--input_size", default=96, type=int, help="Input shape for model (square width)")
-    parser.add_argument("--num_regions", default="3,4", type=str, help="Number of regions \"vertically,horizzontaly\".")
+    parser.add_argument("--num_regions", default=None, type=str, help="Number of regions \"vertically,horizzontaly\".")
     parser.add_argument('--feature_model', default='resnet50v2', type=str,
                         help='Feature vector model to compute (default: %(default)s)')
     args = parser.parse_args()
@@ -24,15 +25,21 @@ def main():
     input_shape = (args.input_size, args.input_size, 3)
     num_regions =  tuple(map(int, args.num_regions.split(","))) if args.num_regions else None
 
-    if args.feature_model == 'resnet50v2':
+    if args.feature_model == 'resnet50v2' and num_regions:
         features_model = Resnet50V2(input_shape=input_shape)
         evaluation_mechanism = EvaluatingRegions(model=features_model, num_regions=num_regions)
+    elif args.feature_model == 'resnet50v2':
+        features_model = Resnet50V2(input_shape=input_shape)
+        evaluation_mechanism = EvaluatingWholeImage(model=features_model)
     elif args.feature_model == 'resnet50v2antepenultimate':
         features_model = Resnet50V2Antepenultimate(input_shape=input_shape)
         evaluation_mechanism = EvaluatingSpatially(model=features_model)
-    elif args.feature_model == 'mobilenetv2':
+    elif args.feature_model == 'mobilenetv2' and num_regions:
         features_model = MobileNetV2(input_shape=input_shape)
         evaluation_mechanism = EvaluatingRegions(model=features_model, num_regions=num_regions)
+    elif args.feature_model == 'mobilenetv2':
+        features_model = MobileNetV2(input_shape=input_shape)
+        evaluation_mechanism = EvaluatingWholeImage(model=features_model)
     elif args.feature_model == 'mobilenetv2antepenultimate':
         features_model = MobileNetV2Antepenultimate(input_shape=input_shape)
         evaluation_mechanism = EvaluatingSpatially(model=features_model)

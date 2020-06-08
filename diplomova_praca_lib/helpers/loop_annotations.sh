@@ -1,6 +1,6 @@
 #!/bin/bash
 
-while IFS= read -r line
+while read line
 do 
-	sh run_annotate_images_on_gpulab.sh $line
+	./run_annotate_images_on_gpulab.sh $line < /dev/null
 done

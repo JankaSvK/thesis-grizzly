@@ -98,3 +98,11 @@ class EvaluatingRegions(EvaluationMechanism):
                            for _ in images]
 
         return images_features
+
+
+class EvaluatingWholeImage(EvaluationMechanism):
+    def __init__(self, model):
+        self.model = model
+
+    def features(self, images):
+        return self.model.predict_on_images(images)
