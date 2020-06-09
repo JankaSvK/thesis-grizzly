@@ -1,0 +1,1 @@
+--input=/mnt/0/750_mobilenetv2_4x2_96x96 --output=/mnt/0/750_mobilenetv2_4x2_96x96_preprocess --transform=True --empty_pipeline=True

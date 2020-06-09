@@ -91,17 +91,15 @@ def main():
     parser.add_argument("--regions", action='store_true')
     parser.add_argument("--count", default=None, type=int)
     parser.add_argument("--samples", default=10000, type=int)
+    parser.add_argument("--explained_ratio", default=0.8, type=float)
     args = parser.parse_args()
 
-    timestamp = datetime.now().strftime("%Y-%m-%d_%I-%M-%S_%p")
     if args.learned_model:
         pipeline = np.load(args.learned_model, allow_pickle=True)
     elif args.empty_pipeline:
         pipeline = make_pipeline(FunctionTransformer(func=None, validate=False))
     else:
-        pipeline = make_pipeline(Normalizer(), PCA(n_components=0.9))
-
-
+        pipeline = make_pipeline(Normalizer(), PCA(n_components=args.explained_ratio))
 
     if args.fit or (args.transform and not args.learned_model):
         if args.count:
@@ -122,11 +120,14 @@ def main():
 
         pipeline.fit(sampled_features)
         if "pca" in pipeline.named_steps: report_pca(pipeline['pca'])
-        output_path = Path(args.output, timestamp, "pipeline.npz")
-        storage.FileStorage.save_data(path=output_path, pipeline=pickle.dumps(pipeline))
 
     if args.transform:
         for file_path in Path(args.input).rglob('*.npz'):
+            output_path = Path(args.output, file_path.name)
+            if output_path.exists():
+                print("Skipping directory {}".format(file_path))
+                continue
+
             loaded_file = np.load(str(file_path), allow_pickle=True)
             data = loaded_file['data']
 
@@ -142,7 +143,6 @@ def main():
                 pipeline.steps = pipeline_with_dim_reduction(pipeline.steps, features.shape[1:-1])
 
             to_save['features'] = pipeline.transform(features)
-            output_path = Path(args.output, timestamp, file_path.name)
 
             storage.FileStorage.save_data(path=output_path, pipeline=pickle.dumps(pipeline), model=loaded_file['model'],
                                           **to_save)
