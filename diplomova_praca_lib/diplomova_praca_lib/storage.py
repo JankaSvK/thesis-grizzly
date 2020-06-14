@@ -45,6 +45,8 @@ class FileStorage(Storage):
 
         return result
 
+
+
     @staticmethod
     def save_data(path, compressed=True, **kwargs):
         Path(path.parents[0]).mkdir(parents=True, exist_ok=True)

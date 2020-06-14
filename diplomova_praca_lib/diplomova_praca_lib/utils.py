@@ -1,7 +1,13 @@
+import base64
 import json
+import re
+from io import BytesIO
 from pathlib import Path
+from urllib.parse import urlparse
 
 import numpy as np
+import requests
+from PIL import Image
 
 from diplomova_praca_lib.position_similarity.models import UrlImage, Crop
 
@@ -127,3 +133,45 @@ class Serializable:
             deserialized[key] = cls.serializable_init_params[key].deserialize(deserialized[key])
 
         return cls(**deserialized)
+
+
+
+def is_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
+
+
+def download_image(image_src):
+    if is_url(image_src):
+        response = requests.get(image_src)
+        return Image.open(BytesIO(response.content))
+    else:
+        image_data = re.sub('^data:image/.+;base64,', '', image_src)
+        image = Image.open(BytesIO(base64.b64decode(image_data)))
+
+        if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
+            alpha = image.convert('RGBA').split()[-1]
+            bg_colour = (255, 255, 255)
+            image_without_transparency = Image.new("RGBA", image.size, bg_colour + (255,))
+            image_without_transparency.paste(image, mask=alpha)
+
+            return image_without_transparency.convert('RGB')
+        else:
+            return image
+
+def resize_with_padding(img, expected_size):
+    from PIL import ImageOps
+
+    img.thumbnail((expected_size[0], expected_size[1]))
+    delta_width = expected_size[0] - img.size[0]
+    delta_height = expected_size[1] - img.size[1]
+    pad_width = delta_width // 2
+    pad_height = delta_height // 2
+    padding = (pad_width, pad_height, delta_width - pad_width, delta_height - pad_height)
+    return ImageOps.expand(img, padding)
+
+def download_and_preprocess(images, shape):
+    return [resize_with_padding(download_image(request_image.url), expected_size=shape) for request_image in images]

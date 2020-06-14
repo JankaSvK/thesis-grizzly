@@ -1,4 +1,5 @@
 import collections
+from enum import Enum
 from typing import Dict, List
 
 
@@ -127,10 +128,24 @@ class PositionSimilarityResponse:
         self.ranked_paths = ranked_paths
         self.matched_regions = matched_regions
 
+class PositionMethod(Enum):
+    REGIONS = 1
+    SPATIALLY = 2
+
+    @staticmethod
+    def parse(method):
+        if method == 'spatially':
+            return PositionMethod.SPATIALLY
+        elif method == 'regions':
+            return PositionMethod.REGIONS
+        else:
+            ValueError('Uknown position method')
+
 class PositionSimilarityRequest:
-    def __init__(self, images=None, query_image=None):
+    def __init__(self, images=None, query_image=None, method:PositionMethod = None):
         self.images = images
         self.query_image = query_image
+        self.position_method = method
 
 
 RegionFeatures = collections.namedtuple("RegionFeatures", ["crop", "features"])
