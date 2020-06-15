@@ -133,6 +133,7 @@ def main():
 
             if args.regions:
                 crops, paths, features = zip(*region_records_to_cols(data))
+                features = np.array(features)
                 to_save = {"crops": crops, "paths": paths}
             else:
                 paths, features = zip(*data)
