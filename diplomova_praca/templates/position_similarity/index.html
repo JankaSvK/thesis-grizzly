@@ -21,6 +21,10 @@
                     class="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-button--accent">Add
                 image
             </button>
+
+            <button class="mdl-button mdl-js-button mdl-button--raised" onclick="sendRequest()">
+                Query
+            </button>
             {##}
             <button id="demo-menu-lower-left"
                     class="mdl-button mdl-js-button mdl-button--icon">
@@ -56,11 +60,19 @@
 
             <div id="loading" class="mdl-spinner mdl-spinner--single-color mdl-js-spinner is-active"></div>
 
+            <label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="auto_send_request_switch">
+                <input type="checkbox" id="auto_send_request_switch" class="mdl-switch__input" checked
+                       onchange="onAutoSendRequestChange()">
+                <div class="mdl-switch__label">Auto Send Request</div>
+            </label>
+
+
         </div>
 
     </section>
 
     <script>
+        var auto_send_request = 1;
         var available_id = 0;
         const image_width = 320;
         const image_height = 180;
@@ -176,7 +188,10 @@
             image.draggable({
                 containment: containment,
                 stop: function (event, ui) {
-                    sendRequest()
+                    if (auto_send_request) {
+                        sendRequest();
+                    }
+
                 }
             });
 
@@ -184,7 +199,9 @@
                 aspectRatio: true,
                 containment: containment,
                 stop: function (event, ui) {
-                    sendRequest()
+                    if (auto_send_request) {
+                        sendRequest();
+                    }
                 }
             });
         }
@@ -193,7 +210,10 @@
             console.log("deleting", uid);
             var elem = document.getElementById(uid);
             elem.remove();
-            sendRequest();
+            if (auto_send_request) {
+                sendRequest();
+            }
+
         }
 
         function getSelectedMethod() {
@@ -231,8 +251,18 @@
             }
         }
 
+        function onAutoSendRequestChange() {
+            if ($('#auto_send_request_switch').is(':checked')) {
+                auto_send_request = 1;
+            } else {
+                auto_send_request = 0;
+            }
+        }
+
         (function ($) {
             $(document).ready(function () {
+
+
                 $("#additional_ranking_information").show();
 
                 $(function () {
@@ -245,7 +275,9 @@
                     available_id++;
 
                     reloadResizeable();
-                    sendRequest();
+                    if (auto_send_request) {
+                        sendRequest();
+                    }
                 });
                 $("#loading").hide();
             });
