@@ -1,3 +1,5 @@
+--input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess --transform=True --empty_pipeline=True --samples=50000
+--input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess_pca08 --transform=True --explained_ratio=0.8 --samples=5000
 --input=/mnt/0/750_mobilenetv2_4x2_96x96 --output=/mnt/0/750_mobilenetv2_4x2_96x96_preprocess --transform=True --empty_pipeline=True
 --input=/mnt/0/750_mobilenetv2_4x2_96x96 --output=/mnt/0/750_mobilenetv2_4x2_96x96_preprocess_pca08 --transform=True --regions --explained_ratio=0.8
 --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess --transform=True --empty_pipeline=True

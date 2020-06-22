@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, PositionMethod
-from diplomova_praca_lib.position_similarity.position_similarity_request import position_similarity_request
+from diplomova_praca_lib.position_similarity.position_similarity_request import positional_request
 from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background
 from shared.utils import random_image_path, thumbnail_path
 from .models import PositionRequest, Collage
@@ -35,16 +35,17 @@ def position_similarity_post(request):
     request = PositionSimilarityRequest(images=images_with_position_from_json(images),
                                         query_image=path_from_css_background(overlay_image),
                                         method=PositionMethod.parse(method))
-    response = position_similarity_request(request)
-
+    response = positional_request(request)
     save_request.response = ",".join(response.ranked_paths)
 
     images_to_render = response.ranked_paths[:100]
     context = {
         "ranking_results": [{"img_src": thumbnail_path(path)} for path in images_to_render],
         "search_image_rank": response.searched_image_rank,
-        "matched_regions": transform_crops_to_rectangles(response.matched_regions, images_to_render)
     }
+
+    if response.matched_regions:
+        context['matched_regions'] =  transform_crops_to_rectangles(response.matched_regions, images_to_render)
 
     save_request.save()
     return JsonResponse(context, status=200)

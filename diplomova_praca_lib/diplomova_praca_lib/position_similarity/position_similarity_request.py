@@ -58,10 +58,12 @@ class RegionsEnvironment:
         self.data_path = data_path
         self.ranking_func = ranking_func
         self.initialized = False
+        self.maximum_related_crops = None
 
     def init(self):
         if self.initialized:
             return
+        self.initialized = True
 
 
         self.data = FileStorage.load_multiple_files_multiple_keys(path=self.data_path,
@@ -72,7 +74,6 @@ class RegionsEnvironment:
         self.data['features'] = np.array(self.data['features'])
         self.regions_data = RegionsData(self.data)
 
-        self.initialized = True
 
     def model_title(self):
         return str(self.data['model'])
@@ -85,6 +86,7 @@ class SpatialEnvironment:
     def init(self):
         if self.initialized:
             return
+        self.initialized = True
 
         self.data = FileStorage.load_multiple_files_multiple_keys(path=self.data_path,
                                                                   retrieve_merged=['features', 'paths'],
@@ -93,15 +95,16 @@ class SpatialEnvironment:
         self.model = model_factory(str(self.data['model']))
         self.data['features'] = np.array(self.data['features'])
         self.features = self.data['features']
-        self.initialized = True
 
     def model_title(self):
         return str(self.data['model'])
 
 
 regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM")
-spatial_env = SpatialEnvironment(
-    r"C:\Users\janul\Desktop\thesis_tmp_files\antepenultimate\resnet50-antepenultimate-preprocessed-08pca\2020-06-03_10-36-16_PM")
+# spatial_env = SpatialEnvironment(
+#     r"C:\Users\janul\Desktop\thesis_tmp_files\antepenultimate\resnet50-antepenultimate-preprocessed-08pca\2020-06-03_10-36-16_PM")
+
+spatial_env = SpatialEnvironment(r"C:\Users\janul\Desktop\thesis_tmp_files\antepenultimate\resnet50-antepenultimate-preprocessed-no_transform")
 
 
 def initialize_env(env):
@@ -120,6 +123,7 @@ def positional_request(request: PositionSimilarityRequest) -> PositionSimilarity
         return spatial_similarity_request(request)
 
 def position_similarity_request(request: PositionSimilarityRequest) -> PositionSimilarityResponse:
+    global regions_env
     initialize_env('regions')
 
     downloaded_images = download_and_preprocess(request.images, regions_env.model.input_shape)
@@ -201,6 +205,7 @@ def crop_idx_to_src_idx(crop_idx):
 
 
 def spatial_similarity_request(request: PositionSimilarityRequest):
+    global spatial_env
     initialize_env('spatial')
 
     downloaded_images = download_and_preprocess(request.images, spatial_env.model.input_shape)
@@ -210,7 +215,7 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
 
     images_features = spatial_env.model.predict_on_images(downloaded_images)
     if 'enhance_dims' in spatial_env.preprocessing.named_steps:
-        spatial_env.preprocessing.steps[3][1].set_params(kw_args={"shape": images_features.shape[1:-1]})
+        spatial_env.preprocessing.steps[-1][1].set_params(kw_args={"shape": images_features.shape[1:-1]})
     images_features = spatial_env.preprocessing.transform(images_features)
     images_features = np.mean(images_features, axis=(1, 2))
 

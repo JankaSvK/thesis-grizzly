@@ -1,5 +1,4 @@
 import abc
-import argparse
 import collections
 import logging
 import sqlite3
@@ -64,10 +63,14 @@ class Experiment:
         return [positional_request(r) for r in requests]
 
     def __repr__(self):
-        return "{}({})".format(self.__class__.__name__,
-                               ",".join("{}={}".format(k, getattr(v, "__name__", v)) for k, v in
-                                        sorted(self.__dict__.items()))).replace("\\", "#").replace(":", ";")
+        options = dict(self.__dict__)
+        options['input_data'] = Path(options['input_data']).parts[-1]
+        for k, v in options.items():
+            options[k] = getattr(v, "__name__", v)
 
+        options_formatted = ",".join("{}={}".format(k,v) for k, v in sorted(options.items()))
+
+        return "{}({})".format(self.__class__.__name__, options_formatted)
 
 class RegionsExperiment(Experiment):
     def __init__(self):
@@ -102,16 +105,28 @@ class SpatialExperiment(Experiment):
         diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env = new_env
 
 
+def experiments(id):
+    exp = None
+    if id == 1:
+        exp = RegionsExperiment()
+        exp.input_data  =r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM"
+    elif id == 2:
+        exp = SpatialExperiment()
+        exp.input_data = r""
+
+    return exp
+
 def main():
     experiment_save_dir = r"C:\Users\janul\Desktop\thesis_tmp_files\responses"
 
-    exp = RegionsExperiment()
-    exp.input_data = r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM"
+    exp = experiments(1)
 
-    responses_save_path = Path(experiment_save_dir, repr(exp))
+    responses_save_path = Path(experiment_save_dir, repr(exp)).with_suffix(".npz")
     if (responses_save_path.exists()):
+        print("Results already present.")
         return
 
+    print("Output path:", responses_save_path)
     requests = get_queries()
     responses = exp.run(requests)
     FileStorage.save_data(responses_save_path, responses=responses, experiment=exp.__dict__,

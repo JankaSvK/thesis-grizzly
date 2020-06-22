@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 import tensorflow
 import tensorflow as tf
@@ -13,7 +15,9 @@ def model_factory(model_repr):
     #     return Resnet50Antepenultimate(input_shape=(224, 224, 3))
 
     class_name = model_repr[:model_repr.index('(')]
-    input_shape = eval(model_repr[model_repr.index('input_shape=') + len('input_shape='):-1])
+
+    class_name, options = re.search(r'(\S+)\((.*)\)', model_repr).groups()
+    input_shape = eval(re.search('input_shape=\(([^)]*)\)', options).groups()[0])
 
     class_object = {"MobileNetV2": MobileNetV2,
                     "MobileNetV2Antepenultimate": MobileNetV2Antepenultimate,

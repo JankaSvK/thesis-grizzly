@@ -86,22 +86,20 @@ def main():
     parser.add_argument('--output', default=None, type=str)
     parser.add_argument("--fit", default=False, type=bool)
     parser.add_argument("--transform", default=False, type=bool)
-    parser.add_argument("--learned_model", default=None, type=str)
     parser.add_argument("--empty_pipeline", default=False, type=bool)
     parser.add_argument("--regions", action='store_true')
     parser.add_argument("--count", default=None, type=int)
     parser.add_argument("--samples", default=10000, type=int)
     parser.add_argument("--explained_ratio", default=0.8, type=float)
+    parser.add_argument("--max_items_transform", default=None, type=float)
     args = parser.parse_args()
 
-    if args.learned_model:
-        pipeline = np.load(args.learned_model, allow_pickle=True)
-    elif args.empty_pipeline:
+    if args.empty_pipeline:
         pipeline = make_pipeline(FunctionTransformer(func=None, validate=False))
     else:
         pipeline = make_pipeline(Normalizer(), PCA(n_components=args.explained_ratio))
 
-    if args.fit or (args.transform and not args.learned_model):
+    if args.fit or (args.transform and not args.empty_pipeline):
         if args.count:
             total_count = args.count
         else:
