@@ -1,6 +1,5 @@
 import argparse
 import pickle
-from datetime import datetime
 from pathlib import Path
 
 import numpy as np
@@ -84,14 +83,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", default=None, type=str)
     parser.add_argument('--output', default=None, type=str)
-    parser.add_argument("--fit", default=False, type=bool)
-    parser.add_argument("--transform", default=False, type=bool)
-    parser.add_argument("--empty_pipeline", default=False, type=bool)
+    parser.add_argument("--fit", action='store_true')
+    parser.add_argument("--transform", action='store_true')
+    parser.add_argument("--empty_pipeline", action='store_true')
     parser.add_argument("--regions", action='store_true')
     parser.add_argument("--count", default=None, type=int)
     parser.add_argument("--samples", default=10000, type=int)
     parser.add_argument("--explained_ratio", default=0.8, type=float)
-    parser.add_argument("--max_items_transform", default=None, type=float)
     args = parser.parse_args()
 
     if args.empty_pipeline:
