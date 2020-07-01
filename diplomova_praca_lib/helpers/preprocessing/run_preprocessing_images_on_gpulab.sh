@@ -1,11 +1,11 @@
 #!/bin/bash
 
-echo "$@" >> executed_preprocessings.txt
 
 ssh_output="$(ssh -t gpulab "sbatch scripts/preprocess_images_kwargs.sh $@")"
 batch_job_id=$(echo "$ssh_output" | grep -o -E '[0-9]+')
 
 echo "Batch Job ID: $batch_job_id"
+echo "$batch_job_id: $@" >> executed_preprocessings.txt
 
 while true
 do

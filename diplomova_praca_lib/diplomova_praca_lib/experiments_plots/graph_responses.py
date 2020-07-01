@@ -1,5 +1,6 @@
 import argparse
 import logging
+from _sha256 import sha256
 from pathlib import Path
 from typing import *
 
@@ -22,20 +23,28 @@ class DatasetInfo:
         self.num_images = num_images
 
 
-def graph_of_search_rank(results: Dict[str, List[int]], dataset_info: DatasetInfo) -> None:
+def graph_of_search_rank(results: Dict[str, List[int]], dataset_info: DatasetInfo, save_plot=None):
     fig, ax = plt.subplots()
     for func_name, ranks in results.items():
-        ranks_space = np.arange(max(ranks))
+        # ranks_space = np.arange(max(ranks) + 1)
+        ranks_space = np.arange(dataset_info.num_images + 1)
         x = ranks_space / dataset_info.num_images
-        y = np.array([np.count_nonzero(ranks < r) for r in ranks_space]) / len(ranks)
+        y = np.array([np.count_nonzero(ranks <= r) for r in ranks_space]) / len(ranks)
 
         ax.plot(x, y, label=func_name)
+
+    ax.hlines(y=0.9, xmin=0, xmax=max(x), color = '0.75')
 
     ax.set_title("Discovery Rate")
     ax.set_xlabel("Rank of searched image [%]")
     ax.set_ylabel("Requests [%]")
     ax.set_yticks(np.arange(0, 1.1, 0.1))
     ax.legend(loc='best')
+
+    if save_plot:
+        graph_dir = r"C:\Users\janul\Desktop\thesis_tmp_files\graphs"
+        filename_hash = sha256(save_plot.encode('utf-8')).hexdigest()
+        plt.savefig(Path(graph_dir, filename_hash + ".pdf"), bbox_inches='tight')
 
     plt.show()
 
@@ -48,6 +57,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--paths', action='store', type=str, nargs='+')
     parser.add_argument('--names', action='store', type=str, nargs='+')
+    parser.add_argument('--assert_dataset', action='store_true')
     args = parser.parse_args()
 
     plot_info = {}
@@ -56,15 +66,26 @@ def main():
         responses_input = Path(path)
         responses_data = FileStorage.load_data_from_file(responses_input)
         responses = responses_data['responses']
-        plot_info[name] = searched_rank_only(responses)
+        if responses.any():
+            plot_info[name] = searched_rank_only(responses)
+        else:
+            continue
 
-        input_data = responses_data['experiment'].item().get('input_data')
-        assert not dataset or input_data == dataset
-        dataset = input_data
+        # Assert that the original data correspondence
+        if args.assert_dataset or not dataset:
+            features_src = responses_data['experiment'].item().get('input_data')
+            processed_data = set(load_data(features_src)['paths'])
 
-    data = load_data(dataset)['paths']
-    dataset_info = DatasetInfo(num_images=len(set(data)))
-    graph_of_search_rank(plot_info, dataset_info=dataset_info)
+            if not dataset:
+                dataset = processed_data
+
+            assert dataset == processed_data
+
+    dataset_info = DatasetInfo(num_images=len(dataset))
+    graph_of_search_rank(plot_info, dataset_info=dataset_info, save_plot=",".join(args.paths))
+
+
+
 
 
 if __name__ == '__main__':

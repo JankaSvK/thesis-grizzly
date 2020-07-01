@@ -26,7 +26,7 @@ RUN apt install -y software-properties-common
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test
 RUN apt update -y; apt install -y gcc-6 g++-6
 
-RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-6 50
+RUN update-alternatives --installp /usr/bin/gcc gcc /usr/bin/gcc-6 50
 RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-6 50
 
 #Install dlib

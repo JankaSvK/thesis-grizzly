@@ -1,0 +1,1 @@
+--input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess_pca08 --transform --explained_ratio=0.8 --samples=100

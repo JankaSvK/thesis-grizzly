@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import Dict, List, Tuple, Optional
 
 import numpy as np
+import sklearn
 from sklearn.metrics.pairwise import cosine_distances
 
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingSpatially
@@ -13,8 +14,6 @@ from diplomova_praca_lib.position_similarity.models import PositionSimilarityReq
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
 from diplomova_praca_lib.storage import FileStorage
 from diplomova_praca_lib.utils import concatenate_lists, closest_match, download_and_preprocess
-
-logging.basicConfig(level=logging.INFO)
 
 class RegionsData:
     def __init__(self, data):
@@ -65,7 +64,7 @@ class RegionsEnvironment:
             return
         self.initialized = True
 
-
+        print("Initializing environment, this may take a while.")
         self.data = FileStorage.load_multiple_files_multiple_keys(path=self.data_path,
                                                                   retrieve_merged=['features', 'crops', 'paths'],
                                                                   retrieve_once=['pipeline', 'model'])
@@ -82,15 +81,18 @@ class SpatialEnvironment:
     def __init__(self, data_path):
         self.data_path = data_path
         self.initialized = False
+        self.files_limit = None
 
     def init(self):
         if self.initialized:
             return
         self.initialized = True
 
+        print("Initializing environment, this may take a while.")
         self.data = FileStorage.load_multiple_files_multiple_keys(path=self.data_path,
                                                                   retrieve_merged=['features', 'paths'],
-                                                                  retrieve_once=['pipeline', 'model'])
+                                                                  retrieve_once=['pipeline', 'model'],
+                                                                  num_files_limit=self.files_limit)
         self.preprocessing = pickle.loads(self.data['pipeline'])
         self.model = model_factory(str(self.data['model']))
         self.data['features'] = np.array(self.data['features'])
@@ -101,11 +103,9 @@ class SpatialEnvironment:
 
 
 regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM")
-# spatial_env = SpatialEnvironment(
-#     r"C:\Users\janul\Desktop\thesis_tmp_files\antepenultimate\resnet50-antepenultimate-preprocessed-08pca\2020-06-03_10-36-16_PM")
-
-spatial_env = SpatialEnvironment(r"C:\Users\janul\Desktop\thesis_tmp_files\antepenultimate\resnet50-antepenultimate-preprocessed-no_transform")
-
+spatial_env = SpatialEnvironment(
+    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess")
+spatial_env.files_limit = 200
 
 def initialize_env(env):
     global regions_env, spatial_env

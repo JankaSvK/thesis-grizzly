@@ -2,6 +2,7 @@ import abc
 import collections
 import logging
 import sqlite3
+from _sha256 import sha256
 from pathlib import Path
 from typing import List
 
@@ -57,28 +58,34 @@ class Experiment:
         pass
 
     def run(self, requests):
+        print("Updating environment")
         self.update_env()
         self.set_method(requests)
 
-        return [positional_request(r) for r in requests]
+        print("Running experiment")
+        responses = []
+        for i_request, request in enumerate(requests):
+            print("Processing request", i_request + 1, "out of", len(requests))
+            responses.append(positional_request(request))
+        return responses
 
     def __repr__(self):
         options = dict(self.__dict__)
-        options['input_data'] = Path(options['input_data']).parts[-1]
         for k, v in options.items():
             options[k] = getattr(v, "__name__", v)
 
         options_formatted = ",".join("{}={}".format(k,v) for k, v in sorted(options.items()))
+        exp_repr = "{}({})".format(self.__class__.__name__, options_formatted)
 
-        return "{}({})".format(self.__class__.__name__, options_formatted)
+        return exp_repr
 
 class RegionsExperiment(Experiment):
-    def __init__(self):
+    def __init__(self, input_data, ranking_func=np.min, maximum_related_crops=None):
         super().__init__()
         self.method = PositionMethod.REGIONS
-        self.input_data = None
-        self.ranking_func = np.min
-        self.maximum_related_crops = None
+        self.input_data = input_data
+        self.ranking_func = ranking_func
+        self.maximum_related_crops = maximum_related_crops
 
     def update_env(self):
         new_env = RegionsEnvironment(self.input_data)
@@ -92,11 +99,11 @@ class RegionsExperiment(Experiment):
 
 
 class SpatialExperiment(Experiment):
-    def __init__(self):
+    def __init__(self, input_data, ranking_func):
         super().__init__()
         self.method = PositionMethod.SPATIALLY
-        self.input_data = None
-        self.ranking_func = np.min
+        self.input_data = input_data
+        self.ranking_func = ranking_func
 
     def update_env(self):
         new_env = SpatialEnvironment(self.input_data)
@@ -104,33 +111,95 @@ class SpatialExperiment(Experiment):
 
         diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env = new_env
 
+    def get_env(self):
+        return diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env
+
+
+class FullImageExperiment(Experiment):
+    def __init__(self, input_data, ranking_func):
+        super().__init__()
+        self.method = PositionMethod.FULL
+        # self.input_data = input_data
+        # self.ranking_func = ranking_func
+
+    def update_env(self):
+        raise NotImplemented()
+        # new_env = SpatialEnvironment(self.input_data)
+        # new_env.ranking_func = self.ranking_func
+        #
+        # diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env = new_env
+
+    def get_env(self):
+        raise NotImplemented()
+        # return diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env
+
+
+
 
 def experiments(id):
-    exp = None
-    if id == 1:
-        exp = RegionsExperiment()
-        exp.input_data  =r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM"
-    elif id == 2:
-        exp = SpatialExperiment()
-        exp.input_data = r""
+    datasets = [
+        r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess",
+        r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess_pca08",
+        r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess",
+        r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca08"
+    ]
 
-    return exp
+    maximum_related_crops = [1, 2, 3, None]
+    ranking_funcs = [np.min, np.max, np.mean]
+
+
+    if id == 0:
+        return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess",
+                                 np.min, 1)
+    elif id == 1:
+        return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess",
+                                 np.min, 2)
+    elif id == 2:
+        return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess",
+                                 np.min, 3)
+    elif id == 3:
+        return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess",
+                                 np.min, None)
+    elif id == 4:
+        return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess",
+                                 np.mean, 1)
+    elif id == 5:
+        return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess",
+                                 np.max, 1)
+    elif id == 6:
+        return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess",
+                                 np.mean, 1)
+    elif id == 7:
+        return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess",
+                                 np.mean)
+    elif id == 8:
+        return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_pca08",
+                                 np.mean)
+    elif id == 9:
+        return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess",
+                                 np.mean)
+
+    else:
+        raise ValueError("Unknown experiment ID")
+
 
 def main():
     experiment_save_dir = r"C:\Users\janul\Desktop\thesis_tmp_files\responses"
 
-    exp = experiments(1)
+    exps = [experiments(i) for i in [9]]
+    for exp in exps:
+        filename_hash = sha256(repr(exp).encode('utf-8')).hexdigest()
+        responses_save_path = Path(experiment_save_dir, filename_hash).with_suffix(".npz")
+        if (responses_save_path.exists()):
+            print("Results already present.")
+            return
 
-    responses_save_path = Path(experiment_save_dir, repr(exp)).with_suffix(".npz")
-    if (responses_save_path.exists()):
-        print("Results already present.")
-        return
-
-    print("Output path:", responses_save_path)
-    requests = get_queries()
-    responses = exp.run(requests)
-    FileStorage.save_data(responses_save_path, responses=responses, experiment=exp.__dict__,
-                          model=repr(exp.get_env().model))
+        print("Output path:", responses_save_path)
+        requests = get_queries()
+        print("Queries obtained")
+        responses = exp.run(requests)
+        FileStorage.save_data(responses_save_path, responses=responses, experiment=exp.__dict__, exp_repr=repr(exp),
+                              model=repr(exp.get_env().model))
 
 
 
