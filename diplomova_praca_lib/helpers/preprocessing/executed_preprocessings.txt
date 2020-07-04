@@ -69,3 +69,5 @@
 33316: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca08 --transform --regions --explained_ratio=0.8
 33319: --input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess_pca08 --transform --explained_ratio=0.8 --samples=1000
 33320: --input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess_pca08 --transform --explained_ratio=0.8 --samples=100
+33350: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca64 --transform --regions --explained_ratio=64
+33351: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca128 --transform --regions --explained_ratio=128
