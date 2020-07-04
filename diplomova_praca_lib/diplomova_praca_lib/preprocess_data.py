@@ -95,6 +95,8 @@ def main():
     if args.empty_pipeline:
         pipeline = make_pipeline(FunctionTransformer(func=None, validate=False))
     else:
+        if args.explained_ratio > 1:
+            args.explained_ratio = int(args.explained_ratio)
         pipeline = make_pipeline(Normalizer(), PCA(n_components=args.explained_ratio))
 
     if args.fit or (args.transform and not args.empty_pipeline):
