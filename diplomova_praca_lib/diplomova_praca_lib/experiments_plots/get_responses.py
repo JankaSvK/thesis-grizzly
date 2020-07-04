@@ -11,7 +11,7 @@ import numpy as np
 import diplomova_praca_lib
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, PositionMethod
 from diplomova_praca_lib.position_similarity.position_similarity_request import positional_request, RegionsEnvironment, \
-    SpatialEnvironment
+    SpatialEnvironment, WholeImageEnvironment
 from diplomova_praca_lib.storage import FileStorage
 from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background
 
@@ -99,15 +99,17 @@ class RegionsExperiment(Experiment):
 
 
 class SpatialExperiment(Experiment):
-    def __init__(self, input_data, ranking_func):
+    def __init__(self, input_data, ranking_func, files_limit = None):
         super().__init__()
         self.method = PositionMethod.SPATIALLY
         self.input_data = input_data
         self.ranking_func = ranking_func
+        self.files_limit = files_limit
 
     def update_env(self):
         new_env = SpatialEnvironment(self.input_data)
         new_env.ranking_func = self.ranking_func
+        new_env.files_limit = self.files_limit
 
         diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env = new_env
 
@@ -118,20 +120,17 @@ class SpatialExperiment(Experiment):
 class FullImageExperiment(Experiment):
     def __init__(self, input_data, ranking_func):
         super().__init__()
-        self.method = PositionMethod.FULL
-        # self.input_data = input_data
-        # self.ranking_func = ranking_func
+        self.method = PositionMethod.WHOLE_IMAGE
+        self.input_data = input_data
+        self.ranking_func = ranking_func
 
     def update_env(self):
-        raise NotImplemented()
-        # new_env = SpatialEnvironment(self.input_data)
-        # new_env.ranking_func = self.ranking_func
-        #
-        # diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env = new_env
+        new_env = WholeImageEnvironment(self.input_data)
+        new_env.ranking_func = self.ranking_func
+        diplomova_praca_lib.position_similarity.position_similarity_request.whole_image_env = new_env
 
     def get_env(self):
-        raise NotImplemented()
-        # return diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env
+        return diplomova_praca_lib.position_similarity.position_similarity_request.whole_image_env
 
 
 
@@ -171,13 +170,25 @@ def experiments(id):
                                  np.mean, 1)
     elif id == 7:
         return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess",
-                                 np.mean)
+                                 np.mean, 150)
     elif id == 8:
         return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_pca08",
                                  np.mean)
     elif id == 9:
         return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess",
                                  np.mean)
+    elif id == 10:
+        return RegionsExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess_pca08",
+            np.min, None)
+    elif id == 11:
+        return FullImageExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess_pca08", np.min)
+    elif id == 12:
+        return FullImageExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess", np.min)
+
+
 
     else:
         raise ValueError("Unknown experiment ID")
@@ -186,12 +197,12 @@ def experiments(id):
 def main():
     experiment_save_dir = r"C:\Users\janul\Desktop\thesis_tmp_files\responses"
 
-    exps = [experiments(i) for i in [9]]
+    exps = [experiments(i) for i in [7]]
     for exp in exps:
         filename_hash = sha256(repr(exp).encode('utf-8')).hexdigest()
         responses_save_path = Path(experiment_save_dir, filename_hash).with_suffix(".npz")
         if (responses_save_path.exists()):
-            print("Results already present.")
+            print("Results already present.", responses_save_path)
             return
 
         print("Output path:", responses_save_path)

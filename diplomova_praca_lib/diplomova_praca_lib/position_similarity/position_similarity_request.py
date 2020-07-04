@@ -4,7 +4,6 @@ from collections import defaultdict
 from typing import Dict, List, Tuple, Optional
 
 import numpy as np
-import sklearn
 from sklearn.metrics.pairwise import cosine_distances
 
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingSpatially
@@ -13,7 +12,8 @@ from diplomova_praca_lib.position_similarity.models import PositionSimilarityReq
     PositionMethod
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
 from diplomova_praca_lib.storage import FileStorage
-from diplomova_praca_lib.utils import concatenate_lists, closest_match, download_and_preprocess
+from diplomova_praca_lib.utils import concatenate_lists, closest_match, download_and_preprocess, download_and_resize
+
 
 class RegionsData:
     def __init__(self, data):
@@ -53,11 +53,11 @@ class RegionsData:
 
 
 class RegionsEnvironment:
-    def __init__(self, data_path, ranking_func=np.min):
+    def __init__(self, data_path, ranking_func=np.mean):
         self.data_path = data_path
         self.ranking_func = ranking_func
         self.initialized = False
-        self.maximum_related_crops = None
+        self.maximum_related_crops = 4
 
     def init(self):
         if self.initialized:
@@ -97,23 +97,54 @@ class SpatialEnvironment:
         self.model = model_factory(str(self.data['model']))
         self.data['features'] = np.array(self.data['features'])
         self.features = self.data['features']
+        print("Environment initialized.")
 
     def model_title(self):
         return str(self.data['model'])
 
 
-regions_env = RegionsEnvironment(r"C:\Users\janul\Desktop\output\2020-05-11_05-43-12_PM")
+class WholeImageEnvironment:
+    def __init__(self, data_path):
+        self.data_path = data_path
+        self.initialized = False
+
+    def init(self):
+        if self.initialized:
+            return
+        self.initialized = True
+
+        print("Initializing environment, this may take a while.")
+        self.data = FileStorage.load_multiple_files_multiple_keys(path=self.data_path,
+                                                                  retrieve_merged=['features', 'paths'],
+                                                                  retrieve_once=['pipeline', 'model'])
+        self.preprocessing = pickle.loads(self.data['pipeline'])
+        self.model = model_factory(str(self.data['model']))
+        self.data['features'] = np.array(self.data['features'])
+        self.features = self.data['features']
+
+    def model_title(self):
+        return str(self.data['model'])
+
+
+regions_env = RegionsEnvironment(
+    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca08")
 spatial_env = SpatialEnvironment(
     r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess")
-spatial_env.files_limit = 200
+spatial_env.files_limit = 100
+
+# whole_image_env = WholeImageEnvironment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess_pca08")
+whole_image_env = WholeImageEnvironment(
+    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess")
 
 def initialize_env(env):
-    global regions_env, spatial_env
+    global regions_env, spatial_env, whole_image_env
 
     if env is 'regions':
         regions_env.init()
     if env is 'spatial':
         spatial_env.init()
+    if env is 'whole':
+        whole_image_env.init()
 
 
 def positional_request(request: PositionSimilarityRequest) -> PositionSimilarityResponse:
@@ -121,6 +152,8 @@ def positional_request(request: PositionSimilarityRequest) -> PositionSimilarity
         return position_similarity_request(request)
     elif request.position_method == PositionMethod.SPATIALLY:
         return spatial_similarity_request(request)
+    elif request.position_method == PositionMethod.WHOLE_IMAGE:
+        return whole_image_similarity_request(request)
 
 def position_similarity_request(request: PositionSimilarityRequest) -> PositionSimilarityResponse:
     global regions_env
@@ -203,27 +236,21 @@ def crop_idx_to_src_idx(crop_idx):
     return regions_env.regions_data.unique_src_paths[crop_src]
 
 
+def whole_image_similarity_request(request: PositionSimilarityRequest) -> PositionSimilarityResponse:
+    global whole_image_env
+    initialize_env('whole')
 
-def spatial_similarity_request(request: PositionSimilarityRequest):
-    global spatial_env
-    initialize_env('spatial')
-
-    downloaded_images = download_and_preprocess(request.images, spatial_env.model.input_shape)
+    downloaded_images = download_and_preprocess(request.images, whole_image_env.model.input_shape)
 
     if not downloaded_images:
         return PositionSimilarityResponse(ranked_paths=[])
 
-    images_features = spatial_env.model.predict_on_images(downloaded_images)
-    if 'enhance_dims' in spatial_env.preprocessing.named_steps:
-        spatial_env.preprocessing.steps[-1][1].set_params(kw_args={"shape": images_features.shape[1:-1]})
-    images_features = spatial_env.preprocessing.transform(images_features)
-    images_features = np.mean(images_features, axis=(1, 2))
+    images_features = whole_image_env.model.predict_on_images(downloaded_images)
+    images_features = whole_image_env.preprocessing.transform(images_features)
 
     rankings_per_query_image = []  # type: List[Tuple[List[int], List[float]]]
     for image_info, image_features in zip(request.images, images_features):
-        features = spatial_env.features
-        features = EvaluatingSpatially.crop_features_vectors_to_query(image_info.crop, features)
-
+        features = whole_image_env.features
         closest_images, distances = closest_match(image_features, features, distance=cosine_distances)
         rankings_per_query_image.append((closest_images, distances))
 
@@ -233,7 +260,48 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
             distances_per_image_per_query[image].append(distance)
 
     ranked_results = [match_id for match_id, _ in
-                      RankingMechanism.rank_func(list(distances_per_image_per_query.items()), func=np.average)]
+                      RankingMechanism.rank_func(list(distances_per_image_per_query.items()), func=np.mean)]
+
+    matched_paths = [whole_image_env.data['paths'][match] for match in ranked_results]
+
+    return PositionSimilarityResponse(
+        ranked_paths=matched_paths,
+        searched_image_rank=searched_image_rank(request.query_image, matched_paths),
+    )
+
+
+def spatial_similarity_request(request: PositionSimilarityRequest):
+    global spatial_env
+    initialize_env('spatial')
+
+    # downloaded_images = download_and_preprocess(request.images, spatial_env.model.input_shape)
+    downloaded_images = download_and_resize(request.images, spatial_env.model.input_shape)
+
+    if not downloaded_images:
+        return PositionSimilarityResponse(ranked_paths=[])
+
+    images_features = spatial_env.model.predict_on_images(downloaded_images)
+    if 'enhance_dims' in spatial_env.preprocessing.named_steps:
+        spatial_env.preprocessing.steps[-1][1].set_params(kw_args={"shape": images_features.shape[1:-1]})
+    images_features = spatial_env.preprocessing.transform(images_features)
+    images_features = EvaluatingSpatially.avg_pool(images_features)
+
+    rankings_per_query_image = []  # type: List[Tuple[List[int], List[float]]]
+    for image_info, image_features in zip(request.images, images_features):
+        db_features = spatial_env.features
+        db_features = EvaluatingSpatially.crop_features_vectors_to_query(image_info.crop, db_features)
+        db_features = EvaluatingSpatially.avg_pool(db_features)
+
+        closest_images, distances = closest_match(image_features, db_features, distance=cosine_distances)
+        rankings_per_query_image.append((closest_images, distances))
+
+    distances_per_image_per_query = defaultdict(list)
+    for close_images, distances in rankings_per_query_image:
+        for image, distance in zip(close_images, distances):
+            distances_per_image_per_query[image].append(distance)
+
+    ranked_results = [match_id for match_id, _ in
+                      RankingMechanism.rank_func(list(distances_per_image_per_query.items()), func=np.mean)]
 
     matched_paths = [spatial_env.data['paths'][match] for match in ranked_results]
 

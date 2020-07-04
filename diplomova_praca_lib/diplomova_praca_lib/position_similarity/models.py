@@ -131,6 +131,7 @@ class PositionSimilarityResponse:
 class PositionMethod(Enum):
     REGIONS = 1
     SPATIALLY = 2
+    WHOLE_IMAGE = 3
 
     @staticmethod
     def parse(method):

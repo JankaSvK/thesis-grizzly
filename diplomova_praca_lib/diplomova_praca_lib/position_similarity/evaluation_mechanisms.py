@@ -54,7 +54,8 @@ class EvaluatingSpatially(EvaluationMechanism):
                 ymin -= 1
 
         subimage_features = features_vectors[:, ymin:ymax, xmin:xmax, :]
-        return EvaluatingSpatially.avg_pool(subimage_features)
+        return subimage_features
+
 
     # def best_matches(self, query_crop: Crop, query_image: PIL.Image):
     #     """

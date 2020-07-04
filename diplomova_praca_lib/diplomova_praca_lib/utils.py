@@ -5,6 +5,8 @@ from io import BytesIO
 from pathlib import Path
 from urllib.parse import urlparse
 
+import PIL
+import cv2
 import numpy as np
 import requests
 from PIL import Image
@@ -144,7 +146,7 @@ def is_url(url):
         return False
 
 
-def download_image(image_src):
+def download_image(image_src:str)-> PIL.Image:
     if is_url(image_src):
         response = requests.get(image_src)
         return Image.open(BytesIO(response.content))
@@ -175,3 +177,7 @@ def resize_with_padding(img, expected_size):
 
 def download_and_preprocess(images, shape):
     return [resize_with_padding(download_image(request_image.url), expected_size=shape) for request_image in images]
+
+def download_and_resize(images, shape):
+    return [download_image(request_image.url).resize(shape[:2]) for request_image in images]
+
