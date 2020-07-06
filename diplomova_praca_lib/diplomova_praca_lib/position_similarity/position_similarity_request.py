@@ -83,7 +83,7 @@ class SpatialEnvironment:
         self.initialized = False
         self.files_limit = None
 
-    def init(self):
+    def init(self, **kwargs):
         if self.initialized:
             return
         self.initialized = True
@@ -92,7 +92,7 @@ class SpatialEnvironment:
         self.data = FileStorage.load_multiple_files_multiple_keys(path=self.data_path,
                                                                   retrieve_merged=['features', 'paths'],
                                                                   retrieve_once=['pipeline', 'model'],
-                                                                  num_files_limit=self.files_limit)
+                                                                  num_files_limit=self.files_limit, **kwargs)
         self.preprocessing = pickle.loads(self.data['pipeline'])
         self.model = model_factory(str(self.data['model']))
         self.data['features'] = np.array(self.data['features'])
@@ -130,7 +130,6 @@ regions_env = RegionsEnvironment(
     r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca08")
 spatial_env = SpatialEnvironment(
     r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess")
-spatial_env.files_limit = 100
 
 # whole_image_env = WholeImageEnvironment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess_pca08")
 whole_image_env = WholeImageEnvironment(

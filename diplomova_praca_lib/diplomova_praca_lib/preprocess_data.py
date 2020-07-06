@@ -8,7 +8,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer, FunctionTransformer
 
 from diplomova_praca_lib import storage
-from diplomova_praca_lib.utils import enhance_dims, reduce_dims
+from diplomova_praca_lib.utils import enhance_dims, reduce_dims, sample_features_from_data
 
 
 def count_total(path):
@@ -20,31 +20,6 @@ def count_total(path):
     print("Total count is ", total_count)
     return total_count
 
-
-def sample_images(path, num_samples, total_count):
-    sampled_idxs = sorted(np.random.choice(np.arange(total_count), num_samples, replace=False))
-    retrieved_samples = []
-    already_seen_samples = 0
-    print("Sampling")
-    for file in Path(path).rglob("*.npz"):
-        samples_from_file = 0
-        loaded_data = np.load(str(file), allow_pickle=True)['data']
-        datafile_samples = len(loaded_data)
-        i_sample = sampled_idxs[len(retrieved_samples)] - already_seen_samples
-        while i_sample < datafile_samples:
-            retrieved_samples.append(loaded_data[i_sample])
-            samples_from_file += 1
-
-            if len(retrieved_samples) == num_samples:
-                break
-
-            i_sample = sampled_idxs[len(retrieved_samples)] - already_seen_samples
-
-        already_seen_samples += datafile_samples
-        print("From %s obtained %d samples out of %d samples" % (str(file), samples_from_file, datafile_samples))
-
-    assert len(retrieved_samples) == num_samples
-    return retrieved_samples
 
 def report_pca(pca):
     print("Components = ", pca.n_components_, ";\nTotal explained variance = ",
@@ -104,7 +79,7 @@ def main():
             total_count = args.count
         else:
             total_count = count_total(args.input)
-        sampled_records = sample_images(args.input, min(total_count, args.samples), total_count)
+        sampled_records = sample_features_from_data(args.input, min(total_count, args.samples), total_count)
 
         if args.regions:
             sampled_features = np.vstack([regions_features_only(x) for x in sampled_records])

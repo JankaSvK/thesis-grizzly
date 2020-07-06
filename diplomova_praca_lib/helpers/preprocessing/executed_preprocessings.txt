@@ -73,3 +73,30 @@
 33351: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca128 --transform --regions --explained_ratio=128
 33352: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca64 --transform --regions --explained_ratio=64
 33353: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca128 --transform --regions --explained_ratio=128
+33354: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca64 --transform --regions --explained_ratio=64
+33355: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca128 --transform --regions --explained_ratio=128
+33356: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca256 --transform --regions --explained_ratio=256
+33357: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca512 --transform --regions --explained_ratio=512
+33358: --input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess --transform --empty_pipeline
+33359: --input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess_pca08 --transform --explained_ratio=0.8 --samples=1000
+33360: --input=/mnt/0/750_mobilenetv2_4x2_96x96 --output=/mnt/0/750_mobilenetv2_4x2_96x96_preprocess --transform --empty_pipeline --regions
+33361: --input=/mnt/0/750_mobilenetv2_4x2_96x96 --output=/mnt/0/750_mobilenetv2_4x2_96x96_preprocess_pca08 --transform --regions --explained_ratio=0.8
+33362: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess --transform --empty_pipeline --regions
+33363: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca08 --transform --regions --explained_ratio=0.8
+33364: --input=/mnt/0/750_mobilenetv2_224x224 --output=/mnt/0/750_mobilenetv2_224x224_preprocess --transform --empty_pipeline
+33365: --input=/mnt/0/750_mobilenetv2_224x224 --output=/mnt/0/750_mobilenetv2_224x224_preprocess_pca08 --transform --explained_ratio=0.8
+33376: --input=/mnt/0/750_resnet50v2_5x3_96x96 --output=/mnt/0/750_resnet50v2_5x3_96x96_preprocess_pca64 --transform --regions --explained_ratio=64
+33377: --input=/mnt/0/750_resnet50v2_5x3_96x96 --output=/mnt/0/750_resnet50v2_5x3_96x96_preprocess_pca128 --transform --regions --explained_ratio=128
+33378: --input=/mnt/0/750_resnet50v2_5x3_96x96 --output=/mnt/0/750_resnet50v2_5x3_96x96_preprocess_pca256 --transform --regions --explained_ratio=256
+33379: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca64 --transform --regions --explained_ratio=64
+33380: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca128 --transform --regions --explained_ratio=128
+33381: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca256 --transform --regions --explained_ratio=256
+33382: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca512 --transform --regions --explained_ratio=512
+33383: --input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess --transform --empty_pipeline
+33384: --input=/mnt/0/750_mobilenetv2_antepenultimate --output=/mnt/0/750_mobilenetv2_antepenultimate_preprocess_pca08 --transform --explained_ratio=0.8 --samples=1000
+33385: --input=/mnt/0/750_mobilenetv2_4x2_96x96 --output=/mnt/0/750_mobilenetv2_4x2_96x96_preprocess --transform --empty_pipeline --regions
+33386: --input=/mnt/0/750_mobilenetv2_4x2_96x96 --output=/mnt/0/750_mobilenetv2_4x2_96x96_preprocess_pca08 --transform --regions --explained_ratio=0.8
+33387: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess --transform --empty_pipeline --regions
+33391: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca08 --transform --regions --explained_ratio=0.8
+33392: --input=/mnt/0/750_mobilenetv2_224x224 --output=/mnt/0/750_mobilenetv2_224x224_preprocess --transform --empty_pipeline
+33393: --input=/mnt/0/750_mobilenetv2_224x224 --output=/mnt/0/750_mobilenetv2_224x224_preprocess_pca08 --transform --explained_ratio=0.8

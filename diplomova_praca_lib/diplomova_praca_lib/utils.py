@@ -1,8 +1,10 @@
 import base64
 import json
+import random
 import re
 from io import BytesIO
 from pathlib import Path
+from typing import List
 from urllib.parse import urlparse
 
 import PIL
@@ -12,6 +14,7 @@ import requests
 from PIL import Image
 
 from diplomova_praca_lib.position_similarity.models import UrlImage, Crop
+from diplomova_praca_lib.storage import FileStorage
 
 
 def cap_value(value, minimum, maximum):
@@ -181,3 +184,38 @@ def download_and_preprocess(images, shape):
 def download_and_resize(images, shape):
     return [download_image(request_image.url).resize(shape[:2]) for request_image in images]
 
+
+def sample_image_paths(path:str, samples:int) -> List[str]:
+    """Reads preprocessed features and extracts only paths to randomly selected images."""
+    source_images = FileStorage.load_multiple_files_multiple_keys(path, retrieve_merged=['paths'])['paths']
+    unique_source_images = set(source_images)
+
+    sampled_paths = random.sample(unique_source_images, samples)
+    return sampled_paths
+
+
+def sample_features_from_data(path:str, num_samples:int, total_count:int):
+    """Reads annotated features and returns randomly selected subset."""
+    sampled_idxs = sorted(np.random.choice(np.arange(total_count), num_samples, replace=False))
+    retrieved_samples = []
+    already_seen_samples = 0
+    print("Sampling")
+    for file in Path(path).rglob("*.npz"):
+        samples_from_file = 0
+        loaded_data = np.load(str(file), allow_pickle=True)['data']
+        datafile_samples = len(loaded_data)
+        i_sample = sampled_idxs[len(retrieved_samples)] - already_seen_samples
+        while i_sample < datafile_samples:
+            retrieved_samples.append(loaded_data[i_sample])
+            samples_from_file += 1
+
+            if len(retrieved_samples) == num_samples:
+                break
+
+            i_sample = sampled_idxs[len(retrieved_samples)] - already_seen_samples
+
+        already_seen_samples += datafile_samples
+        print("From %s obtained %d samples out of %d samples" % (str(file), samples_from_file, datafile_samples))
+
+    assert len(retrieved_samples) == num_samples
+    return retrieved_samples

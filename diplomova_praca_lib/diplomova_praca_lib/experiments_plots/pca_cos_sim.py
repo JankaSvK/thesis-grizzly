@@ -3,6 +3,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import sklearn
 from sklearn.metrics.pairwise import cosine_similarity
 
 from diplomova_praca_lib.storage import FileStorage
@@ -15,11 +16,14 @@ def main():
     parser.add_argument('--sample_size', default=500, type=int)
     args = parser.parse_args()
 
-    y_dataset = FileStorage.load_multiple_files_multiple_keys(args.y_input, retrieve_merged=['features', 'paths'], num_files_limit=10)
-    x_dataset = FileStorage.load_multiple_files_multiple_keys(args.x_input, retrieve_merged=['features', 'paths'], num_files_limit=10)
+    y_dataset = FileStorage.load_multiple_files_multiple_keys(args.y_input, retrieve_merged=['features', 'paths'], num_files_limit=75)
+    x_dataset = FileStorage.load_multiple_files_multiple_keys(args.x_input, retrieve_merged=['features', 'paths'], num_files_limit=75)
 
     y_features = np.array(y_dataset['features'])
     x_features = np.array(x_dataset['features'])
+
+    # scaler = sklearn.preprocessing.MinMaxScaler()
+    # y_features = scaler.fit_transform(y_features)
 
     y_paths = y_dataset['paths']
     x_paths = x_dataset['paths']
@@ -37,19 +41,25 @@ def main():
     y_similarities = y_similarities.reshape(-1)
     x_similarities = x_similarities.reshape(-1)
 
+
     arg_sorted = np.argsort(x_similarities)
 
     fig, ax = plt.subplots()
-    ax.plot(x_similarities[arg_sorted], y_similarities[arg_sorted], 'x', markersize=0.02)
-    ax.plot((0,1))
+    ax.plot(x_similarities[arg_sorted], y_similarities[arg_sorted], 'x', markersize=0.02, label='consine similarities')
+    ax.plot((0,1), label='Diagonal')
     ax.set_xlim((-1,1))
     ax.set_xlabel(Path(args.x_input).name)
     ax.set_ylabel(Path(args.y_input).name)
     ax.set_ylim((-1,1))
-    plt.show()
 
     mse = ((x_similarities - y_similarities)**2).mean()
-    print("mse:", mse)
+    ax.set_title("mse: {:.5f}".format(mse))
+
+    lgnd = plt.legend(loc='upper left')
+    lgnd.legendHandles[0]._legmarker.set_markersize(2)
+
+    plt.show()
+
 
 
 if __name__ == '__main__':

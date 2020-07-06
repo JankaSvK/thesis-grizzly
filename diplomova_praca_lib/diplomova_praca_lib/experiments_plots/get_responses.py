@@ -13,7 +13,7 @@ from diplomova_praca_lib.position_similarity.models import PositionSimilarityReq
 from diplomova_praca_lib.position_similarity.position_similarity_request import positional_request, RegionsEnvironment, \
     SpatialEnvironment, WholeImageEnvironment
 from diplomova_praca_lib.storage import FileStorage
-from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background
+from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background, sample_image_paths
 
 logging.basicConfig(level=logging.INFO)
 
@@ -45,12 +45,19 @@ class Experiment:
         self.ranking_func = None
         self.method = None
 
+    def num_images(self):
+        return len(set(self.get_env().data['paths']))
+
     def set_method(self, requests):
         for r in requests:
             r.position_method = self.method
         return
 
     def save_results(self):
+        pass
+
+    @abc.abstractmethod
+    def get_env(self):
         pass
 
     @abc.abstractmethod
@@ -87,6 +94,8 @@ class RegionsExperiment(Experiment):
         self.ranking_func = ranking_func
         self.maximum_related_crops = maximum_related_crops
 
+
+
     def update_env(self):
         new_env = RegionsEnvironment(self.input_data)
         new_env.maximum_related_crops = self.maximum_related_crops
@@ -99,17 +108,21 @@ class RegionsExperiment(Experiment):
 
 
 class SpatialExperiment(Experiment):
-    def __init__(self, input_data, ranking_func, files_limit = None):
+    def __init__(self, input_data, ranking_func, files_limit=None, paths_source=None):
         super().__init__()
         self.method = PositionMethod.SPATIALLY
         self.input_data = input_data
         self.ranking_func = ranking_func
         self.files_limit = files_limit
+        self.selected_paths = paths_source
 
     def update_env(self):
         new_env = SpatialEnvironment(self.input_data)
         new_env.ranking_func = self.ranking_func
         new_env.files_limit = self.files_limit
+
+        if self.selected_paths:
+            new_env.init(key_filter=('paths', self.selected_paths))
 
         diplomova_praca_lib.position_similarity.position_similarity_request.spatial_env = new_env
 
@@ -132,10 +145,7 @@ class FullImageExperiment(Experiment):
     def get_env(self):
         return diplomova_praca_lib.position_similarity.position_similarity_request.whole_image_env
 
-
-
-
-def experiments(id):
+def experiments(id, queries_paths=None):
     datasets = [
         r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess",
         r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess_pca08",
@@ -168,6 +178,7 @@ def experiments(id):
     elif id == 6:
         return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess",
                                  np.mean, 1)
+
     elif id == 7:
         return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess",
                                  np.mean, 150)
@@ -187,8 +198,16 @@ def experiments(id):
     elif id == 12:
         return FullImageExperiment(
             r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess", np.min)
-
-
+    elif id == 13:
+        return RegionsExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca64",
+            np.mean, 3)
+    elif id == 14:
+        return RegionsExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca512",
+            np.mean, 3)
+    elif id == 15:
+        return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_sampled_40k", np.mean)
 
     else:
         raise ValueError("Unknown experiment ID")
@@ -197,7 +216,10 @@ def experiments(id):
 def main():
     experiment_save_dir = r"C:\Users\janul\Desktop\thesis_tmp_files\responses"
 
-    exps = [experiments(i) for i in [7]]
+    requests = get_queries()
+
+    exps = [experiments(i) for i in [15]]
+
     for exp in exps:
         filename_hash = sha256(repr(exp).encode('utf-8')).hexdigest()
         responses_save_path = Path(experiment_save_dir, filename_hash).with_suffix(".npz")
@@ -206,11 +228,10 @@ def main():
             return
 
         print("Output path:", responses_save_path)
-        requests = get_queries()
-        print("Queries obtained")
+
         responses = exp.run(requests)
         FileStorage.save_data(responses_save_path, responses=responses, experiment=exp.__dict__, exp_repr=repr(exp),
-                              model=repr(exp.get_env().model))
+                              model=repr(exp.get_env().model), num_images=exp.num_images())
 
 
 

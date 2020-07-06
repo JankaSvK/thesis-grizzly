@@ -2,12 +2,12 @@ import glob
 import logging
 import os
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Optional, List, Tuple
 
 import numpy as np
 
 from diplomova_praca_lib.position_similarity.models import ImageData
-from collections import defaultdict
+
 
 class Storage:
     def __init__(self):
@@ -16,7 +16,8 @@ class Storage:
 
 class FileStorage(Storage):
     @staticmethod
-    def load_multiple_files_multiple_keys(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz", num_files_limit=None):
+    def load_multiple_files_multiple_keys(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz",
+                                          num_files_limit=None, key_filter: Optional[Tuple[str, List[str]]] = None):
         if not retrieve_once:
             retrieve_once = []
         if not retrieve_merged:
@@ -29,8 +30,10 @@ class FileStorage(Storage):
             files = files[:num_files_limit]
 
         result = {}
-        for key in retrieve_merged + retrieve_once:
-            for i_f, f in enumerate(files):
+        # for key in retrieve_merged + retrieve_once:
+        #     for i_f, f in enumerate(files):
+        for i_f, f in enumerate(files):
+            for key in retrieve_merged + retrieve_once:
                 if key not in f:
                     logging.warning("`%s` not available in `%s`" % (key, str(filenames[i_f])))
                     continue
@@ -38,7 +41,13 @@ class FileStorage(Storage):
                 if key in retrieve_merged:
                     if key not in result:
                         result[key] = []
-                    result[key] += list(f[key])
+
+                    if key_filter:
+                        filter_data = f[key_filter[0]]
+                        idxs = [i_item for i_item, item in enumerate(filter_data) if item in key_filter[1]]
+                        result[key] += list(np.array(f[key])[idxs])
+                    else:
+                        result[key] += list(f[key])
                 if key in retrieve_once and key not in result:
                     logging.info("`%s` retrieved from `%s`" % (key, str(filenames[i_f])))
                     result[key] = f[key]

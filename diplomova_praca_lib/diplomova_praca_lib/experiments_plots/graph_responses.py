@@ -23,12 +23,15 @@ class DatasetInfo:
         self.num_images = num_images
 
 
-def graph_of_search_rank(results: Dict[str, List[int]], dataset_info: DatasetInfo, save_plot=None):
+def graph_of_search_rank(results: Dict[str, List[int]], input_paths: List[str], save_plot=None):
     fig, ax = plt.subplots()
-    for func_name, ranks in results.items():
+    for (func_name, ranks), input_src in zip(results.items(), input_paths):
         # ranks_space = np.arange(max(ranks) + 1)
-        ranks_space = np.arange(dataset_info.num_images + 1)
-        x = ranks_space / dataset_info.num_images
+        num_images = len(set(load_data(input_src)['paths']))
+        print(num_images)
+
+        ranks_space = np.arange(num_images + 1)
+        x = ranks_space / num_images
         y = np.array([np.count_nonzero(ranks <= r) for r in ranks_space]) / len(ranks)
 
         ax.plot(x, y, label=func_name)
@@ -62,6 +65,7 @@ def main():
 
     plot_info = {}
     dataset = None
+    input_data = []
     for path, name in zip(args.paths, args.names):
         responses_input = Path(path)
         responses_data = FileStorage.load_data_from_file(responses_input)
@@ -72,8 +76,10 @@ def main():
             continue
 
         # Assert that the original data correspondence
-        if args.assert_dataset or not dataset:
-            features_src = responses_data['experiment'].item().get('input_data')
+        features_src = responses_data['experiment'].item().get('input_data')
+        input_data.append(features_src)
+
+        if args.assert_dataset:
             processed_data = set(load_data(features_src)['paths'])
 
             if not dataset:
@@ -81,8 +87,8 @@ def main():
 
             assert dataset == processed_data
 
-    dataset_info = DatasetInfo(num_images=len(dataset))
-    graph_of_search_rank(plot_info, dataset_info=dataset_info, save_plot=",".join(args.paths))
+    # dataset_info = DatasetInfo(num_images=len(dataset))
+    graph_of_search_rank(plot_info, input_paths=input_data, save_plot=",".join(args.paths))
 
 
 
