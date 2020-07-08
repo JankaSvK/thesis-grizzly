@@ -53,11 +53,12 @@ class RegionsData:
 
 
 class RegionsEnvironment:
-    def __init__(self, data_path, ranking_func=np.mean):
+    def __init__(self, data_path, ranking_func=np.mean, distance_func = cosine_distances):
         self.data_path = data_path
         self.ranking_func = ranking_func
         self.initialized = False
         self.maximum_related_crops = 4
+        self.distance_func = distance_func
 
     def init(self):
         if self.initialized:
@@ -127,9 +128,9 @@ class WholeImageEnvironment:
 
 
 regions_env = RegionsEnvironment(
-    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca08")
+    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_resnet50v2_5x3_96x96_preprocess_pca32_onefile")
 spatial_env = SpatialEnvironment(
-    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess")
+    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_sampled_10k")
 
 # whole_image_env = WholeImageEnvironment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess_pca08")
 whole_image_env = WholeImageEnvironment(
@@ -176,7 +177,7 @@ def position_similarity_request(request: PositionSimilarityRequest) -> PositionS
         related_crops_idxs = concatenate_lists((regions_env.regions_data.crop_idxs[c] for c in related_crops))
         features = regions_env.regions_data.features[related_crops_idxs]
 
-        closest_features_idxs, distances = closest_match(image_features, features, distance=cosine_distances)
+        closest_features_idxs, distances = closest_match(image_features, features, distance=regions_env.distance_func)
 
         # Indexes with features are only a subset of whole data, we have to transform back
         closest_crops_idxs = np.array(related_crops_idxs)[closest_features_idxs]
@@ -301,6 +302,7 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
 
     ranked_results = [match_id for match_id, _ in
                       RankingMechanism.rank_func(list(distances_per_image_per_query.items()), func=np.mean)]
+
 
     matched_paths = [spatial_env.data['paths'][match] for match in ranked_results]
 

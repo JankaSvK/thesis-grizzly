@@ -69,6 +69,7 @@ def main():
     for path, name in zip(args.paths, args.names):
         responses_input = Path(path)
         responses_data = FileStorage.load_data_from_file(responses_input)
+        print(responses_data['exp_repr'])
         responses = responses_data['responses']
         if responses.any():
             plot_info[name] = searched_rank_only(responses)

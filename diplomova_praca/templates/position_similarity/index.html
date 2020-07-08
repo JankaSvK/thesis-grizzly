@@ -144,9 +144,14 @@
                     $("#results").show();
 
                     image_table($(".search_results"), response['ranking_results']);
-                    addRegions(response['matched_regions']);
-                    $("#search_image_rank_value").text(response['search_image_rank']);
-                    console.log(response);
+                    if(response['matched_regions']) {addRegions(response['matched_regions']);}
+                    if(response['search_image_rank']) {
+                        $("#search_image_rank_value").text(response['search_image_rank']);
+                    } else {
+                        $("#search_image_rank_value").text("Not available in the loaded dataset.");
+                    }
+
+                    console.log("Response", response);
 
                 },
                 failure(data) {
