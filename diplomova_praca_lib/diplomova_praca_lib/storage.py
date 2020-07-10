@@ -57,7 +57,7 @@ class FileStorage(Storage):
 
 
     @staticmethod
-    def save_data(path, compressed=True, **kwargs):
+    def save_data(path:Path, compressed=True, **kwargs):
         Path(path.parents[0]).mkdir(parents=True, exist_ok=True)
 
         if compressed:

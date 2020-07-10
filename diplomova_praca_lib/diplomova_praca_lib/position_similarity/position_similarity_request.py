@@ -1,7 +1,7 @@
 import logging
 import pickle
 from collections import defaultdict
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Set
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_distances
@@ -51,9 +51,19 @@ class RegionsData:
         overlapping.sort(key=crop.iou, reverse=True)
         return overlapping
 
+class Environment:
+    def __init__(self):
+        self.data = None
 
-class RegionsEnvironment:
-    def __init__(self, data_path, ranking_func=np.mean, distance_func = cosine_distances):
+    def available_images_in_dataset(self):
+        if not self.data:
+            return None
+        return set(self.data['paths'])
+
+
+class RegionsEnvironment(Environment):
+    def __init__(self, data_path, ranking_func=np.mean, distance_func=cosine_distances):
+        super().__init__()
         self.data_path = data_path
         self.ranking_func = ranking_func
         self.initialized = False
@@ -78,8 +88,9 @@ class RegionsEnvironment:
     def model_title(self):
         return str(self.data['model'])
 
-class SpatialEnvironment:
+class SpatialEnvironment(Environment):
     def __init__(self, data_path):
+        super().__init__()
         self.data_path = data_path
         self.initialized = False
         self.files_limit = None
@@ -104,8 +115,9 @@ class SpatialEnvironment:
         return str(self.data['model'])
 
 
-class WholeImageEnvironment:
+class WholeImageEnvironment(Environment):
     def __init__(self, data_path):
+        super().__init__()
         self.data_path = data_path
         self.initialized = False
 
@@ -154,6 +166,17 @@ def positional_request(request: PositionSimilarityRequest) -> PositionSimilarity
         return spatial_similarity_request(request)
     elif request.position_method == PositionMethod.WHOLE_IMAGE:
         return whole_image_similarity_request(request)
+
+def available_images(method:PositionMethod) -> Set[str]:
+    return environment_select(method).available_images_in_dataset()
+
+def environment_select(method: PositionMethod) -> Environment:
+    if method == PositionMethod.REGIONS:
+        return regions_env
+    elif method == PositionMethod.SPATIALLY:
+        return spatial_env
+    elif method == PositionMethod.WHOLE_IMAGE:
+        return whole_image_env
 
 def position_similarity_request(request: PositionSimilarityRequest) -> PositionSimilarityResponse:
     global regions_env

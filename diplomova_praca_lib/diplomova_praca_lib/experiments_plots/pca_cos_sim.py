@@ -4,7 +4,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 import sklearn
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances
 
 from diplomova_praca_lib.storage import FileStorage
 
@@ -22,13 +22,10 @@ def main():
     y_features = np.array(y_dataset['features'])
     x_features = np.array(x_dataset['features'])
 
-    # scaler = sklearn.preprocessing.MinMaxScaler()
-    # y_features = scaler.fit_transform(y_features)
-
     y_paths = y_dataset['paths']
     x_paths = x_dataset['paths']
 
-    assert y_paths == x_paths
+    # assert y_paths == x_paths
 
     sampled_idxs = np.random.choice(np.arange(len(y_features)), args.sample_size, replace=False)
 

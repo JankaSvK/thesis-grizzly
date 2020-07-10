@@ -6,9 +6,10 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, PositionMethod
-from diplomova_praca_lib.position_similarity.position_similarity_request import positional_request
+from diplomova_praca_lib.position_similarity.position_similarity_request import positional_request, available_images, \
+    initialize_env
 from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background
-from shared.utils import random_image_path, thumbnail_path
+from shared.utils import random_image_path, thumbnail_path, random_subset_image_path
 from .models import PositionRequest, Collage
 
 
@@ -19,7 +20,13 @@ def index(request):
 
 @csrf_exempt
 def position_similarity(request):
-    context = {"search_image": random_image_path().as_posix()}
+    default_method = PositionMethod.REGIONS
+    initialize_env('regions')
+
+    subset_images_available = available_images(default_method)
+    query = random_subset_image_path(subset_images_available)
+
+    context = {"search_image": query.as_posix()}
     return render(request, 'position_similarity/index.html', context)
 
 

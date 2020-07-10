@@ -24,7 +24,11 @@ def dir_files(dir:Path):
     return [path for path in dir.rglob('*.jpg')]
 
 def random_image_path():
-    return Path("/", random.choice(available_images()))
+     return Path("/", random.choice(available_images()))
+
+def random_subset_image_path(images_allowed):
+    chosen = random.choice(list(images_allowed))
+    return Path("/", THUMBNAILS_PATH, chosen)
 
 
 def thumbnail_path(relative_path):

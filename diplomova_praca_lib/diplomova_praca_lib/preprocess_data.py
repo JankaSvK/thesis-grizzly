@@ -3,7 +3,7 @@ import pickle
 from pathlib import Path
 
 import numpy as np
-from sklearn.decomposition import PCA
+from sklearn.decomposition import PCA, TruncatedSVD
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer, FunctionTransformer
 
@@ -72,7 +72,9 @@ def main():
     else:
         if args.explained_ratio > 1:
             args.explained_ratio = int(args.explained_ratio)
-        pipeline = make_pipeline(Normalizer(), PCA(n_components=args.explained_ratio))
+
+        dimensionality_reduction = PCA(n_components=args.explained_ratio)
+        pipeline = make_pipeline(Normalizer(), dimensionality_reduction)
 
     if args.fit or (args.transform and not args.empty_pipeline):
         if args.count:

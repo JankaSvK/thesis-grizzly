@@ -17,6 +17,7 @@ def main():
     parser.add_argument("--save_location", default="", type=str,
                         help="Path to directory where precomputed models are saved.")
     parser.add_argument("--input_size", default=96, type=int, help="Input shape for model (square width)")
+    parser.add_argument("--batch_size", default=128, type=int, help="Batch size for processing")
     parser.add_argument("--num_regions", default=None, type=str, help="Number of regions \"vertically,horizzontaly\".")
     parser.add_argument('--feature_model', default='resnet50v2', type=str,
                         help='Feature vector model to compute (default: %(default)s)')
@@ -59,7 +60,7 @@ def main():
             continue
 
         print("Processing directory {}".format(directory))
-        for images_data in batches(FileStorage.load_images_continuously(directory), batch_size=128):
+        for images_data in batches(FileStorage.load_images_continuously(directory), batch_size=args.batch_size):
             features = evaluation_mechanism.features([sample.image for sample in images_data])
             for image_features, image_data in zip(features, images_data):
                 images_features.append(
