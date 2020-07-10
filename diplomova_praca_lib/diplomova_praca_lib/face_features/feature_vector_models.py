@@ -8,6 +8,9 @@ from diplomova_praca_lib.position_similarity.models import Crop
 
 
 class EvaluatingFaces(EvaluationMechanism):
+    def __init__(self):
+        self.model = None
+
     def features(self, images):
         images_np_array = [image_as_array(image) for image in images]
         image_height, image_width = images_np_array[0].shape[
