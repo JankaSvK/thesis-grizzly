@@ -3,6 +3,7 @@ import re
 import numpy as np
 import tensorflow
 import tensorflow as tf
+from classification_models.tfkeras import Classifiers
 
 from diplomova_praca_lib.image_processing import resize_image
 
@@ -10,11 +11,10 @@ from diplomova_praca_lib.image_processing import resize_image
 def model_factory(model_repr):
     # Example: 'MobileNetV2(model=mobilenetv2_1.00_224, input_shape=(50, 50, 3))'
 
-    #Obsolete: to support old generated data
+    # Obsolete: to support old generated data
     # if model_repr == 'resnet50antepenultimate':
     #     return Resnet50Antepenultimate(input_shape=(224, 224, 3))
 
-    class_name = model_repr[:model_repr.index('(')]
 
     class_name, options = re.search(r'(\S+)\((.*)\)', model_repr).groups()
     input_shape = eval(re.search('input_shape=\(([^)]*)\)', options).groups()[0])
@@ -22,7 +22,8 @@ def model_factory(model_repr):
     class_object = {"MobileNetV2": MobileNetV2,
                     "MobileNetV2Antepenultimate": MobileNetV2Antepenultimate,
                     "Resnet50V2": Resnet50V2,
-                    "Resnet50V2Antepenultimate": Resnet50V2Antepenultimate}[class_name]
+                    "Resnet50V2Antepenultimate": Resnet50V2Antepenultimate,
+                    "Resnet50_11k_classes": Resnet50_11k_classes}[class_name]
 
     return class_object(input_shape=input_shape)
 
@@ -62,6 +63,14 @@ class Resnet50V2(FeatureVectorModel):
         from tensorflow.keras.applications.resnet_v2 import preprocess_input
         return preprocess_input(images)
 
+class Resnet50_11k_classes(FeatureVectorModel):
+    def __init__(self, input_shape=(224, 224, 3)):
+        super().__init__(input_shape=input_shape)
+        Resnet50, self.preprocess_input_f = Classifiers.get('resnet50')
+        self.model = Resnet50(input_shape=input_shape, weights='imagenet11k-places365ch', include_top=False, classes= 11586)
+
+    def preprocess_input(self, images):
+        return self.preprocess_input_f(images)
 
 class Resnet50V2Antepenultimate(FeatureVectorModel):
     def __init__(self, input_shape=None):

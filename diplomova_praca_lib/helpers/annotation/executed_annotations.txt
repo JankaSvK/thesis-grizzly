@@ -65,3 +65,5 @@
 --images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_faces_july --feature_model=faces
 --images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_faces_july --feature_model=faces --batch_size=20
 --images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_faces_july --feature_model=faces --batch_size=20
+--images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_faces_july --feature_model=faces --batch_size=20
+--images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_faces_july --feature_model=faces --batch_size=20
