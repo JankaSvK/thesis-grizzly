@@ -82,13 +82,17 @@ class EvaluatingSpatially(EvaluationMechanism):
 
 
 class EvaluatingRegions(EvaluationMechanism):
-    def __init__(self, model, num_regions = None):
+    def __init__(self, model, num_regions = None, regions_size = None):
         self.model = model
         self.num_regions = num_regions
+        self.regions_size = regions_size
 
 
     def features(self, images):
-        crops = split_image_to_square_regions(region_size=self.model.input_shape, num_regions=self.num_regions)
+        if self.regions_size:
+            crops = split_image_to_square_regions(region_size=self.regions_size, num_regions=self.num_regions)
+        else:
+            crops = split_image_to_square_regions(region_size=self.model.input_shape, num_regions=self.num_regions)
 
         cropped_images = [crop_image(image, crop) for image in images for crop in crops]
         predictions = self.model.predict_on_images(cropped_images)

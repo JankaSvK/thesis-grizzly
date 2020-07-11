@@ -44,9 +44,18 @@ def main():
     elif args.feature_model == 'mobilenetv2antepenultimate':
         features_model = MobileNetV2Antepenultimate(input_shape=input_shape)
         evaluation_mechanism = EvaluatingSpatially(model=features_model)
+    elif args.feature_model == 'Resnet50_11k_classes' and num_regions:
+        features_model = Resnet50_11k_classes()
+        if args.input_size:
+            regions_size = (args.input_size, args.input_size, 3)
+        else:
+            regions_size = None
+        evaluation_mechanism = EvaluatingRegions(model=features_model, num_regions=num_regions,
+                                                 regions_size=regions_size)
     elif args.feature_model == 'Resnet50_11k_classes':
         features_model = Resnet50_11k_classes()
-        evaluation_mechanism = EvaluatingRegions(model=features_model, num_regions=num_regions)
+        evaluation_mechanism = EvaluatingWholeImage(model=features_model)
+
     elif args.feature_model == 'faces':
         evaluation_mechanism = EvaluatingFaces()
     else:
