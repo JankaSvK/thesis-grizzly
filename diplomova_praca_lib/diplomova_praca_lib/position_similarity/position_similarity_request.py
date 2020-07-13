@@ -54,6 +54,8 @@ class RegionsData:
 class Environment:
     def __init__(self):
         self.data = None
+        self.padding = None
+        self.initialized = False
 
     def available_images_in_dataset(self):
         if not self.data:
@@ -180,9 +182,10 @@ def environment_select(method: PositionMethod) -> Environment:
 
 def position_similarity_request(request: PositionSimilarityRequest) -> PositionSimilarityResponse:
     global regions_env
+    env = regions_env
     initialize_env('regions')
 
-    downloaded_images = download_and_preprocess(request.images, regions_env.model.input_shape)
+    downloaded_images = download_and_preprocess(request.images, regions_env.model.input_shape, padding=env.padding)
 
     if not downloaded_images:
         return PositionSimilarityResponse(ranked_paths=[])

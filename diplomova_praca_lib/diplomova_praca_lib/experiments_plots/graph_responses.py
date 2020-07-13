@@ -32,6 +32,7 @@ def graph_of_search_rank(results: Dict[str, List[int]], input_paths: List[str], 
 
         ranks_space = np.arange(num_images + 1)
         x = ranks_space / num_images
+        ranks = [r for r in ranks if r is not None]
         y = np.array([np.count_nonzero(ranks <= r) for r in ranks_space]) / len(ranks)
 
         ax.plot(x, y, label=func_name)

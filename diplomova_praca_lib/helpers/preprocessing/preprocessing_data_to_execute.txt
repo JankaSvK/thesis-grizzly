@@ -1,3 +1,5 @@
+--input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96 --output=750_Resnet50_11k_classes_5x3_96x96_preprocess_pca32 --transform --explained_ratio=32 --regions
+--input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96 --output=750_Resnet50_11k_classes_5x3_96x96_preprocess --transform --empty_pipeline --regions
 --input=/mnt/0/750_resnet50v2_5x3_96x96 --output=/mnt/0/750_resnet50v2_5x3_96x96_preprocess --transform --empty_pipeline --regions
 --input=/mnt/0/750_resnet50v2_5x3_96x96 --output=/mnt/0/750_resnet50v2_5x3_96x96_preprocess_pca32 --transform --regions --explained_ratio=32
 --input=/mnt/0/750_resnet50v2_antepenultimate --output=/mnt/0/750_resnet50v2_antepenultimate_preprocess --transform --empty_pipeline

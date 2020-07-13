@@ -26,7 +26,10 @@ class EvaluatingSpatially(EvaluationMechanism):
         :param features: 4D vector (batch, x, y, channels)
         :return: Average pool --> (batch, channels)
         """
-        return np.mean(features, axis=(1,2))
+        if features.ndim == 3:
+            return np.mean(features, axis=(0,1))
+        if features.ndim == 4:
+            return np.mean(features, axis=(1,2))
 
     @staticmethod
     def crop_features_vectors_to_query(query_crop: Crop, features_vectors):

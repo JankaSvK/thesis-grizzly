@@ -8,7 +8,6 @@ from typing import List
 from urllib.parse import urlparse
 
 import PIL
-import cv2
 import numpy as np
 import requests
 from PIL import Image
@@ -167,7 +166,8 @@ def download_image(image_src:str)-> PIL.Image:
         else:
             return image
 
-def resize_with_padding(img, expected_size):
+
+def resize_with_padding(img, expected_size, fill='black'):
     from PIL import ImageOps
 
     img.thumbnail((expected_size[0], expected_size[1]))
@@ -176,10 +176,16 @@ def resize_with_padding(img, expected_size):
     pad_width = delta_width // 2
     pad_height = delta_height // 2
     padding = (pad_width, pad_height, delta_width - pad_width, delta_height - pad_height)
-    return ImageOps.expand(img, padding)
+    expanded = ImageOps.expand(img, padding, fill=fill)
+    return expanded
 
-def download_and_preprocess(images, shape):
-    return [resize_with_padding(download_image(request_image.url), expected_size=shape) for request_image in images]
+
+def download_and_preprocess(images, shape, padding='black'):
+    if padding:
+        return [resize_with_padding(download_image(request_image.url), expected_size=shape, fill=padding)
+                for request_image in images]
+    else:
+        return download_and_resize(images, shape)
 
 def download_and_resize(images, shape):
     return [download_image(request_image.url).resize(shape[:2]) for request_image in images]

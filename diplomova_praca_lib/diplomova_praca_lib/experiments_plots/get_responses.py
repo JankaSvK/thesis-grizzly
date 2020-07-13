@@ -173,7 +173,7 @@ def experiments(id, queries_paths=None):
                                  np.max, 1)
     elif id == 6:
         return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess",
-                                 np.mean, 1)
+                                 np.mean, None)
 
     elif id == 7:
         return None
@@ -197,7 +197,7 @@ def experiments(id, queries_paths=None):
             r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess_pca08", np.min)
     elif id == 12:
         return FullImageExperiment(
-            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess", np.min)
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess", np.mean)
     elif id == 13:
         return RegionsExperiment(
             r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca64",
@@ -207,7 +207,7 @@ def experiments(id, queries_paths=None):
             r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca512",
             np.mean, 3)
     elif id == 15:
-        return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_sampled_40k", np.mean)
+        return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_sampled_40k", np.mean, files_limit=10)
     elif id == 16:
         return RegionsExperiment(
             r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_resnet50v2_5x3_96x96_preprocess_pca64",
@@ -238,7 +238,11 @@ def experiments(id, queries_paths=None):
             np.mean, 3, distance_func=euclidean_distances)
     elif id == 23:
         return RegionsExperiment(
-            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_resnet50v2_5x3_96x96_preprocess",
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_Resnet50_11k_classes_5x3_96x96_avg_pool_preprocess",
+            np.mean, 3, distance_func=cosine_distances)
+    elif id == 24:
+        return RegionsExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_Resnet50_11k_classes_5x3_96x96_avg_pool_preprocess",
             np.mean, 3, distance_func=cosine_distances)
     else:
         raise ValueError("Unknown experiment ID")
@@ -249,7 +253,7 @@ def main():
 
     requests = get_queries()
 
-    exps = [experiments(i) for i in [23]]
+    exps = [experiments(i) for i in [24]]
 
     for exp in exps:
         print(exp.__repr__())
