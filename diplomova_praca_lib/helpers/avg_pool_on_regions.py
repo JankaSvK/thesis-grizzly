@@ -12,10 +12,12 @@ parser.add_argument("--input", default=None, type=str)
 parser.add_argument('--output', default=None, type=str)
 args = parser.parse_args()
 
-args.input = r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_Resnet50_11k_classes_5x3_96x96"
-args.output =  r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_Resnet50_11k_classes_5x3_96x96_avg_pool"
-
 for file in Path(args.input).rglob("*.npz"):
+    save_location = Path(args.output, file.name)
+    if save_location.exists():
+        print("Skipping {}. Already present.".format(save_location))
+        continue
+
     data = np.load(str(file), allow_pickle=True)
 
     new_db_records = []
