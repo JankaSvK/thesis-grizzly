@@ -6,6 +6,8 @@ import numpy as np
 def main():
     dir = r"C:\Users\janul\Desktop\thesis_tmp_files\responses"
     for file in Path(dir).iterdir():
+        if file.is_dir():
+            continue
         data = np.load(str(file), allow_pickle=True)
         try:
             exp_repr = data['exp_repr']

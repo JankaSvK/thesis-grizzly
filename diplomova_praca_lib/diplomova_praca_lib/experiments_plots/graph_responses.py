@@ -39,7 +39,7 @@ def graph_of_search_rank(results: Dict[str, List[int]], input_paths: List[str], 
 
     ax.hlines(y=0.9, xmin=0, xmax=max(x), color = '0.75')
 
-    ax.set_title("Discovery Rate")
+    ax.set_title("Rank of searched image")
     ax.set_xlabel("Rank of searched image [%]")
     ax.set_ylabel("Requests [%]")
     ax.set_yticks(np.arange(0, 1.1, 0.1))
@@ -48,6 +48,7 @@ def graph_of_search_rank(results: Dict[str, List[int]], input_paths: List[str], 
     if save_plot:
         graph_dir = r"C:\Users\janul\Desktop\thesis_tmp_files\graphs"
         filename_hash = sha256(save_plot.encode('utf-8')).hexdigest()
+        print("saving plot", filename_hash)
         plt.savefig(Path(graph_dir, filename_hash + ".pdf"), bbox_inches='tight')
 
     plt.show()

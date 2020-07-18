@@ -1,3 +1,4 @@
+--images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_mobilenetv2_2ndtry_antepenultimate --feature_model=mobilenetv2antepenultimate --input_size=224
 --images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_Resnet50_11k_classes_5x3_96x96 --feature_model="Resnet50_11k_classes" --num_regions=3,5 --input_size=96 --batch_size=30
 --images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_faces_july --feature_model=faces --batch_size=20
 --images_dir=/mnt/0/first750/ --save_location=/mnt/0/750_resnet50v2_antepenultimate --feature_model=resnet50v2antepenultimate --input_size=224

@@ -180,7 +180,7 @@ def resize_with_padding(img, expected_size, fill='black'):
     return expanded
 
 
-def download_and_preprocess(images, shape, padding='black'):
+def download_and_preprocess(images, shape, padding=None):
     if padding:
         return [resize_with_padding(download_image(request_image.url), expected_size=shape, fill=padding)
                 for request_image in images]

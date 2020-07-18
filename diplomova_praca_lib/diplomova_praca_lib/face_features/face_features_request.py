@@ -30,7 +30,8 @@ class Environment:
             Environment.features_info.append(FaceCrop(src=path, crop=crop, idx=i_crop))
 
         self.som = SOM((50, 50), 128)
-        self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\50-50som_397times_dataset.pickle")
+        self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\som_45x45_01bigger_316videos.pickle")
+        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\50-50som_397times_dataset.pickle")
         self.som.set_representatives(Environment.features)
 
         # self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")

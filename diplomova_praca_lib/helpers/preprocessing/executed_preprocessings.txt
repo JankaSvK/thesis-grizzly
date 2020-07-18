@@ -109,3 +109,15 @@
 33512: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96 --output=750_Resnet50_11k_classes_5x3_96x96_preprocess --transform --empty_pipeline --regions
 33513: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96 --output=750_Resnet50_11k_classes_5x3_96x96_preprocess_pca32 --transform --explained_ratio=32 --regions
 33514: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96 --output=750_Resnet50_11k_classes_5x3_96x96_preprocess --transform --empty_pipeline --regions
+33531: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_avg_pool --output=750_Resnet50_11k_classes_5x3_96x96_preprocess_pca32 --transform --explained_ratio=32 --regions
+33534: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_avg_pool --output=750_Resnet50_11k_classes_5x3_96x96_preprocess --transform --empty_pipeline --regions
+33538: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_avg_pool --output=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess_pca32 --transform --explained_ratio=32 --regions
+33540: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_avg_pool --output=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess --transform --empty_pipeline --regions
+33752: --input=/mnt/0/750_mobilenetv2_3x2_128x128 --output=/mnt/0/750_mobilenetv2_3x2_128x128_preprocess --transform --empty_pipeline --regions
+33753: --input=/mnt/0/750_mobilenetv2_4x2_128x128 --output=/mnt/0/750_mobilenetv2_4x2_128x128_preprocess --transform --empty_pipeline --regions
+33754: --input=/mnt/0/750_mobilenetv2_3x2_160x160 --output=/mnt/0/750_mobilenetv2_3x2_160x160_preprocess --transform --empty_pipeline --regions
+33779: --input=/mnt/0/750_resnet50v2_antepenultimate --output=/mnt/0/750_resnet50v2_antepenultimate_preprocess --transform --empty_pipeline
+33797: --input=/mnt/0/750_mobilenetv2_2nd_try_antepenultimate --output=/mnt/0/750_mobilenetv2_2ndtry_antepenultimate_preprocess --transform --empty_pipeline
+33867: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca8 --transform --regions --explained_ratio=8
+33868: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca16 --transform --regions --explained_ratio=16
+33869: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca32 --transform --regions --explained_ratio=32

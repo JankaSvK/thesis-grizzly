@@ -103,8 +103,8 @@ class MobileNetV2(FeatureVectorModel):
 class MobileNetV2Antepenultimate(FeatureVectorModel):
     def __init__(self, input_shape=(50, 50, 3)):
         super().__init__(input_shape=input_shape)
-        self.model = tensorflow.keras.applications.mobilenet_v2.MobileNetV2(weights='imagenet', pooling=None,
-                                                                            include_top=False, input_shape=input_shape)
+        self.model = tensorflow.keras.applications.mobilenet_v2.MobileNetV2(weights='imagenet', include_top=False,
+                                                                            input_shape=input_shape)
 
     def preprocess_input(self, images):
         from tensorflow.keras.applications.mobilenet_v2 import preprocess_input

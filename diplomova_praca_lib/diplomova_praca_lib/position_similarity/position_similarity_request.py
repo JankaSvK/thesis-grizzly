@@ -4,7 +4,9 @@ from collections import defaultdict
 from typing import Dict, List, Tuple, Optional, Set
 
 import numpy as np
+import tensorflow
 from sklearn.metrics.pairwise import cosine_distances
+from tensorflow.python.keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D
 
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingSpatially
 from diplomova_praca_lib.position_similarity.feature_vector_models import model_factory
@@ -96,6 +98,7 @@ class SpatialEnvironment(Environment):
         self.data_path = data_path
         self.initialized = False
         self.files_limit = None
+        self.full_image = False
 
     def init(self, **kwargs):
         if self.initialized:
@@ -143,8 +146,8 @@ class WholeImageEnvironment(Environment):
 
 regions_env = RegionsEnvironment(
     r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_resnet50v2_5x3_96x96_preprocess_pca32_onefile")
-spatial_env = SpatialEnvironment(
-    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_sampled_10k")
+spatial_env = SpatialEnvironment(None)
+    # r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_sampled_10k")
 
 # whole_image_env = WholeImageEnvironment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess_pca08")
 whole_image_env = WholeImageEnvironment(
@@ -184,7 +187,6 @@ def position_similarity_request(request: PositionSimilarityRequest) -> PositionS
     global regions_env
     env = regions_env
     initialize_env('regions')
-
     downloaded_images = download_and_preprocess(request.images, regions_env.model.input_shape, padding=env.padding)
 
     if not downloaded_images:
@@ -220,7 +222,11 @@ def position_similarity_request(request: PositionSimilarityRequest) -> PositionS
 
     images_with_crop_distances = list(images_with_crop_distances.items())
 
-    ranked_results = [img_idx for img_idx, _ in
+
+    if regions_env.ranking_func.__name__ == "mean_with_threshold":
+        ranked_results = [img_idx for img_idx, _ in regions_env.ranking_func(images_with_crop_distances)]
+    else:
+        ranked_results = [img_idx for img_idx, _ in
                       RankingMechanism.rank_func(images_with_crop_distances, func=regions_env.ranking_func)]
 
     matched_paths = [regions_env.regions_data.unique_src_paths_list[match] for match in ranked_results]
@@ -298,10 +304,11 @@ def whole_image_similarity_request(request: PositionSimilarityRequest) -> Positi
 
 def spatial_similarity_request(request: PositionSimilarityRequest):
     global spatial_env
+    env = spatial_env
+    env.padding = None
     initialize_env('spatial')
 
-    # downloaded_images = download_and_preprocess(request.images, spatial_env.model.input_shape)
-    downloaded_images = download_and_resize(request.images, spatial_env.model.input_shape)
+    downloaded_images = download_and_preprocess(request.images, spatial_env.model.input_shape, padding=env.padding)
 
     if not downloaded_images:
         return PositionSimilarityResponse(ranked_paths=[])
@@ -310,13 +317,14 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
     if 'enhance_dims' in spatial_env.preprocessing.named_steps:
         spatial_env.preprocessing.steps[-1][1].set_params(kw_args={"shape": images_features.shape[1:-1]})
     images_features = spatial_env.preprocessing.transform(images_features)
-    images_features = EvaluatingSpatially.avg_pool(images_features)
+    images_features = GlobalAveragePooling2D()(images_features).numpy()
 
     rankings_per_query_image = []  # type: List[Tuple[List[int], List[float]]]
     for image_info, image_features in zip(request.images, images_features):
         db_features = spatial_env.features
-        db_features = EvaluatingSpatially.crop_features_vectors_to_query(image_info.crop, db_features)
-        db_features = EvaluatingSpatially.avg_pool(db_features)
+        if not env.full_image:
+            db_features = EvaluatingSpatially.crop_features_vectors_to_query(image_info.crop, db_features)
+        db_features = GlobalAveragePooling2D()(db_features).numpy()
 
         closest_images, distances = closest_match(image_features, db_features, distance=cosine_distances)
         rankings_per_query_image.append((closest_images, distances))

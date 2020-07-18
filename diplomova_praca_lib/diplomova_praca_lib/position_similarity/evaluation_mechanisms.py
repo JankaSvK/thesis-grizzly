@@ -16,7 +16,7 @@ class EvaluatingSpatially(EvaluationMechanism):
 
     def features(self, images):
         # type: (List[PIL.Image]) -> np.ndarray
-        return self.model.predict(normalized_images(images))
+        return self.model.predict_on_images(images)
 
     @staticmethod
     def avg_pool(features):
@@ -55,6 +55,21 @@ class EvaluatingSpatially(EvaluationMechanism):
                 ymax += 1
             elif ymin - 1 >= 0:
                 ymin -= 1
+
+        # Average pooling at least over two items
+        # if ymax - ymin == 1 and xmax - xmin == 1:
+        #     if query_crop.width > query_crop.height:
+        #         # Increase +1 in height
+        #         if ymin != 0:
+        #             ymin -= 1
+        #         else:
+        #             ymax += 1
+        #     else:
+        #         # Increase +1 in width
+        #         if xmin != 0:
+        #             xmin -= 1
+        #         else:
+        #             xmax += 1
 
         subimage_features = features_vectors[:, ymin:ymax, xmin:xmax, :]
         return subimage_features
