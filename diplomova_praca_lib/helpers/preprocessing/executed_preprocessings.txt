@@ -121,3 +121,13 @@
 33867: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca8 --transform --regions --explained_ratio=8
 33868: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca16 --transform --regions --explained_ratio=16
 33869: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca32 --transform --regions --explained_ratio=32
+33873: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess --output=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess_pca128 --transform --explained_ratio=128 --regions
+33874: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess --output=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess_pca128 --transform --explained_ratio=128 --regions
+33875: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess --output=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess_pca128 --transform --explained_ratio=128 --regions
+33876: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca8 --transform --regions --explained_ratio=8
+33877: --input=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_avg_pool --output=/mnt/0/750_Resnet50_11k_classes_5x3_96x96_preprocess_pca128 --transform --explained_ratio=128 --regions
+33878: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca8 --transform --regions --explained_ratio=8
+33879: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca16 --transform --regions --explained_ratio=16
+33880: --input=/mnt/0/750_mobilenetv2_5x3_96x96 --output=/mnt/0/750_mobilenetv2_5x3_96x96_preprocess_pca32 --transform --regions --explained_ratio=32
+33881: --input=/mnt/0/750_mobilenetv2_2nd_try_antepenultimate --output=/mnt/0/750_mobilenetv2_2ndtry_antepenultimate_preprocess --transform --empty_pipeline
+33882: --input=/mnt/0/750_mobilenetv2_3x2_128x128 --output=/mnt/0/750_mobilenetv2_3x2_128x128_preprocess --transform --empty_pipeline --regions

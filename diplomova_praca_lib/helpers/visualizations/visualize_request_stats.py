@@ -17,6 +17,8 @@ def num_queries_in_request_plot(requests):
     x_ticks = range(min(num_queries), max(num_queries) + 1)
     y_ticks = [num_queries.count(x) for x in x_ticks]
 
+    print("images placed", sum(num_queries))
+
     plt.rcParams.update({'font.size': 14})
     plt.bar(x_ticks, y_ticks)
     plt.xlabel('Number of images in collage')
@@ -40,7 +42,7 @@ def queries_size(requests):
 
     sns.set()
     sns.set(font_scale=1.2)
-    sns.distplot(crops_sizes)
+    sns.distplot(crops_sizes, kde=False)
     plt.ylabel('Number of queries')
     plt.xlabel('Ratio of area covered')
     plt.title("Relative size of the queries")

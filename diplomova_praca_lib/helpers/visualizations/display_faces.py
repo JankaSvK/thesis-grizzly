@@ -1,3 +1,4 @@
+import random
 from pathlib import Path
 
 import numpy as np
@@ -26,10 +27,20 @@ def make_array(idxs, images_path, paths, crops):
         image = Image.open(path).convert('RGB')
         crop = crops[i]
 
-        image = image.crop(
-            (crop.left * image.width, crop.top * image.height, crop.right * image.width, crop.bottom * image.height))
+        crop.left = max(0, crop.left - 0.05)
+        crop.top = max(0, crop.top - 0.05)
+        crop.bottom = min(1, crop.bottom + 0.05)
+        crop.right = min(1, crop.right + 0.05)
 
-        image = image.resize((70, 70))
+        # w = min(crop.width, crop.height)
+        # w *= image.width/image.height
+
+        image = image.crop(
+            (crop.left * image.width, crop.top * image.height, (crop.left + crop.width) * image.width, (crop.top + crop.height) * image.height))
+            # (crop.left * w, crop.top * w, crop.right * w, crop.bottom * w))
+
+        # print(image.size)
+        image = image.resize((150, 150))
         res.append(np.asarray(image))
 
     return np.array(res)
@@ -38,6 +49,7 @@ def main():
     images_path = r"C:\Users\janul\Desktop\thesis\images\selected_frames_first750"
     dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos"
     # dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_representatives"
+
 
     data = np.load(Path(dataset, "faces.npz"), allow_pickle=True)
     paths, crops, features = data['paths'], data['crops'], data['features']
@@ -50,11 +62,18 @@ def main():
         # plt.imshow(result)
         # plt.show()
 
-    random_idxs = np.random.choice(len(paths), size=32, replace=False)
+    np.random.seed(42)
+    random_idxs = np.random.choice(len(paths), size=100, replace=False)
+    print(list(random_idxs))
     array = make_array(random_idxs, images_path, paths, crops)
-    result = gallery(array)
+    result = gallery(array, ncols=10)
+
+    plt.figure(num=None, figsize=(8, 6), dpi=300, facecolor='w', edgecolor='k')
+
     plt.imshow(result)
+    plt.savefig("random_faces.pdf", bbox_inches='tight')
     plt.show()
+
 
 
 if __name__ == '__main__':

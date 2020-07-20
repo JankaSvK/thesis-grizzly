@@ -374,7 +374,18 @@ def experiments(id, queries_paths=None):
     elif id == 57:
         return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca32",
                                  np.mean, 1)
-
+    elif id == 58:
+        return RegionsExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_Resnet50_11k_classes_5x3_96x96_preprocess_pca128",
+            np.mean, 1)
+    elif id == 59:
+        return RegionsExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_resnet50v2_5x3_96x96_preprocess_pca128",
+            np.mean, 1)
+    elif id == 60:
+        return RegionsExperiment(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess_pca128",
+            np.mean, 1)
     else:
         raise ValueError("Unknown experiment ID")
 
@@ -384,7 +395,7 @@ def main():
 
     requests = get_queries()
 
-    exps = [experiments(i) for i in [55,56,57]]
+    exps = [experiments(i) for i in [58, 59, 60]]
 
     for exp in exps:
         try:
