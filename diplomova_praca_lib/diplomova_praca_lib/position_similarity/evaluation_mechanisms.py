@@ -3,8 +3,7 @@ from typing import List
 import PIL
 import numpy as np
 
-from diplomova_praca_lib.image_processing import normalized_images, \
-    split_image_to_square_regions, crop_image
+from diplomova_praca_lib.image_processing import split_image_to_square_regions, crop_image
 from diplomova_praca_lib.models import EvaluationMechanism
 from diplomova_praca_lib.position_similarity.models import RegionFeatures, Crop
 

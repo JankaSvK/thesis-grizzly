@@ -35,8 +35,8 @@ def main():
 
         image = image.resize((70, 70))
         images.append(image)
-
-    # faces_to_display = make_array(idxs, images_path, paths, crops)
+    #
+    # faces_to_display = make_array(idxs[:12], images_path, paths, crops)
     # result = gallery(faces_to_display, ncols=6)
     # plt.imshow(result)
     # plt.show()

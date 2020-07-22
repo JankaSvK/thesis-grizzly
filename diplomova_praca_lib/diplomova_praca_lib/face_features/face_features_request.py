@@ -18,6 +18,7 @@ class Environment:
     features_info = []
     features = []
     som = None
+    use_random_grid = True
 
     def __init__(self, data_path):
         data = FileStorage.load_multiple_files_multiple_keys(path=data_path, retrieve_merged=['features', 'crops', 'paths'])
@@ -34,6 +35,15 @@ class Environment:
         # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\50-50som_397times_dataset.pickle")
         self.som.set_representatives(Environment.features)
 
+        if self.use_random_grid:
+            # self.som.representatives = []
+            max_display_width = 20
+            random_grid = np.arange(len(self.features))
+            if len(random_grid) % max_display_width:
+                suffix = np.ones(max_display_width - len(random_grid) % max_display_width, dtype=np.int32) * random_grid[-1]
+                random_grid = np.concatenate([random_grid, suffix])
+            self.som.representatives = random_grid.reshape(-1, max_display_width)
+
         # self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")
 
     def train_som(self, shape, epochs):
@@ -46,8 +56,8 @@ class Environment:
 
 
 # database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces"))
-env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\transformed_face_features")
-
+# env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\transformed_face_features")
+env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos")
 class Action(Enum):
     NONE = 0
     LEFT = 1

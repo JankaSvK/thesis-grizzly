@@ -18,10 +18,10 @@ class Crop:
     def __init__(self, left, top,  width=None, height=None, right=None, bottom=None):
         self.top = top
         self.left = left
-        if width and height:
+        if width is not None and height is not None:
             self.width = width
             self.height = height
-        if bottom and right:
+        if bottom is not None and right is not None:
             self.bottom = bottom
             self.right = right
 

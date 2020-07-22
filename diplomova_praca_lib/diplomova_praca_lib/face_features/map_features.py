@@ -2,7 +2,7 @@ import typing
 from pathlib import Path
 
 import numpy as np
-import sklearn
+from sklearn import metrics
 from minisom import MiniSom
 
 from diplomova_praca_lib.face_features.models import FaceView
@@ -81,7 +81,8 @@ class SOM:
         """
         For each weight in weights find closest feature out of features (returns its index).
         """
-        return np.argmin(sklearn.metrics.pairwise.cosine_distances(weights, features), axis=1)
+        return np.argmin(metrics.pairwise.cosine_distances(weights, features), axis=1)
+        # return np.argmin(metrics.pairwise.euclidean_distances(weights, features), axis=1)
 
 
     @staticmethod
