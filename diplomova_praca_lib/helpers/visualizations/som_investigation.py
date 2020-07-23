@@ -11,7 +11,16 @@ def main():
     data = FileStorage.load_multiple_files_multiple_keys(path=data_path, retrieve_merged=['features', 'crops', 'paths'])
     features, paths, crops = data['features'], data['paths'], data['crops']
     som = SOM((50, 50), 128)
-    som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\som_45x45_01bigger_316videos.pickle")
+    # som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\som_45x45_01bigger_316videos.pickle")
+    # som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\somky\somcosine;61410.pickle")
+    # som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\somky\somcosine;200000.pickle")
+    # som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_2M\som-cosine,1990000-2000000.pickle")
+    # som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_50+50+50\som-cosine,50000-50000.pickle")
+
+    som.som = load_from_file(
+        r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\euclidean\200k-original\som-euclidean,200000-200000.pickle")
+    # som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_50+50+50+50+50\som-cosine,50000-50000.pickle")
+
     som.set_representatives(features)
 
     present_frames = np.unique(som.representatives.flatten())
@@ -39,7 +48,7 @@ def main():
             distances.append(np.linalg.norm(features[face_id] - features[missing_id]))
         min_distance.append(np.min(distances))
 
-    filt = [i for i in min_distance if i > 0.4]
+    filt = [i for i in min_distance if i > 0.45]
 
     print(len(filt))
     print(max(min_distance))

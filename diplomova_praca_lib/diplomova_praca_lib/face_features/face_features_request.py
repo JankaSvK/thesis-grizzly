@@ -18,7 +18,7 @@ class Environment:
     features_info = []
     features = []
     som = None
-    use_random_grid = True
+    use_random_grid = False
 
     def __init__(self, data_path):
         data = FileStorage.load_multiple_files_multiple_keys(path=data_path, retrieve_merged=['features', 'crops', 'paths'])
@@ -31,8 +31,14 @@ class Environment:
             Environment.features_info.append(FaceCrop(src=path, crop=crop, idx=i_crop))
 
         self.som = SOM((50, 50), 128)
-        self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\som_45x45_01bigger_316videos.pickle")
-        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\pretrained_som\50-50som_397times_dataset.pickle")
+        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\som_45x45_01bigger_316videos.pickle")
+        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\somky\somcosine;61410.pickle")
+        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\somky\somcosine;200000.pickle")
+        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_2M\som-cosine,10000-2000000.pickle")
+        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_50k\som-cosine,50000-50000.pickle")
+        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_50+50+50+50+50\som-cosine,50000-50000.pickle")
+        self.som.som = load_from_file(
+            r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\euclidean\200k-original\som-euclidean,200000-200000.pickle")
         self.som.set_representatives(Environment.features)
 
         if self.use_random_grid:

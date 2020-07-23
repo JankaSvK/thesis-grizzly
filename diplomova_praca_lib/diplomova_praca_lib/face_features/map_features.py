@@ -81,8 +81,8 @@ class SOM:
         """
         For each weight in weights find closest feature out of features (returns its index).
         """
-        return np.argmin(metrics.pairwise.cosine_distances(weights, features), axis=1)
-        # return np.argmin(metrics.pairwise.euclidean_distances(weights, features), axis=1)
+        # return np.argmin(metrics.pairwise.cosine_distances(weights, features), axis=1)
+        return np.argmin(metrics.pairwise.euclidean_distances(weights, features), axis=1)
 
 
     @staticmethod

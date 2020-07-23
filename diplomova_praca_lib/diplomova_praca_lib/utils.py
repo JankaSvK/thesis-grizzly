@@ -83,6 +83,7 @@ def timestamp_directory(path_prefix):
     return new_dir_path
 
 def dump_to_file(path, object):
+    Path(path.parents[0]).mkdir(parents=True, exist_ok=True)
     import pickle
     with open(path, 'wb') as handle:
         pickle.dump(object, handle, protocol=pickle.HIGHEST_PROTOCOL)

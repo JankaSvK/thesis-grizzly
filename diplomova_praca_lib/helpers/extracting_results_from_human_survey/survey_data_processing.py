@@ -106,7 +106,7 @@ def main():
     plt.xlabel("k")
     plt.ylabel("p(k)")
     plt.ylim(0, 0.3)
-    plt.savefig(Path(graph_dir, "survey_distribution_without_the_easy.pdf"))
+    # plt.savefig(Path(graph_dir, "survey_distribution_without_the_easy.pdf"))
     plt.show()
 
     plt.plot(np.cumsum(summed), label="Proposed features")
@@ -115,7 +115,7 @@ def main():
     plt.xlabel("Rank")
     plt.ylabel("E[number of selected images]")
     plt.legend(loc='lower right')
-    plt.savefig(Path(graph_dir, "survey_cumsum_without_the_easy.pdf"))
+    # plt.savefig(Path(graph_dir, "survey_cumsum_without_the_easy.pdf"))
     plt.show()
 
     xall_assignments = np.array(all_assignments)[(1, 3, 6, 7, 8, 9), :]
@@ -126,8 +126,8 @@ def main():
     plt.xlabel("k")
     plt.ylabel("p(k)")
     plt.ylim(0, 0.3)
-    plt.savefig(Path(graph_dir, "survey_distribution_childless.pdf"))
-    # plt.show()
+    # plt.savefig(Path(graph_dir, "survey_distribution_childless.pdf"))
+    plt.show()
 
     xall_assignments = np.array(all_assignments)[:, :]
     summed = np.sum(xall_assignments, axis=0)
@@ -136,8 +136,8 @@ def main():
     plt.bar(np.arange(len(summed)), summed, 1)
     plt.xlabel("k")
     plt.ylabel("p(k)")
-    plt.savefig(Path(graph_dir, "survey_distribution_all.pdf"), bbox_inches='tight')
-    # plt.show()
+    # plt.savefig(Path(graph_dir, "survey_distribution_all.pdf"), bbox_inches='tight')
+    plt.show()
 
 
 if __name__ == '__main__':
