@@ -5,7 +5,7 @@ from pathlib import Path
 from diplomova_praca_lib.utils import Memoize
 
 # THUMBNAILS_PATH = os.path.join("static", "images", "lookup", "thumbnails")
-THUMBNAILS_PATH = os.path.join("static", "image_representations", "images")
+THUMBNAILS_PATH = os.path.join("static", "AAAimage_representations", "images")
 FEATURES_PATH = os.path.join("static", "image_representations")
 
 @Memoize
@@ -25,7 +25,7 @@ def dir_files(dir:Path):
     return [path for path in dir.rglob('*.jpg')]
 
 def random_image_path():
-    if not available_images:
+    if not available_images():
         return None
     return Path("/", random.choice(available_images()))
 
