@@ -18,9 +18,13 @@ from diplomova_praca_lib.utils import load_from_file, closest_match, Serializabl
 class Environment:
     features_info = []
     features = []
+    paths = []
     som = None
     use_random_grid = False
     initialized = False
+
+    def available_images():
+        return set(Environment.paths)
 
     def __init__(self, data_path, som_path):
         data = FileStorage.load_multiple_files_multiple_keys(path=data_path, retrieve_merged=['features', 'crops', 'paths'])

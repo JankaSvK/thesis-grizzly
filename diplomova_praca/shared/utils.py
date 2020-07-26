@@ -5,7 +5,7 @@ from pathlib import Path
 from diplomova_praca_lib.utils import Memoize
 
 # THUMBNAILS_PATH = os.path.join("static", "images", "lookup", "thumbnails")
-THUMBNAILS_PATH = os.path.join("static", "AAAimage_representations", "images")
+THUMBNAILS_PATH = os.path.join("static", "image_representations", "images")
 FEATURES_PATH = os.path.join("static", "image_representations")
 
 @Memoize

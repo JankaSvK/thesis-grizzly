@@ -1,18 +1,26 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
-from diplomova_praca_lib.face_features.face_features_request import TreeView, images_with_closest_faces
+from diplomova_praca_lib.face_features.face_features_request import TreeView, images_with_closest_faces, Environment
 from diplomova_praca_lib.face_features.models import ClosestFacesRequest
 from diplomova_praca_lib.position_similarity.models import Crop
 from face_features.models import FaceFeaturesSubmission
-from shared.utils import thumbnail_path, random_image_path
-
-THUMBNAILS_PATH = "images/lookup/thumbnails/"
+from shared.utils import thumbnail_path, random_image_path, random_subset_image_path
 
 @csrf_exempt
 def index(request):
-    context = {"search_image": random_image_path().as_posix()}
+    subset_images_available = Environment.available_images()
+
+    if subset_images_available is None:
+        query = random_image_path()
+    else:
+        query = random_subset_image_path(subset_images_available)
+
+    if query is None:
+        return HttpResponseNotFound("Could not load any images.")
+
+    context = {"search_image": query.as_posix()}
     return render(request, 'face_features/index.html', context)
 
 
