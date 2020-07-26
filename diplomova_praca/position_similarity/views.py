@@ -1,7 +1,7 @@
 import json
 import logging
 
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 
@@ -29,6 +29,9 @@ def position_similarity(request):
         query = random_image_path()
     else:
         query = random_subset_image_path(subset_images_available)
+
+    if query is None:
+        return HttpResponseNotFound("Could not load any images.")
 
     context = {"search_image": query.as_posix()}
     return render(request, 'position_similarity/index.html', context)
