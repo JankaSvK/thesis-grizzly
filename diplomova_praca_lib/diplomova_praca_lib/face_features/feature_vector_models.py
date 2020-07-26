@@ -16,7 +16,7 @@ class EvaluatingFaces(EvaluationMechanism):
         image_height, image_width = images_np_array[0].shape[
                                     :2]  # All images need to be same size, otherwise dont use batch
         batch_face_locations = face_recognition.batch_face_locations(images_np_array, batch_size=len(images),
-                                                                     number_of_times_to_upsample=2)
+                                                                     number_of_times_to_upsample=1)
 
         detections = []
         for face_locations, image in zip(batch_face_locations, images_np_array):
