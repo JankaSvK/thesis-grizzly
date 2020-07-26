@@ -22,7 +22,7 @@ class Environment:
     use_random_grid = False
     initialized = False
 
-    def __init__(self, data_pathm, som_path):
+    def __init__(self, data_path, som_path):
         data = FileStorage.load_multiple_files_multiple_keys(path=data_path, retrieve_merged=['features', 'crops', 'paths'])
 
         if not data:
