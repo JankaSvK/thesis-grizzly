@@ -31,12 +31,6 @@ class Environment:
             Environment.features_info.append(FaceCrop(src=path, crop=crop, idx=i_crop))
 
         self.som = SOM((50, 50), 128)
-        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\som_45x45_01bigger_316videos.pickle")
-        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\somky\somcosine;61410.pickle")
-        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\somky\somcosine;200000.pickle")
-        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_2M\som-cosine,10000-2000000.pickle")
-        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_50k\som-cosine,50000-50000.pickle")
-        # self.som.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\cosine_50+50+50+50+50\som-cosine,50000-50000.pickle")
         self.som.som = load_from_file(
             r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\euclidean\200k-original\som-euclidean,200000-200000.pickle")
         self.som.set_representatives(Environment.features)

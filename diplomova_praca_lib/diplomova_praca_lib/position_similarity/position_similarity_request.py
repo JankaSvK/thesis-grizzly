@@ -71,7 +71,7 @@ class RegionsEnvironment(Environment):
         self.data_path = data_path
         self.ranking_func = ranking_func
         self.initialized = False
-        self.maximum_related_crops = 4
+        self.maximum_related_crops = 1
         self.distance_func = distance_func
 
     def init(self):
@@ -83,6 +83,12 @@ class RegionsEnvironment(Environment):
         self.data = FileStorage.load_multiple_files_multiple_keys(path=self.data_path,
                                                                   retrieve_merged=['features', 'crops', 'paths'],
                                                                   retrieve_once=['pipeline', 'model'])
+
+        if not self.data:
+            print("Data for Regions do not contain the correct information. Environment not initialized.")
+            self.initialized = False
+            return
+
         self.preprocessing = pickle.loads(self.data['pipeline'])
         self.model = model_factory(str(self.data['model']))
         self.data['features'] = np.array(self.data['features'])
@@ -110,6 +116,11 @@ class SpatialEnvironment(Environment):
                                                                   retrieve_merged=['features', 'paths'],
                                                                   retrieve_once=['pipeline', 'model'],
                                                                   num_files_limit=self.files_limit, **kwargs)
+        if not self.data:
+            print("Data for Spatial do not contain the correct information. Environment not initialized.")
+            self.initialized = False
+            return
+
         self.preprocessing = pickle.loads(self.data['pipeline'])
         self.model = model_factory(str(self.data['model']))
         self.data['features'] = np.array(self.data['features'])
@@ -143,15 +154,9 @@ class WholeImageEnvironment(Environment):
     def model_title(self):
         return str(self.data['model'])
 
-
-regions_env = RegionsEnvironment(
-    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_resnet50v2_5x3_96x96_preprocess_pca32_onefile")
-spatial_env = SpatialEnvironment(None)
-    # r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_sampled_10k")
-
-# whole_image_env = WholeImageEnvironment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess_pca08")
-whole_image_env = WholeImageEnvironment(
-    r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess")
+regions_env = None
+spatial_env = None
+whole_image_env = None
 
 def initialize_env(env):
     global regions_env, spatial_env, whole_image_env

@@ -18,6 +18,10 @@ class FileStorage(Storage):
     @staticmethod
     def load_multiple_files_multiple_keys(path, retrieve_merged=None, retrieve_once=None, filename_regex="*.npz",
                                           num_files_limit=None, key_filter: Optional[Tuple[str, List[str]]] = None):
+        if not path:
+            print("Path can't be empty.")
+            return {}
+
         if not retrieve_once:
             retrieve_once = []
         if not retrieve_merged:

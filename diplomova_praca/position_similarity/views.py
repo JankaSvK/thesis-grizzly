@@ -24,7 +24,11 @@ def position_similarity(request):
     initialize_env('regions')
 
     subset_images_available = available_images(default_method)
-    query = random_subset_image_path(subset_images_available)
+
+    if subset_images_available is None:
+        query = random_image_path()
+    else:
+        query = random_subset_image_path(subset_images_available)
 
     context = {"search_image": query.as_posix()}
     return render(request, 'position_similarity/index.html', context)

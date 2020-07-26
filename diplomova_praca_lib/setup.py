@@ -4,7 +4,7 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="diplomova-praca-jankasvk",  # Replace with your own username
+    name="diplomova-praca-jankasvk",
     version="0.0.1",
     author="Jana Bátoryová",
     author_email="janulik11@gmail.com",
@@ -22,10 +22,10 @@ setuptools.setup(
     entry_points={'console_scripts': ['annotate_images=diplomova_prace_lib.annotate_images:main'], },
     install_requires=[
         'tensorflow>=2.0',
-        'face-recognition',
+        # 'face-recognition',
         'Pillow',
         'numpy',
-        'opencv-python',
+        # 'opencv-python',
         'scikit-learn',
         'MiniSom'
     ]

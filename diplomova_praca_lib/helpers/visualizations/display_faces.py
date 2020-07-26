@@ -8,6 +8,8 @@ from PIL import Image
 import numpy as np
 import matplotlib.pyplot as plt
 
+from helpers.visualizations.visualize_request_stats import save_plot
+
 
 def gallery(array, ncols=8):
     nindex, height, width, intensity = array.shape
@@ -47,12 +49,32 @@ def make_array(idxs, images_path, paths, crops):
 
 def main():
     images_path = r"C:\Users\janul\Desktop\thesis\images\selected_frames_first750"
+    # dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos"
     dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos"
+    # dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_316videos"
     # dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_representatives"
 
 
     data = np.load(Path(dataset, "faces.npz"), allow_pickle=True)
     paths, crops, features = data['paths'], data['crops'], data['features']
+
+    crops_sizes = [c.width * c.height for c in crops]
+    import seaborn as sns
+    sns.distplot(crops_sizes, kde=False, bins=np.linspace(0, 1, 21))
+    plt.xlim(0,0.8)
+    plt.xlabel("Area of image covered by a face")
+    plt.ylabel("Number of faces")
+    save_plot(plt, "faces_size_distribution")
+    plt.show()
+
+
+    # xs,ys = [],[]
+    # for i, c_size in enumerate(sorted(crops_sizes)):
+    #     xs.append(c_size)
+    #     ys.append((i + 1) / len(crops_sizes))
+    #
+    # plt.plot(xs, ys)
+    # plt.show()
 
     chunk_size = 32
     for i in range(len(paths) // chunk_size):
@@ -65,6 +87,7 @@ def main():
     np.random.seed(42)
     random_idxs = np.random.choice(len(paths), size=100, replace=False)
     print(list(random_idxs))
+    print(paths[random_idxs])
     array = make_array(random_idxs, images_path, paths, crops)
     result = gallery(array, ncols=10)
 
