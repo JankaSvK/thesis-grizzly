@@ -25,7 +25,7 @@ def position_similarity(request):
 
     subset_images_available = available_images(default_method)
 
-    if subset_images_available is None:
+    if not subset_images_available:
         query = random_image_path()
     else:
         query = random_subset_image_path(subset_images_available)

@@ -12,7 +12,7 @@ from shared.utils import thumbnail_path, random_image_path, random_subset_image_
 def index(request):
     subset_images_available = Environment.available_images()
 
-    if subset_images_available is None:
+    if not subset_images_available:
         query = random_image_path()
     else:
         query = random_subset_image_path(subset_images_available)
