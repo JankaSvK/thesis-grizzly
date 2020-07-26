@@ -2,6 +2,7 @@ import collections
 import pickle
 from bisect import bisect_left
 from enum import Enum
+from pathlib import Path
 from typing import List
 
 import numpy as np
@@ -19,9 +20,15 @@ class Environment:
     features = []
     som = None
     use_random_grid = False
+    initialized = False
 
-    def __init__(self, data_path):
+    def __init__(self, data_pathm, som_path):
         data = FileStorage.load_multiple_files_multiple_keys(path=data_path, retrieve_merged=['features', 'crops', 'paths'])
+
+        if not data:
+            print("Data for faces could not be obtined.")
+            return
+
         Environment.features = data['features']
         Environment.paths = data['paths']
         Environment.crops = data['crops']
@@ -31,8 +38,12 @@ class Environment:
             Environment.features_info.append(FaceCrop(src=path, crop=crop, idx=i_crop))
 
         self.som = SOM((50, 50), 128)
-        self.som.som = load_from_file(
-            r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\euclidean\200k-original\som-euclidean,200000-200000.pickle")
+
+        if not Path(som_path).exists():
+            print("Underlying SOM data not found.")
+            return
+
+        self.som.som = load_from_file(som_path)
         self.som.set_representatives(Environment.features)
 
         if self.use_random_grid:
@@ -43,6 +54,8 @@ class Environment:
                 suffix = np.ones(max_display_width - len(random_grid) % max_display_width, dtype=np.int32) * random_grid[-1]
                 random_grid = np.concatenate([random_grid, suffix])
             self.som.representatives = random_grid.reshape(-1, max_display_width)
+
+        self.initialized = True
 
         # self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")
 
@@ -57,7 +70,10 @@ class Environment:
 
 # database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces"))
 # env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\transformed_face_features")
-env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos")
+# env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos")
+# som_path = r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\euclidean\200k-original\som-euclidean,200000-200000.pickle"
+
+env = None
 class Action(Enum):
     NONE = 0
     LEFT = 1
@@ -72,7 +88,7 @@ actions = {None: Action.NONE, 'up': Action.UP, 'down': Action.DOWN, 'left': Acti
            'out': Action.OUT, 'in': Action.IN}
 
 
-curr_faceview = FaceView(*env.som.som_shape)
+# curr_faceview = FaceView(*env.som.som_shape)
 
 
 def images_with_closest_faces(request: ClosestFacesRequest) -> ClosestFacesResponse:
@@ -116,12 +132,16 @@ LayerInfo = collections.namedtuple("LayerInfo", ["layer_index", "top_left", "sha
 class TreeView(Serializable):
     raw_init_params = ['level', 'left', 'top']
     serializable_slots = {}
-    repr_tree = RepresentativesTree(env.som.representatives)
+    repr_tree = None
 
     def __init__(self, **kwargs):
         self._level = 0
         self._top = 0
         self._left = 0
+
+        if self.__class__.repr_tree is None:
+            self.__class__.repr_tree = RepresentativesTree(env.som.representatives)
+
         super().__init__(**kwargs)
 
     @property

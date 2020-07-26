@@ -25,7 +25,7 @@ setuptools.setup(
         # 'face-recognition',
         'Pillow',
         'numpy',
-        # 'opencv-python',
+        'opencv-python',
         'scikit-learn',
         'MiniSom'
     ]

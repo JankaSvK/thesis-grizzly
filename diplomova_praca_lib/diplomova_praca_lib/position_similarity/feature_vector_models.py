@@ -3,7 +3,6 @@ import re
 import numpy as np
 import tensorflow
 import tensorflow as tf
-from classification_models.tfkeras import Classifiers
 
 from diplomova_praca_lib.image_processing import resize_image
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingSpatially
@@ -67,6 +66,7 @@ class Resnet50V2(FeatureVectorModel):
 class Resnet50_11k_classes(FeatureVectorModel):
     def __init__(self, input_shape=(224, 224, 3)):
         super().__init__(input_shape=input_shape)
+        from classification_models.tfkeras import Classifiers
         Resnet50, self.preprocess_input_f = Classifiers.get('resnet50')
         self.model = Resnet50(input_shape=input_shape, weights='imagenet11k-places365ch', include_top=False, classes= 11586)
 
