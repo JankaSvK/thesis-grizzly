@@ -72,8 +72,11 @@ def images_with_position_from_json(json_data):
     return images
 
 
-def path_from_css_background(long_path):
-    return long_path[long_path.index('thumbnails/') + len('thumbnails/'):-2]
+def path_from_css_background(long_path, thumbnails_prefix = None):
+    import os
+    url_string = '/'.join(thumbnails_prefix.split(os.sep))
+    # return long_path[long_path.index('thumbnails/') + len('thumbnails/'):-2]
+    return long_path[long_path.index(url_string) + len(url_string) + 1:-2]
 
 def timestamp_directory(path_prefix):
     from datetime import datetime

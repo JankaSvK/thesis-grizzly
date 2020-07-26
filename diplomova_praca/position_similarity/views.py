@@ -9,7 +9,7 @@ from diplomova_praca_lib.position_similarity.models import PositionSimilarityReq
 from diplomova_praca_lib.position_similarity.position_similarity_request import positional_request, available_images, \
     initialize_env
 from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background
-from shared.utils import random_image_path, thumbnail_path, random_subset_image_path
+from shared.utils import random_image_path, thumbnail_path, random_subset_image_path, THUMBNAILS_PATH
 from .models import PositionRequest, Collage
 
 
@@ -44,7 +44,7 @@ def position_similarity_post(request):
     images, method, overlay_image = json_request['images'], json_request['method'], json_request['overlay_image']
 
     request = PositionSimilarityRequest(images=images_with_position_from_json(images),
-                                        query_image=path_from_css_background(overlay_image),
+                                        query_image=path_from_css_background(overlay_image, THUMBNAILS_PATH),
                                         method=PositionMethod.parse(method))
     response = positional_request(request)
     save_request.response = ",".join(response.ranked_paths)
