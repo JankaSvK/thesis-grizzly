@@ -93,6 +93,10 @@ def dump_to_file(path, object):
 
 def load_from_file(path):
     import pickle
+
+    if not Path(path).exists():
+        return None
+
     with open(path, 'rb') as handle:
         return pickle.load(handle)
 

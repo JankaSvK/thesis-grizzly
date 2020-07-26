@@ -43,6 +43,8 @@ class Environment:
             print("Underlying SOM data not found.")
             return
 
+        som_path = next(Path(som_path).rglob("*.pickle"))
+
         self.som.som = load_from_file(som_path)
         self.som.set_representatives(Environment.features)
 
