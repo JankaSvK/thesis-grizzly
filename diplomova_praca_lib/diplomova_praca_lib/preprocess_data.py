@@ -59,13 +59,15 @@ def main():
     parser.add_argument("--input", default=None, type=str)
     parser.add_argument('--output', default=None, type=str)
     parser.add_argument("--fit", action='store_true')
-    parser.add_argument("--transform", action='store_true')
+    parser.add_argument("--no_transform", action='store_false')
     parser.add_argument("--empty_pipeline", action='store_true')
     parser.add_argument("--regions", action='store_true')
     parser.add_argument("--count", default=None, type=int)
     parser.add_argument("--samples", default=10000, type=int)
     parser.add_argument("--explained_ratio", default=0.8, type=float)
     args = parser.parse_args()
+
+    transform = not args.no_transform
 
     if args.empty_pipeline:
         pipeline = make_pipeline(FunctionTransformer(func=None, validate=False))
@@ -76,7 +78,7 @@ def main():
         dimensionality_reduction = PCA(n_components=args.explained_ratio)
         pipeline = make_pipeline(Normalizer(), dimensionality_reduction)
 
-    if args.fit or (args.transform and not args.empty_pipeline):
+    if args.fit or (transform and not args.empty_pipeline):
         if args.count:
             total_count = args.count
         else:
@@ -96,7 +98,7 @@ def main():
         pipeline.fit(sampled_features)
         if "pca" in pipeline.named_steps: report_pca(pipeline['pca'])
 
-    if args.transform:
+    if transform:
         for file_path in Path(args.input).rglob('*.npz'):
             output_path = Path(args.output, file_path.name)
             if output_path.exists():

@@ -27,6 +27,7 @@ setuptools.setup(
         'numpy',
         'opencv-python',
         'scikit-learn',
-        'MiniSom'
+        'MiniSom',
+        'matplotlib'
     ]
 )
