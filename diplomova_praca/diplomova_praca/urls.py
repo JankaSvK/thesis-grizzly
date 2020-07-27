@@ -20,12 +20,9 @@ Including another URLconf
 from django.urls import path
 
 urlpatterns = [
-    # path('admin/', admin.site.urls), # TODO
-
     path('', position_similarity.views.index),
     path('position_similarity/', position_similarity.views.position_similarity),
     path('face_features/', face_features.views.index),
-    # path('face_features/post', face_features.views.select_face_post, name="select_face_post"),
     path('position_similarity/post', position_similarity.views.position_similarity_post,
          name="position_similarity_post"),
     path('position_similarity/submit_collage', position_similarity.views.position_similarity_submit_collage,

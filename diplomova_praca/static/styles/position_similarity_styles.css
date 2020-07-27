@@ -71,13 +71,6 @@
   z-index: 100;
 }
 
-/*footer {*/
-/*    background: #2b2b2b;*/
-/*    position: absolute;*/
-/*    bottom: 0;*/
-/*    height: 2.5rem;*/
-/*    width: 100%;*/
-/*}*/
 .clear {
   content: "";
   clear: both;

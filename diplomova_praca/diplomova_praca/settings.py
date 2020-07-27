@@ -115,7 +115,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-# STATIC_ROOT = r"C:\Users\janul\Desktop\thesis\code\diplomova_praca\staticfiles"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
@@ -124,10 +123,6 @@ STATICFILES_DIRS = [
 
 # Increase request limit to support more than 2 images
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880 # 5 MB
-
-
-DATABASE_FACES = None
-
 
 USE_LOCKDOWN = False
 
