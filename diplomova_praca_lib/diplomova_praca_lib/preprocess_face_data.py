@@ -1,3 +1,4 @@
+import argparse
 from pathlib import Path
 from typing import List, Tuple
 
@@ -47,10 +48,16 @@ def crop_sizes_investigation(crops):
     print(cum)
 
 def main():
-    database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_faces_july"))
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", default=None, type=str)
+    parser.add_argument('--output', default=None, type=str)
+    parser.add_argument("--crop_size", default=0.1, type=float)
+    args = parser.parse_args()
+
+    database = Database(FileStorage.load_datafiles(args.input))
     paths, crops, features = convert_individual_records_to_groups(database, crop_min_size=0.1)
 
-    output_path = Path(r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos", "faces.npz")
+    output_path = Path(args.output, "faces.npz")
     storage.FileStorage.save_data(path=output_path, features=features, crops=crops, paths=paths)
 
 
