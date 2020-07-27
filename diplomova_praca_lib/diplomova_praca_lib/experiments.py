@@ -99,7 +99,6 @@ def recall_graph(x, y):
 
 
 def main():
-    # load_environment_again(r"C:\Users\janul\Desktop\output\2020-05-24_01-02-43_PM")
     fetched_collages = retrieve_collages()
     fetched_collages = fetched_collages
     print("Fetched")

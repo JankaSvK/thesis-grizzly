@@ -179,24 +179,6 @@ def experiments(id, queries_paths=None):
     elif id == 6:
         return RegionsExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_5x3_96x96_preprocess",
                                  np.mean, None)
-
-    elif id == 7:
-        return None
-        # return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess",
-        #                          np.mean, 150)
-    elif id == 8:
-        return None
-        # return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess_pca08",
-        #                          np.mean)
-    elif id == 9:
-        return None
-        # return SpatialExperiment(r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_antepenultimate_preprocess",
-        #                          np.mean)
-    elif id == 10:
-        return None
-        # return RegionsExperiment(
-        #     r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_4x2_96x96_preprocess_pca08",
-        #     np.min, None)
     elif id == 11:
         return FullImageExperiment(
             r"C:\Users\janul\Desktop\thesis_tmp_files\gpulab\750_mobilenetv2_224x224_preprocess_pca08", np.min)

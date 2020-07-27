@@ -1,1 +1,0 @@
---input=/mnt/0/750_resnet50v2_antepenultimate --output=/mnt/0/750_resnet50v2_antepenultimate_preprocess --transform --empty_pipeline

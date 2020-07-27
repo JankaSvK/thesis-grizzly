@@ -26,7 +26,6 @@ class DatasetInfo:
 def graph_of_search_rank(results: Dict[str, List[int]], input_paths: List[str], save_plot=None):
     fig, ax = plt.subplots()
     for (func_name, ranks), input_src in zip(results.items(), input_paths):
-        # ranks_space = np.arange(max(ranks) + 1)
         num_images = len(set(load_data(input_src)['paths']))
         print(num_images)
 
@@ -89,7 +88,6 @@ def main():
 
             assert dataset == processed_data
 
-    # dataset_info = DatasetInfo(num_images=len(dataset))
     graph_of_search_rank(plot_info, input_paths=input_data, save_plot=",".join(args.paths))
 
 

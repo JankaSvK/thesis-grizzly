@@ -3,7 +3,6 @@ from typing import List, NamedTuple
 
 from diplomova_praca_lib.position_similarity.models import Crop
 
-# FaceCrop = collections.namedtuple("FaceCrop", ['src', 'crop'])
 FaceDetection = collections.namedtuple('FaceDetection', ['crop', 'encoding'])
 FaceDetectionsRecord = collections.namedtuple('Record', ['filename', 'detections'])
 

@@ -57,7 +57,6 @@ def image_as_array(pil_image):
 def compute_image_regions(image_width, image_height, num_horizontal_regions, num_vertical_regions,
                           percentage_size_up):
     if percentage_size_up < 0 or percentage_size_up > 1:
-        # TODO: makes probably sense to size_up more than 100%
         raise ValueError("`percentage_size_up` has to be a value between 0 and 1")
 
     region_width = image_width / num_horizontal_regions

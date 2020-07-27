@@ -8,7 +8,6 @@ def heat_map_from_responses():
     with open(r'C:\Users\janul\Desktop\thesis_tmp_files\odpovede_z_forms.csv', newline='', encoding='utf-8') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
         for row in spamreader:
-            # print(', '.join(row))
             data_rows.append(row)
 
 
@@ -26,8 +25,6 @@ def heat_map_from_responses():
                 for c in cols:
                     selected_map[i_task][i_row][number_from_char(c)] += 1
 
-    # import numpy as np
-    # return np.ones(dtype=np.int32, shape=(10,10,10)) # Check
     return selected_map
 
 def main():

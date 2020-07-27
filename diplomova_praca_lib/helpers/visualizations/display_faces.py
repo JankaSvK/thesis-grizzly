@@ -49,10 +49,7 @@ def make_array(idxs, images_path, paths, crops):
 
 def main():
     images_path = r"C:\Users\janul\Desktop\thesis\images\selected_frames_first750"
-    # dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos"
     dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos"
-    # dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_316videos"
-    # dataset = r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_representatives"
 
 
     data = np.load(Path(dataset, "faces.npz"), allow_pickle=True)

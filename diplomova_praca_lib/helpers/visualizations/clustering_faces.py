@@ -5,7 +5,6 @@ from scipy.cluster.hierarchy import fclusterdata
 
 from diplomova_praca_lib.storage import FileStorage
 
-# data_path = r"C:\Users\janul\Desktop\thesis_tmp_files\transformed_face_features\faces.npz"
 data_path = r'C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos\faces.npz'
 
 data = np.load(data_path, allow_pickle=True)

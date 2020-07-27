@@ -53,7 +53,6 @@ class Environment:
         self.som.set_representatives(Environment.features)
 
         if self.use_random_grid:
-            # self.som.representatives = []
             max_display_width = 20
             random_grid = np.arange(len(self.features))
             if len(random_grid) % max_display_width:
@@ -63,7 +62,6 @@ class Environment:
 
         self.initialized = True
 
-        # self.som = load_from_file(r"C:\Users\janul\Desktop\thesis_tmp_files\som\2020-05-25_12-41-30_PM\som.pickle")
 
     def train_som(self, shape, epochs):
         Environment.som = SOM(shape, 128)
@@ -72,12 +70,6 @@ class Environment:
     def load_som(self, path):
         with open(path, 'rb') as handle:
             Environment.som = pickle.load(handle)
-
-
-# database = Database(FileStorage.load_datafiles(r"C:\Users\janul\Desktop\saved_annotations\750_faces"))
-# env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\transformed_face_features")
-# env = Environment(r"C:\Users\janul\Desktop\thesis_tmp_files\face_features_only_bigger_10percent_316videos")
-# som_path = r"C:\Users\janul\Desktop\thesis_tmp_files\cosine_som\euclidean\200k-original\som-euclidean,200000-200000.pickle"
 
 env = None
 class Action(Enum):
@@ -92,9 +84,6 @@ class Action(Enum):
 
 actions = {None: Action.NONE, 'up': Action.UP, 'down': Action.DOWN, 'left': Action.LEFT, 'right': Action.RIGHT,
            'out': Action.OUT, 'in': Action.IN}
-
-
-# curr_faceview = FaceView(*env.som.som_shape)
 
 
 def images_with_closest_faces(request: ClosestFacesRequest) -> ClosestFacesResponse:

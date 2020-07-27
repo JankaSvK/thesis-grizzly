@@ -34,8 +34,6 @@ class FileStorage(Storage):
             files = files[:num_files_limit]
 
         result = {}
-        # for key in retrieve_merged + retrieve_once:
-        #     for i_f, f in enumerate(files):
         for i_f, f in enumerate(files):
             for key in retrieve_merged + retrieve_once:
                 if key not in f:
@@ -80,7 +78,6 @@ class FileStorage(Storage):
         datafiles = Path(dir_path).rglob('*.npz')
         data = [(FileStorage.load_data_from_file(f))['data'] for f in datafiles]
         return np.concatenate(data)
-        # return list(itertools.chain(*data))
 
     @staticmethod
     def load_image_from_file(filename):
