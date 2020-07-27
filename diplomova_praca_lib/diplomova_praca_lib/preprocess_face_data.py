@@ -55,7 +55,7 @@ def main():
     args = parser.parse_args()
 
     database = Database(FileStorage.load_datafiles(args.input))
-    paths, crops, features = convert_individual_records_to_groups(database, crop_min_size=0.1)
+    paths, crops, features = convert_individual_records_to_groups(database, crop_min_size=args.crop_size)
 
     output_path = Path(args.output, "faces.npz")
     storage.FileStorage.save_data(path=output_path, features=features, crops=crops, paths=paths)
