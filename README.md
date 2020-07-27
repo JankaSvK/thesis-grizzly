@@ -79,19 +79,19 @@ $ docker run \
 
 ```
 $ images="/path/to/images/"
-$ intermediate\_output="/path/to/intermediate\_output/"
+$ intermediate\_output="/path/to/intermediate_output/"
 $ features="/path/to/features/"
 
 $ docker run \
   -v $images:/images \
-  -v $intermediate\_output:/feature\_records \
+  -v $intermediate_output:/feature_records \
   lib \
-   python diplomova\_praca\_lib/annotate\_images.py \
+   python diplomova_praca_lib/annotate_images.py \
     --images_dir=/images --save_location=/feature_records \
     --feature_model=faces
 
 $ docker run \
-  -v $intermediate\_output:/feature\_records \
+  -v $intermediate\_output:/feature_records \
   -v $features:/features \
   lib \
     python diplomova_praca_lib/preprocess_face_data.py \

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from diplomova_praca_lib.experiments_plots.get_responses import get_queries
+from helpers.experiments_plots.get_responses import get_queries
 
 
 def save_plot(plt, filename):

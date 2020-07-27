@@ -4,7 +4,7 @@ from pathlib import Path
 
 import numpy as np
 
-from diplomova_praca_lib.experiments_plots.get_responses import get_queries
+from helpers.experiments_plots.get_responses import get_queries
 from diplomova_praca_lib.storage import FileStorage
 from diplomova_praca_lib.utils import sample_image_paths
 
