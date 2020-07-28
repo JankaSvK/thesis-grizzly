@@ -26,12 +26,16 @@ $ docker run -p 8000:8000 -v $PWD/image_representations:/diplomova_praca/static/
 
 The application then can be accessed at: [127.0.0.1:8000](127.0.0.1:8000)
 
+## Obtaining data
 
-To correctly run the application a set of data is required. By default, the
-provided demo set is used. It is possible to use application with own data,
-although, it requires running few processing pipelines.
+It is possible to use the application over a custom dataset. To do that,
+firstly it is needed to obtain the features, which the application uses. It is
+possible to generate only some of them, all are not required. After the
+obtaining the data, the original in `images_representations` can be replaced,
+or a new directory with the same structure can be created. In later case,
+change the path to the updated directory, when running the app.
 
-Firstly, if the data is videos, please refer to a VIRET tool for extraction
+Firstly, if the data are videos, please refer to a VIRET tool for extraction
 frames from videos. If they are images, with no temporal context, then you need
 to create one more subdirectory level.
 
@@ -43,15 +47,6 @@ images_representations/images/000/image2.jpg
 If they have temporal context, you can split the data into corresponding
 directories. We do not rescale images for the frontend, they should be
 proprecessed to a resolution 320x180 (possible setting for VIRET tool).
-
-## Obtaining data
-
-It is possible to use the application over a custom dataset. To do that,
-firstly it is needed to obtain the features, which the application uses. It is
-possible to generate only some of them, all are not required. After the
-obtaining the data, the original in `images_representations` can be replaced,
-or a new directory with the same structure can be created. In later case,
-change the path to the updated directory, when running the app.
 
 ### Building docker for annotations
 
