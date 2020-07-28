@@ -30,7 +30,7 @@ The application then can be accessed at: [127.0.0.1:8000](http://127.0.0.1:8000/
 
 It is possible to use the application over a custom dataset. To do that,
 firstly it is needed to obtain the features, which the application uses. It is
-possible to generate only some of them, all are not required. After the
+possible to generate only some of them, all are not required. After
 obtaining the data, the original in `images_representations` can be replaced,
 or a new directory with the same structure can be created. In later case,
 change the path to the updated directory, when running the app.
