@@ -4,6 +4,11 @@ Grizzly is a web-based application to search over a dataset of images based on t
 - search by collage
 - search by faces
 
+To pull the repository:
+```
+git clone --depth 1 git@github.com:JankaSvK/thesis-grizzly.git
+```
+
 Firstly, download the [demo
 data](https://drive.google.com/file/d/1IgRn9_My1dwHno2JGEwXiim7YxuWPnd1/view?usp=sharing)
 to play with. Replace current `image_representations` with the directory
