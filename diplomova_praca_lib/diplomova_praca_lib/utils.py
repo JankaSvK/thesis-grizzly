@@ -158,20 +158,20 @@ def is_url(url):
 def download_image(image_src:str)-> PIL.Image:
     if is_url(image_src):
         response = requests.get(image_src)
-        return Image.open(BytesIO(response.content))
+        image = Image.open(BytesIO(response.content))
     else:
         image_data = re.sub('^data:image/.+;base64,', '', image_src)
         image = Image.open(BytesIO(base64.b64decode(image_data)))
 
-        if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
-            alpha = image.convert('RGBA').split()[-1]
-            bg_colour = (255, 255, 255)
-            image_without_transparency = Image.new("RGBA", image.size, bg_colour + (255,))
-            image_without_transparency.paste(image, mask=alpha)
+    if image.mode in ('RGBA', 'LA') or (image.mode == 'P' and 'transparency' in image.info):
+        alpha = image.convert('RGBA').split()[-1]
+        bg_colour = (255, 255, 255)
+        image_without_transparency = Image.new("RGBA", image.size, bg_colour + (255,))
+        image_without_transparency.paste(image, mask=alpha)
 
-            return image_without_transparency.convert('RGB')
-        else:
-            return image
+        return image_without_transparency.convert('RGB')
+    else:
+        return image
 
 
 def resize_with_padding(img, expected_size, fill='black'):
