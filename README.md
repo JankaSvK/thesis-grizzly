@@ -114,5 +114,6 @@ $ docker run \
     --iterations=200000
 ```
 
+### Image dataset
 
-
+Our demo includes images from [Open Images Dataset](https://opensource.google/projects/open-images-dataset). The images are under CC-by 4.0.
