@@ -11,7 +11,7 @@ setuptools.setup(
     description="Diplomova Praca lib",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/pypa/sampleproject",  # TODO: link to right github
+    url="https://github.com/JankaSvK/thesis-grizzly",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",

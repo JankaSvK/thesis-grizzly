@@ -55,7 +55,7 @@ def position_similarity_post(request):
     images_to_render = response.ranked_paths[:100]
     context = {
         "ranking_results": [{"img_src": thumbnail_path(path)} for path in images_to_render],
-        "search_image_rank": response.searched_image_rank,
+        "search_image_rank": response.searched_image_rank + 1,
     }
 
     if response.matched_regions:
