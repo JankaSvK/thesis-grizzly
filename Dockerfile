@@ -2,10 +2,10 @@ FROM tensorflow/tensorflow:latest-py3
 
 ENV PYTHONUNBUFFERED 1
 RUN apt update -y
-RUN pip install --upgrade pip
-
-RUN apt update && apt install -y libsm6 libxext6
 RUN apt-get install -y libxrender-dev
+RUN apt update && apt install -y libsm6 libxext6
+
+RUN python -m pip install --upgrade pip setuptools wheel
 
 RUN mkdir /diplomova_praca_lib
 COPY diplomova_praca_lib /diplomova_praca_lib
