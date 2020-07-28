@@ -24,7 +24,7 @@ $ docker build . -t app
 $ docker run -p 8000:8000 -v $PWD/image_representations:/diplomova_praca/static/image_representations -t app
 ```
 
-The application then can be accessed at: [127.0.0.1:8000](127.0.0.1:8000)
+The application then can be accessed at: [127.0.0.1:8000](http://127.0.0.1:8000/)
 
 ## Obtaining data
 
