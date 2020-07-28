@@ -12,7 +12,7 @@ from diplomova_praca_lib.utils import timestamp_directory, dump_to_file
 class RepresentativesTree:
     FACTOR = 2
 
-    def __init__(self, representatives: np.ndarray, display_size=(11, 21)):
+    def __init__(self, representatives: np.ndarray, display_size=(11, 15)):
         self.representatives = representatives
         self.layers = [representatives] # Smallest has index 0
         self.display_size = display_size

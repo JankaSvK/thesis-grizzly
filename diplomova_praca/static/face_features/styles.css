@@ -15,6 +15,7 @@
 
 #query_zone {
     position: relative;
+    overflow: auto;
 }
 
 .arrow {
