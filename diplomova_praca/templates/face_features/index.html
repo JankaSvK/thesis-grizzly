@@ -17,11 +17,15 @@
         </div>
 
         <div id="query_zone">
+
             <a href="javascript:sendRequest('right')"><i class="arrow right"></i></a>
             <a href="javascript:sendRequest('left')"><i class="arrow left"></i></a>
             <a href="javascript:sendRequest('up')"><i class="arrow up"></i></a>
             <a href="javascript:sendRequest('down')"><i class="arrow down"></i></a>
-            <a href="javascript:sendRequest('out')">OUT</a>
+
+            <a href="javascript:sendRequest('out')"><img src="{% static 'images/zoom_out-24px.svg' %}"
+                                                         style="width:48px; top:-20px"></a>
+
 
             <a href="javascript:showImageTemporarly(true);" id="show_image_show">Show searched
                 image</a>
@@ -36,8 +40,15 @@
     <script>
         var src_dict = {};
 
+
         var tree_view = null;
         var link = null;
+
+        function checkCheckbox() {
+            to_display = $("#image_show_toggle").prop("checked");
+            showImageTemporarly(to_display);
+        }
+
         $(document).ready(function () {
             showImageTemporarly(true);
             sendRequest(null);
