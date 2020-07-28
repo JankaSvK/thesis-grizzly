@@ -1,10 +1,10 @@
 # STATIC_DIR = settings.STATICFILES_DIRS[0]
-import random, os
+import os
+import random
 from pathlib import Path
 
 from diplomova_praca_lib.utils import Memoize
 
-# THUMBNAILS_PATH = os.path.join("static", "images", "lookup", "thumbnails")
 THUMBNAILS_PATH = os.path.join("static", "image_representations", "images")
 FEATURES_PATH = os.path.join("static", "image_representations")
 

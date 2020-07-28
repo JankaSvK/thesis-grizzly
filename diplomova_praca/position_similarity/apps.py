@@ -3,7 +3,8 @@ import os
 from django.apps import AppConfig
 
 import diplomova_praca_lib
-from diplomova_praca_lib.position_similarity.position_similarity_request import WholeImageEnvironment, RegionsEnvironment, SpatialEnvironment
+from diplomova_praca_lib.position_similarity.position_similarity_request import WholeImageEnvironment, \
+    RegionsEnvironment, SpatialEnvironment
 from shared.utils import FEATURES_PATH
 
 
