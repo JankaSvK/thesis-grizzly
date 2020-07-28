@@ -4,6 +4,15 @@ Grizzly is a web-based application to search over a dataset of images based on t
 - search by collage
 - search by faces
 
+Firstly, download the [demo
+data](https://drive.google.com/file/d/1IgRn9_My1dwHno2JGEwXiim7YxuWPnd1/view?usp=sharing)
+to play with. Replace current `image_representations` with the directory
+obtained from the zip.
+
+The images used in the demo data are from [Open Images
+Dataset](https://opensource.google/projects/open-images-dataset). The images
+are under CC-by 4.0.
+
 To run the application, Docker is recommended. Then run following commands:
 ```
 $ docker build . -t app
@@ -114,6 +123,3 @@ $ docker run \
     --iterations=200000
 ```
 
-### Image dataset
-
-Our demo includes images from [Open Images Dataset](https://opensource.google/projects/open-images-dataset). The images are under CC-by 4.0.
