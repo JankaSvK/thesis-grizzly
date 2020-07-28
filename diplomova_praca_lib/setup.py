@@ -1,15 +1,11 @@
 import setuptools
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
 setuptools.setup(
     name="diplomova-praca-jankasvk",
     version="0.0.1",
     author="Jana Bátoryová",
     author_email="janulik11@gmail.com",
     description="Diplomova Praca lib",
-    long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/JankaSvK/thesis-grizzly",
     packages=setuptools.find_packages(),
