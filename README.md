@@ -26,7 +26,9 @@ $ docker run -p 8000:8000 -v $PWD/image_representations:/diplomova_praca/static/
 
 The application then can be accessed at: [127.0.0.1:8000](http://127.0.0.1:8000/)
 
-## Obtaining data
+## Obtaining data for custom dataset
+
+(not necessary for running the demo)
 
 It is possible to use the application over a custom dataset. To do that,
 firstly it is needed to obtain the features, which the application uses. It is
