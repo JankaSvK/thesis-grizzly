@@ -123,3 +123,6 @@ $ docker run \
     --iterations=200000
 ```
 
+### Why grizzly?
+
+Grizzlies spend most of their waking hours searching for food.
