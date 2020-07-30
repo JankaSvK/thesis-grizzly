@@ -22,7 +22,7 @@ def num_queries_in_request_plot(requests):
     plt.rcParams.update({'font.size': 14})
     plt.bar(x_ticks, y_ticks)
     plt.xlabel('Number of images in the collage')
-    plt.ylabel('Number of collages')
+    plt.ylabel('Number of collages\nwith given number of images')
     save_plot(plt, "num_queries_in_request")
     plt.show()
 
