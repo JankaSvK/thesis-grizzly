@@ -1,6 +1,7 @@
 import abc
 import collections
 import logging
+import os
 import sqlite3
 from _sha256 import sha256
 from pathlib import Path
@@ -32,7 +33,8 @@ def retrieve_collages() -> List[Collage]:
 
 
 def collage_as_request(collage: Collage) -> PositionSimilarityRequest:
-    query_image = path_from_css_background(collage.query)
+    THUMBNAILS_PATH = os.path.join("static", "images", "lookup", "thumbnails")
+    query_image = path_from_css_background(collage.query, thumbnails_prefix=THUMBNAILS_PATH)
     images = eval(collage.images)
     return PositionSimilarityRequest(images=images_with_position_from_json(images), query_image=query_image)
 
