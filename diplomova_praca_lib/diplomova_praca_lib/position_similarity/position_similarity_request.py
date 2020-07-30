@@ -4,9 +4,8 @@ from collections import defaultdict
 from typing import Dict, List, Tuple, Optional, Set
 
 import numpy as np
-import tensorflow
 from sklearn.metrics.pairwise import cosine_distances
-from tensorflow.python.keras.layers import GlobalAveragePooling2D, GlobalMaxPooling2D
+from tensorflow.python.keras.layers import GlobalAveragePooling2D
 
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingSpatially
 from diplomova_praca_lib.position_similarity.feature_vector_models import model_factory
@@ -14,7 +13,7 @@ from diplomova_praca_lib.position_similarity.models import PositionSimilarityReq
     PositionMethod
 from diplomova_praca_lib.position_similarity.ranking_mechanisms import RankingMechanism
 from diplomova_praca_lib.storage import FileStorage
-from diplomova_praca_lib.utils import concatenate_lists, closest_match, download_and_preprocess, download_and_resize
+from diplomova_praca_lib.utils import concatenate_lists, closest_match, download_and_preprocess
 
 
 class RegionsData:

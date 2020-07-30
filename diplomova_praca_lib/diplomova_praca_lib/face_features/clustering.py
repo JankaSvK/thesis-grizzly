@@ -1,5 +1,6 @@
-from sklearn.cluster import AgglomerativeClustering, KMeans
 import numpy as np
+from sklearn.cluster import AgglomerativeClustering, KMeans
+
 
 def closest_node(query, features):
     features = np.asarray(features)

@@ -3,7 +3,7 @@ import pickle
 from pathlib import Path
 
 import numpy as np
-from sklearn.decomposition import PCA, TruncatedSVD
+from sklearn.decomposition import PCA
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import Normalizer, FunctionTransformer
 

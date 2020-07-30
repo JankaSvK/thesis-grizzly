@@ -2,8 +2,8 @@ import typing
 from pathlib import Path
 
 import numpy as np
-from sklearn import metrics
 from minisom import MiniSom
+from sklearn import metrics
 
 from diplomova_praca_lib.face_features.models import FaceView
 from diplomova_praca_lib.utils import timestamp_directory, dump_to_file

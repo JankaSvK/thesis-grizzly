@@ -2,12 +2,11 @@ import argparse
 from pathlib import Path
 from typing import List, Tuple
 
-import numpy as np
-
 import matplotlib.pyplot as plt
-from diplomova_praca_lib import storage
+import numpy as np
 import seaborn as sns
 
+from diplomova_praca_lib import storage
 from diplomova_praca_lib.position_similarity.models import Crop
 from diplomova_praca_lib.storage import Database, FileStorage
 
