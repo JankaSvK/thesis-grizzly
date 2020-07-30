@@ -52,7 +52,7 @@ class RepresentativesTree:
 
 
 class SOM:
-    log_dir = Path(r"C:\Users\janul\Desktop\thesis_tmp_files\som")
+    log_dir = None
 
     def __init__(self, som_shape=(6, 6), num_features=128):
         self.som_shape = som_shape
