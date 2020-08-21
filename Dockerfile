@@ -3,7 +3,7 @@ FROM tensorflow/tensorflow:latest-py3
 ENV PYTHONUNBUFFERED 1
 RUN apt update -y
 RUN apt-get install -y libxrender-dev
-RUN apt update && apt install -y libsm6 libxext6
+RUN apt update && apt install -y libsm6 libxext6 libgl1-mesa-glx
 
 RUN python -m pip install --upgrade pip setuptools wheel
 
