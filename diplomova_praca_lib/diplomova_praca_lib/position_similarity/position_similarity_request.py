@@ -93,7 +93,6 @@ class RegionsEnvironment(Environment):
         self.data['features'] = np.array(self.data['features'])
         self.regions_data = RegionsData(self.data)
 
-
     def model_title(self):
         return str(self.data['model'])
 
@@ -176,7 +175,7 @@ def positional_request(request: PositionSimilarityRequest) -> PositionSimilarity
     elif request.position_method == PositionMethod.WHOLE_IMAGE:
         return whole_image_similarity_request(request)
 
-def available_images(method:PositionMethod) -> Set[str]:
+def available_images(method: PositionMethod) -> Set[str]:
     return environment_select(method).available_images_in_dataset()
 
 def environment_select(method: PositionMethod) -> Environment:
@@ -226,12 +225,11 @@ def position_similarity_request(request: PositionSimilarityRequest) -> PositionS
 
     images_with_crop_distances = list(images_with_crop_distances.items())
 
-
     if regions_env.ranking_func.__name__ == "mean_with_threshold":
         ranked_results = [img_idx for img_idx, _ in regions_env.ranking_func(images_with_crop_distances)]
     else:
         ranked_results = [img_idx for img_idx, _ in
-                      RankingMechanism.rank_func(images_with_crop_distances, func=regions_env.ranking_func)]
+                          RankingMechanism.rank_func(images_with_crop_distances, func=regions_env.ranking_func)]
 
     matched_paths = [regions_env.regions_data.unique_src_paths_list[match] for match in ranked_results]
 
@@ -264,7 +262,6 @@ def best_crop_only(ranking):
         if not crop_idx_to_src_idx(crop_idx) in images_closest_crop:
             images_closest_crop[crop_idx_to_src_idx(crop_idx)] = (crop_idx, distance)
     return images_closest_crop
-
 
 
 def crop_idx_to_src_idx(crop_idx):
@@ -340,7 +337,6 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
 
     ranked_results = [match_id for match_id, _ in
                       RankingMechanism.rank_func(list(distances_per_image_per_query.items()), func=np.mean)]
-
 
     matched_paths = [spatial_env.data['paths'][match] for match in ranked_results]
 
