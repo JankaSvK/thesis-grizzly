@@ -6,7 +6,7 @@ from diplomova_praca_lib.models import DatabaseRecord
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingRegions, EvaluatingSpatially, \
     EvaluatingWholeImage
 from diplomova_praca_lib.position_similarity.feature_vector_models import MobileNetV2, MobileNetV2Antepenultimate, \
-    Resnet50V2Antepenultimate, Resnet50V2, Resnet50_11k_classes
+    Resnet50V2Antepenultimate, Resnet50V2, Resnet50_11k_classes, Resnet_MX_model
 from diplomova_praca_lib.storage import FileStorage
 from diplomova_praca_lib.utils import batches
 
@@ -41,6 +41,9 @@ def main():
     elif args.feature_model == 'mobilenetv2':
         features_model = MobileNetV2(input_shape=input_shape)
         evaluation_mechanism = EvaluatingWholeImage(model=features_model)
+    elif args.feature_model == 'resnet_mx' and num_regions:
+        features_model = Resnet_MX_model(input_shape=input_shape)
+        evaluation_mechanism = EvaluatingRegions(model=features_model, num_regions=num_regions)
     elif args.feature_model == 'mobilenetv2antepenultimate':
         features_model = MobileNetV2Antepenultimate(input_shape=input_shape)
         evaluation_mechanism = EvaluatingSpatially(model=features_model)

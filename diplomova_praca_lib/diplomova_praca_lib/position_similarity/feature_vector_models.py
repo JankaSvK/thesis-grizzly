@@ -6,6 +6,7 @@ import tensorflow as tf
 
 from diplomova_praca_lib.image_processing import resize_image
 from diplomova_praca_lib.position_similarity.evaluation_mechanisms import EvaluatingSpatially
+from diplomova_praca_lib.position_similarity.resnet_mx_model import Resnet_MX
 
 
 def model_factory(model_repr):
@@ -23,7 +24,8 @@ def model_factory(model_repr):
                     "MobileNetV2Antepenultimate": MobileNetV2Antepenultimate,
                     "Resnet50V2": Resnet50V2,
                     "Resnet50V2Antepenultimate": Resnet50V2Antepenultimate,
-                    "Resnet50_11k_classes": Resnet50_11k_classes}[class_name]
+                    "Resnet50_11k_classes": Resnet50_11k_classes,
+                    "Resnet_MX_model": Resnet_MX_model}[class_name]
 
     return class_object(input_shape=input_shape)
 
@@ -62,6 +64,14 @@ class Resnet50V2(FeatureVectorModel):
     def preprocess_input(self, images):
         from tensorflow.keras.applications.resnet_v2 import preprocess_input
         return preprocess_input(images)
+
+class Resnet_MX_model(FeatureVectorModel):
+    def __init__(self, input_shape=(224, 224, 3)):
+        super().__init__(input_shape=input_shape)
+        self.model = Resnet_MX(input_shape)
+
+    def preprocess_input(self, images):
+        return images
 
 class Resnet50_11k_classes(FeatureVectorModel):
     def __init__(self, input_shape=(224, 224, 3)):

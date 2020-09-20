@@ -14,14 +14,23 @@ data](https://drive.google.com/file/d/1IgRn9_My1dwHno2JGEwXiim7YxuWPnd1/view?usp
 to play with. Replace current `image_representations` with the directory
 obtained from the zip.
 
+Download resnet_mx models
+```
+mkdir resnet
+wget http://data.mxnet.io/models/imagenet-11k/resnet-152/resnet-152-0000.params resnet
+wget http://data.mxnet.io/models/imagenet-11k/resnet-152/resnet-152-symbol.json resnet
+wget https://isis-data.science.uva.nl/mettes/imagenet-shuffle/mxnet/resnext101_bottomup_12988/resnext-101-1-0040.params resnet
+wget https://isis-data.science.uva.nl/mettes/imagenet-shuffle/mxnet/resnext101_bottomup_12988/resnext-101-symbol.json resnet
+```
+
 The images used in the demo data are from [Open Images
 Dataset](https://opensource.google/projects/open-images-dataset). The images
 are under CC-by 4.0.
 
 To run the application, Docker is recommended. Then run following commands:
 ```
-$ docker build . -t app
-$ docker run -p 8000:8000 -v $PWD/image_representations:/diplomova_praca/static/image_representations -t app
+$ docker build . -t grizzly
+$ docker run -p 8000:8000 -v $PWD/image_representations:/diplomova_praca/static/image_representations -v $PWD/resnet/:/resnet -t grizzly
 ```
 
 The application then can be accessed at: [127.0.0.1:8000](http://127.0.0.1:8000/)
@@ -54,7 +63,7 @@ proprecessed to a resolution 320x180 (possible setting for VIRET tool).
 
 ```
 $ cd diplomova_praca_lib
-$ docker build . -t lib
+$ docker build . -t grizzly-annotation
 ```
 
 ### Regions Annotation for MobileNetV2
@@ -68,19 +77,21 @@ $ features="/path/to/features/"
 $ docker run \
   -v $images:/images \
   -v $intermediate_output:/feature_records \
-  lib \
-   python diplomova_praca_lib/annotate_images.py \
+  --runtime=nvidia \
+  grizzly-annotation \
+   python3 diplomova_praca_lib/annotate_images.py \
     --images_dir=/images --save_location=/feature_records \
-    --feature_model=mobilenetv2 --num_regions=2,4 \
-    --input_size=96
+    --feature_model=resnet_mx --num_regions=2,4 \
+    --input_size=96 --batch_size=32
+
 
 $ docker run \
   -v $intermediate_output:/feature_records \
   -v $features:/features \
-  lib \
-    python diplomova_praca_lib/preprocess_data.py \
+  grizzly-annotation \
+    python3 diplomova_praca_lib/preprocess_data.py \
       --input=/feature_records --output=/features 
-      --transform --regions --explained_ratio=128
+      --no_transform --regions --explained_ratio=128
 
 ```
 
