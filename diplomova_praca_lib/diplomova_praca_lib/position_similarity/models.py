@@ -123,10 +123,11 @@ class PositionSimilarityResponse:
     matched_regions: Dict[str, List[Crop]]
     searched_image_rank: int
 
-    def __init__(self, ranked_paths = None, searched_image_rank = None, matched_regions = None):
+    def __init__(self, ranked_paths = None, searched_image_rank = None, matched_regions = None, dissimilarity_scores = None):
         self.searched_image_rank = searched_image_rank
         self.ranked_paths = ranked_paths
         self.matched_regions = matched_regions
+        self.dissimilarity_scores = dissimilarity_scores
 
 class PositionMethod(Enum):
     REGIONS = 1
@@ -143,11 +144,11 @@ class PositionMethod(Enum):
             ValueError('Uknown position method')
 
 class PositionSimilarityRequest:
-    def __init__(self, images=None, query_image=None, method:PositionMethod = None):
+    def __init__(self, images=None, query_image=None, method:PositionMethod = None, source = None):
         self.images = images
         self.query_image = query_image
         self.position_method = method
-
+        self.source = source
 
 RegionFeatures = collections.namedtuple("RegionFeatures", ["crop", "features"])
 UrlImage = collections.namedtuple('UrlImage', ['url', 'crop'])
