@@ -175,6 +175,8 @@ def positional_request(request: PositionSimilarityRequest) -> PositionSimilarity
         return spatial_similarity_request(request)
     elif request.position_method == PositionMethod.WHOLE_IMAGE:
         return whole_image_similarity_request(request)
+    else:
+        return position_similarity_request(request)
 
 def available_images(method:PositionMethod) -> Set[str]:
     return environment_select(method).available_images_in_dataset()
@@ -229,16 +231,24 @@ def position_similarity_request(request: PositionSimilarityRequest) -> PositionS
 
     if regions_env.ranking_func.__name__ == "mean_with_threshold":
         ranked_results = [img_idx for img_idx, _ in regions_env.ranking_func(images_with_crop_distances)]
+        aggregated_results = None
     else:
-        ranked_results = [img_idx for img_idx, _ in
-                      RankingMechanism.rank_func(images_with_crop_distances, func=regions_env.ranking_func)]
+        aggregated_results = RankingMechanism.rank_func(images_with_crop_distances, func=regions_env.ranking_func)
+        ranked_results = [img_idx for img_idx, _ in aggregated_results]
 
     matched_paths = [regions_env.regions_data.unique_src_paths_list[match] for match in ranked_results]
+
+    if request.source == "somhunter" and aggregated_results:
+        dissimilarity_scores = list(
+            zip(matched_paths, [regions_env.ranking_func(dist) for (_, dist) in aggregated_results]))
+    else:
+        dissimilarity_scores = None
 
     return PositionSimilarityResponse(
         ranked_paths=matched_paths,
         searched_image_rank=searched_image_rank(request.query_image, matched_paths),
-        matched_regions=image_src_with_best_regions(images_with_best_crops_and_distances)
+        matched_regions=image_src_with_best_regions(images_with_best_crops_and_distances),
+        dissimilarity_scores=dissimilarity_scores
     )
 
 
@@ -348,3 +358,4 @@ def spatial_similarity_request(request: PositionSimilarityRequest):
         ranked_paths=matched_paths,
         searched_image_rank=searched_image_rank(request.query_image, matched_paths),
     )
+

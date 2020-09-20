@@ -23,6 +23,7 @@ SECRET_KEY = '4vhebj8zato5fus*2fb^l%pi3$fu_5&o&0#x&lb39%(7ass9vk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+CORS_ORIGIN_ALLOW_ALL=True
 
 ALLOWED_HOSTS = ['217.30.72.202', '127.0.0.1', 'onyx']
 
@@ -37,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'position_similarity.apps.PositionSimilarityConfig',
     'face_features.apps.FaceFeaturesConfig',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'diplomova_praca.urls'
