@@ -8,10 +8,28 @@ from django.views.decorators.csrf import csrf_exempt
 from diplomova_praca_lib.position_similarity.models import PositionSimilarityRequest, PositionMethod
 from diplomova_praca_lib.position_similarity.position_similarity_request import positional_request, available_images, \
     initialize_env
+from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background, \
+    images_with_position_from_json_somhunter
 from diplomova_praca_lib.utils import images_with_position_from_json, path_from_css_background
 from shared.utils import random_image_path, thumbnail_path, random_subset_image_path, THUMBNAILS_PATH
 from .models import PositionRequest, Collage
 
+
+@csrf_exempt
+def alive(request):
+    return JsonResponse({"status": "ok"}, status=200)
+
+
+@csrf_exempt
+def position_similarity_somhunter(request):
+    collected_images = json.loads(request.POST.get('data', ''))['collectedImages']
+    if not collected_images:
+        return JsonResponse({"error": "No images in collage."}, status=400)
+    request = PositionSimilarityRequest(images=images_with_position_from_json_somhunter(collected_images),
+                                        source="somhunter")
+    response = positional_request(request)
+    return JsonResponse([{"path": path, "dis": float(dis)} for path, dis in response.dissimilarity_scores], status=200,
+                        safe=False)
 
 @csrf_exempt
 def index(request):

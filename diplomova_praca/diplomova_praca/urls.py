@@ -27,6 +27,8 @@ urlpatterns = [
          name="position_similarity_post"),
     path('position_similarity/submit_collage', position_similarity.views.position_similarity_submit_collage,
          name="position_similarity_submit_collage"),
+    path('position_similarity/alive', position_similarity.views.alive),
+    path('position_similarity/somhunter', position_similarity.views.position_similarity_somhunter),
     path('face_features/post', face_features.views.repr_tree_post, name="repr_tree_post"),
     path('face_features/closest_images_to_face/', face_features.views.images_with_closest_faces_post, name="closest_images_to_face"),
     path('video_images/post', shared.views.video_images, name="video_images_post"),

@@ -71,6 +71,14 @@ def images_with_position_from_json(json_data):
         images.append(url_image)
     return images
 
+def images_with_position_from_json_somhunter(json_data):
+    images = []
+    for image in json_data:
+        url_image = UrlImage(image["src"],
+                             Crop(top=image['top'], left=image['left'], width=image['width'], height=image['height']))
+        images.append(url_image)
+    return images
+
 
 def path_from_css_background(long_path, thumbnails_prefix = None):
     import os
