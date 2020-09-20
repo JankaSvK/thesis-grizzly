@@ -219,7 +219,7 @@ def sample_features_from_data(path:str, num_samples:int, total_count:int):
         datafile_samples = len(loaded_data)
         i_sample = sampled_idxs[len(retrieved_samples)] - already_seen_samples
         while i_sample < datafile_samples:
-            retrieved_samples.append(loaded_data[i_sample])
+            retrieved_samples.append(loaded_data[i_sample].copy())
             samples_from_file += 1
 
             if len(retrieved_samples) == num_samples:
