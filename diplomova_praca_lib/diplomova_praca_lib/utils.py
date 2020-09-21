@@ -6,6 +6,8 @@ from io import BytesIO
 from pathlib import Path
 from typing import List
 from urllib.parse import urlparse
+import time
+import math
 
 import PIL
 import numpy as np
@@ -245,3 +247,19 @@ def sample_features_from_data(path:str, num_samples:int, total_count:int):
 
     assert len(retrieved_samples) == num_samples
     return retrieved_samples
+
+def timer(func):
+
+    def wrapper(*args, **kwargs):
+
+        begin = time.time()
+
+        f = func(*args, **kwargs)
+
+        end = time.time()
+        print("Total time taken in : ", func.__name__, end - begin)
+
+        return f
+
+    return wrapper
+

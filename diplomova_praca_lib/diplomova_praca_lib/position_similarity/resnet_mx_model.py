@@ -1,6 +1,7 @@
 import mxnet as mx
 import numpy as np
 from collections import namedtuple
+from diplomova_praca_lib.diplomova_praca_lib.utils import timer
 
 class Resnet_MX():
     def __init__(self, input_shape):
@@ -10,6 +11,7 @@ class Resnet_MX():
         self.resnext = self.get_network_fc("/resnet/resnext-101-1", 40, True)
         self.resnet = self.get_network_fc("/resnet/resnet-152", 0, False)
 
+    @timer
     def predict(self, images, batch_size):
         out =  np.concatenate([self.resnext(images), self.resnet(images)], 1)
         return out
