@@ -1,7 +1,7 @@
 import mxnet as mx
 import numpy as np
 from collections import namedtuple
-from diplomova_praca_lib.diplomova_praca_lib.utils import timer
+from diplomova_praca_lib.utils import timer
 
 class Resnet_MX():
     def __init__(self, input_shape):
