@@ -25,7 +25,7 @@ SECRET_KEY = '4vhebj8zato5fus*2fb^l%pi3$fu_5&o&0#x&lb39%(7ass9vk'
 DEBUG = True
 CORS_ORIGIN_ALLOW_ALL=True
 
-ALLOWED_HOSTS = ['217.30.72.202', '127.0.0.1', 'onyx']
+ALLOWED_HOSTS = ['217.30.72.202', '127.0.0.1', 'onyx', '195.113.19.174']
 
 # Application definition
 
