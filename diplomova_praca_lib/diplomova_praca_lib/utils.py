@@ -6,6 +6,8 @@ from io import BytesIO
 from pathlib import Path
 from typing import List
 from urllib.parse import urlparse
+import time
+import math
 
 import PIL
 import numpy as np
@@ -221,16 +223,18 @@ def sample_features_from_data(path:str, num_samples:int, total_count:int):
     retrieved_samples = []
     already_seen_samples = 0
     print("Sampling")
+    done = False
     for file in Path(path).rglob("*.npz"):
         samples_from_file = 0
         loaded_data = np.load(str(file), allow_pickle=True)['data']
         datafile_samples = len(loaded_data)
         i_sample = sampled_idxs[len(retrieved_samples)] - already_seen_samples
         while i_sample < datafile_samples:
-            retrieved_samples.append(loaded_data[i_sample])
+            retrieved_samples.append(loaded_data[i_sample].copy())
             samples_from_file += 1
 
             if len(retrieved_samples) == num_samples:
+                done = True
                 break
 
             i_sample = sampled_idxs[len(retrieved_samples)] - already_seen_samples
@@ -238,5 +242,24 @@ def sample_features_from_data(path:str, num_samples:int, total_count:int):
         already_seen_samples += datafile_samples
         print("From %s obtained %d samples out of %d samples" % (str(file), samples_from_file, datafile_samples))
 
+        if done:
+            break
+
     assert len(retrieved_samples) == num_samples
     return retrieved_samples
+
+def timer(func):
+
+    def wrapper(*args, **kwargs):
+
+        begin = time.time()
+
+        f = func(*args, **kwargs)
+
+        end = time.time()
+        print("Total time taken in : ", func.__name__, end - begin)
+
+        return f
+
+    return wrapper
+
