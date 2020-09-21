@@ -28,8 +28,12 @@ def position_similarity_somhunter(request):
     request = PositionSimilarityRequest(images=images_with_position_from_json_somhunter(collected_images),
                                         source="somhunter")
     response = positional_request(request)
-    return JsonResponse([{"path": path, "dis": float(dis)} for path, dis in response.dissimilarity_scores], status=200,
-                        safe=False)
+    return JsonResponse(
+        [
+            {"path": path, "dis": float(dis)}
+            for path, dis in zip(response.ranked_paths, response.dissimilarity_scores)
+        ], status=200, safe=False
+    )
 
 @csrf_exempt
 def index(request):
